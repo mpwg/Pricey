@@ -16,7 +16,7 @@
     "docker:down": "docker-compose down",
     "setup": "chmod +x setup.sh && ./setup.sh",
     "check-env": "node scripts/check-env.js",
-    "add-license": "node scripts/add-license-headers.js"
+    "add-license": "node scripts/add-license-headers.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.17.1",

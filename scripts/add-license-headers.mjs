@@ -18,9 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const fs = require("fs");
-const path = require("path");
-const { glob } = require("glob");
+import fs from "fs";
+import path from "path";
+import { glob } from "glob";
 
 const LICENSE_HEADER_JS = `/**
  * Pricey - Find the best price
@@ -100,6 +100,7 @@ async function main() {
     "src/**/*.jsx",
     "src/**/*.css",
     "scripts/**/*.js",
+    "scripts/**/*.mjs",
     "*.mjs",
     "*.config.{js,mjs,ts}",
   ];
@@ -114,6 +115,7 @@ async function main() {
         "dist/**",
         "build/**",
         "scripts/add-license-headers.js",
+        "scripts/add-license-headers.mjs",
       ],
     });
 

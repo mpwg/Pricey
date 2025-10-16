@@ -4,9 +4,9 @@
 
 ### 1. Created Automated License Header Tool
 
-**File**: `scripts/add-license-headers.js`
+**File**: `scripts/add-license-headers.mjs`
 
-A Node.js script that automatically adds AGPL3 license headers to all source code files in the project. The script:
+An ES module script that automatically adds AGPL3 license headers to all source code files in the project. The script:
 
 - Scans all TypeScript, JavaScript, and CSS files
 - Detects if a file already has a license header
@@ -20,7 +20,7 @@ A Node.js script that automatically adds AGPL3 license headers to all source cod
 Added a new npm script for easy execution:
 
 ```json
-"add-license": "node scripts/add-license-headers.js"
+"add-license": "node scripts/add-license-headers.mjs"
 ```
 
 Usage:
@@ -159,18 +159,24 @@ To verify all files have proper headers, you can:
 
 ## Dependencies Added
 
-- `glob` (npm package) - For file pattern matching and scanning
+## Dependencies
+
+- `glob@11.0.3` - Modern ES module-based file pattern matching
+- Added to `devDependencies`
+- Uses latest glob API (v11) to avoid deprecation warnings
 
 ## Files Modified
 
-1. `scripts/add-license-headers.js` (new)
+1. `scripts/add-license-headers.mjs` (new - ES module with glob v11)
 2. `docs/LICENSE_HEADERS.md` (new)
-3. `package.json` (added script)
-4. `README.md` (updated Contributing and License sections)
-5. 25+ source code files (added license headers)
+3. `LICENSE_IMPLEMENTATION.md` (new)
+4. `package.json` (added script and glob dependency)
+5. `README.md` (updated Contributing and License sections)
+6. 28+ source code files (added license headers)
 
 ---
 
 **Date**: October 16, 2025
 **Implemented by**: GitHub Copilot
+**Tool Version**: glob@11.0.3 (ES modules)
 **Status**: ✅ Complete

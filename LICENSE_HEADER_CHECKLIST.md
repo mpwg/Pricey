@@ -7,7 +7,7 @@ This checklist confirms that all requirements for the AGPL3 license header rule 
 ### Core Requirements
 
 - [x] **License header defined**: Standard AGPL3 header format specified
-- [x] **Automated tool created**: `scripts/add-license-headers.js`
+- [x] **Automated tool created**: `scripts/add-license-headers.mjs` (ES module)
 - [x] **NPM script added**: `npm run add-license` command available
 - [x] **Headers applied**: All existing source files have the header
 - [x] **Documentation created**: `docs/LICENSE_HEADERS.md` with full guidelines
@@ -15,7 +15,7 @@ This checklist confirms that all requirements for the AGPL3 license header rule 
 
 ### Files Modified
 
-- [x] `scripts/add-license-headers.js` - Automated tool (NEW)
+- [x] `scripts/add-license-headers.mjs` - Automated tool (NEW - ES module)
 - [x] `docs/LICENSE_HEADERS.md` - Documentation (NEW)
 - [x] `LICENSE_IMPLEMENTATION.md` - Implementation summary (NEW)
 - [x] `package.json` - Added `add-license` script
@@ -52,10 +52,10 @@ This checklist confirms that all requirements for the AGPL3 license header rule 
 
 - [x] `src/app/globals.css`
 
-#### JavaScript Files
+#### JavaScript/Module Files
 
 - [x] `scripts/check-env.js`
-- [x] `scripts/add-license-headers.js`
+- [x] `scripts/add-license-headers.mjs`
 
 #### Configuration Files
 
@@ -83,8 +83,9 @@ This checklist confirms that all requirements for the AGPL3 license header rule 
 
 ### Dependencies
 
-- [x] `glob` package installed
+- [x] `glob@11.0.3` package installed (latest version)
 - [x] Added to `devDependencies`
+- [x] Uses modern ES module API (no deprecation warnings)
 
 ## Verification Commands
 
@@ -117,5 +118,5 @@ All source code files in the Pricey project now have the required AGPL3 license 
 
 **Implementation Date**: October 16, 2025  
 **Total Files Updated**: 28+  
-**Tool**: `scripts/add-license-headers.js`  
+**Tool**: `scripts/add-license-headers.mjs` (ES module with glob@11.0.3)  
 **Documentation**: `docs/LICENSE_HEADERS.md`
