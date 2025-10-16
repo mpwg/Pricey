@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Dev Server",
+            "type": "npm",
+            "script": "dev",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "Start Docker Services",
+            "type": "npm",
+            "script": "docker:dev",
+            "problemMatcher": []
+        }
+    ]
+}
