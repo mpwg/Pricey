@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * Pricey - Find the best price
  * Copyright (C) 2025 Matthias Wallner-Géhri
@@ -15,8 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-#!/usr/bin/env node
 
 /**
  * This script checks if all required environment variables are set

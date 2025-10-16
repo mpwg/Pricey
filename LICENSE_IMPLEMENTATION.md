@@ -152,6 +152,7 @@ To verify all files have proper headers, you can:
    ```
 
 3. Search for files without headers:
+
    ```bash
    # Find TypeScript files without the header
    grep -L "GNU Affero General Public License" src/**/*.ts src/**/*.tsx
