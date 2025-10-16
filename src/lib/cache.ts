@@ -25,11 +25,13 @@ export function getCacheKey(req: NextRequest, prefix: string = "api"): string {
 /**
  * Get cached response
  */
-export async function getCachedResponse(key: string): Promise<any | null> {
+export async function getCachedResponse<T = unknown>(
+  key: string
+): Promise<T | null> {
   try {
     const cached = await redis.get(key);
     if (cached) {
-      return JSON.parse(cached);
+      return JSON.parse(cached) as T;
     }
     return null;
   } catch (error) {
@@ -41,9 +43,9 @@ export async function getCachedResponse(key: string): Promise<any | null> {
 /**
  * Set cached response
  */
-export async function setCachedResponse(
+export async function setCachedResponse<T = unknown>(
   key: string,
-  data: any,
+  data: T,
   options: CacheOptions = {}
 ): Promise<void> {
   const { ttl = 300, tags = [] } = options; // Default 5 minutes
@@ -149,7 +151,7 @@ export async function getCachedOrFetch<T>(
 ): Promise<T> {
   const { ttl = 300, revalidate = 60 } = options;
 
-  const cached = await getCachedResponse(key);
+  const cached = await getCachedResponse<T>(key);
   const cacheTime = await redis.get(`${key}:time`);
   const now = Date.now();
 
