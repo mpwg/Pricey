@@ -11,10 +11,26 @@ const globalForRedis = globalThis as unknown as {
   redis: Redis | undefined;
 };
 
-export const redis =
-  globalForRedis.redis ??
-  new Redis(getRedisUrl(), {
-    maxRetriesPerRequest: 3,
-  });
+let redisInstance: Redis | undefined;
 
-if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis;
+export const getRedis = () => {
+  if (!redisInstance) {
+    redisInstance =
+      globalForRedis.redis ??
+      new Redis(getRedisUrl(), {
+        maxRetriesPerRequest: 3,
+      });
+
+    if (process.env.NODE_ENV !== "production") {
+      globalForRedis.redis = redisInstance;
+    }
+  }
+  return redisInstance;
+};
+
+// For backwards compatibility, create a proxy
+export const redis = new Proxy({} as Redis, {
+  get(_target, prop) {
+    return getRedis()[prop as keyof Redis];
+  },
+});

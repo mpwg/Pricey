@@ -85,7 +85,7 @@ export async function rateLimitMiddleware(
   const identifier =
     req.headers.get("x-api-key") ||
     req.headers.get("x-forwarded-for") ||
-    req.ip ||
+    req.headers.get("x-real-ip") ||
     "anonymous";
 
   const result = await rateLimit(identifier, config);
