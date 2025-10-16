@@ -15,7 +15,8 @@
     "docker:dev": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "setup": "chmod +x setup.sh && ./setup.sh",
-    "check-env": "node scripts/check-env.js"
+    "check-env": "node scripts/check-env.js",
+    "add-license": "node scripts/add-license-headers.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.17.1",
@@ -44,6 +45,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.5",
+    "glob": "^11.0.3",
     "postcss": "^8.4.47",
     "prisma": "^6.17.1",
     "tailwindcss": "^4.1.14",

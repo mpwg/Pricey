@@ -299,9 +299,23 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Important: License Headers
+
+**All source code files MUST include the AGPL3 license header.** This is a mandatory requirement for all contributions.
+
+To automatically add license headers to your files, run:
+
+```bash
+npm run add-license
+```
+
+For more details, see [docs/LICENSE_HEADERS.md](docs/LICENSE_HEADERS.md).
+
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE.md](LICENSE.md) file for full details.
+
+All source code files include the AGPL3 license header as required by the license terms.
 
 ## Support
 
