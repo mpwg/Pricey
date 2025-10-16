@@ -128,8 +128,10 @@ Go to **Settings → Secrets and variables → Actions**:
 - `.github/workflows/deploy.yml` - Deployments
 - `.github/workflows/dependency-review.yml` - Dependency scanning
 - `.github/workflows/codeql.yml` - Security analysis
-- `.github/workflows/README.md` - Documentation
+- `.github/workflows/README.md` - CI/CD documentation
+- `.github/dependabot.yml` - Automated dependency updates
+- `docs/DEPENDABOT.md` - Dependabot guide
 
-## Total Project Files: 40
+## Total Project Files: 58
 
 Everything from the architecture is now implemented! 🎉

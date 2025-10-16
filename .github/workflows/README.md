@@ -238,6 +238,25 @@ Add steps to `ci.yml`:
 
 ---
 
+## Dependabot Integration
+
+Dependabot is configured to automatically:
+
+- Update npm dependencies weekly
+- Update Docker images weekly
+- Update GitHub Actions weekly
+
+See `docs/DEPENDABOT.md` for details.
+
+**Dependabot + CI Pipeline:**
+
+1. Dependabot creates PR with dependency update
+2. CI pipeline runs automatically
+3. If tests pass, safe to merge
+4. Security updates are prioritized
+
+---
+
 ## Security Notes
 
 - Secrets are encrypted and not exposed in logs
@@ -246,6 +265,7 @@ Add steps to `ci.yml`:
 - Enable 2FA on GitHub account
 - Review CodeQL findings regularly
 - Keep actions up to date (`@v4`, not `@v3`)
+- Review and merge Dependabot security updates promptly
 
 ---
 
