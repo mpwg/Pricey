@@ -83,12 +83,24 @@ export async function POST(
       );
     }
 
+    // Validate price
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid price value",
+        } as ApiResponse<never>,
+        { status: 400 }
+      );
+    }
+
     const invoiceItem = await prisma.invoiceItem.create({
       data: {
         productId: params.productId,
         date: new Date(date),
         storeDescription,
-        price: parseFloat(price),
+        price: parsedPrice,
         unit,
       },
     });

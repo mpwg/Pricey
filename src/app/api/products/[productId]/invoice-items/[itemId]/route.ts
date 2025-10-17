@@ -86,10 +86,18 @@ export async function PUT(
     const updatedInvoiceItem = await prisma.invoiceItem.update({
       where: { id: params.itemId },
       data: {
-        ...(date && { date: new Date(date) }),
-        ...(storeDescription && { storeDescription }),
-        ...(price && { price: parseFloat(price) }),
-        ...(unit && { unit }),
+        ...(date !== undefined && { date: new Date(date) }),
+        ...(storeDescription !== undefined && { storeDescription }),
+        ...(price !== undefined && {
+          price: (() => {
+            const parsedPrice = parseFloat(price);
+            if (isNaN(parsedPrice)) {
+              throw new Error("Invalid price value");
+            }
+            return parsedPrice;
+          })(),
+        }),
+        ...(unit !== undefined && { unit }),
       },
     });
 
