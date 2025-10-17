@@ -71,7 +71,7 @@ export async function PUT(
     const invoiceItem = await prisma.invoiceItem.findFirst({
       where: {
         id: itemId,
-        productId: productId,
+        productId,
       },
     });
 
@@ -85,20 +85,26 @@ export async function PUT(
       );
     }
 
+    // Validate price if provided
+    if (price !== undefined) {
+      const parsedPrice = parseFloat(price);
+      if (isNaN(parsedPrice)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid price value",
+          } as ApiResponse<never>,
+          { status: 400 }
+        );
+      }
+    }
+
     const updatedInvoiceItem = await prisma.invoiceItem.update({
       where: { id: itemId },
       data: {
         ...(date !== undefined && { date: new Date(date) }),
         ...(storeDescription !== undefined && { storeDescription }),
-        ...(price !== undefined && {
-          price: (() => {
-            const parsedPrice = parseFloat(price);
-            if (isNaN(parsedPrice)) {
-              throw new Error("Invalid price value");
-            }
-            return parsedPrice;
-          })(),
-        }),
+        ...(price !== undefined && { price: parseFloat(price) }),
         ...(unit !== undefined && { unit }),
       },
     });
@@ -129,7 +135,7 @@ export async function DELETE(
     const invoiceItem = await prisma.invoiceItem.findFirst({
       where: {
         id: itemId,
-        productId: productId,
+        productId,
       },
     });
 

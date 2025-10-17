@@ -28,7 +28,7 @@ export async function GET(
     const { productId } = await params;
     const invoiceItems = await prisma.invoiceItem.findMany({
       where: {
-        productId: productId,
+        productId,
       },
       orderBy: {
         date: "desc",
@@ -99,7 +99,7 @@ export async function POST(
 
     const invoiceItem = await prisma.invoiceItem.create({
       data: {
-        productId: productId,
+        productId,
         date: new Date(date),
         storeDescription,
         price: parsedPrice,
