@@ -27,12 +27,12 @@ import { cn } from "@/lib/utils";
 interface OptimizedImageProps {
   src: string;
   alt: string;
-  width?: number;
-  height?: number;
-  className?: string;
+  width?: number | undefined;
+  height?: number | undefined;
+  className?: string | undefined;
   priority?: boolean;
   fill?: boolean;
-  sizes?: string;
+  sizes?: string | undefined;
   quality?: number;
 }
 
@@ -51,8 +51,8 @@ export function OptimizedImage({
     <NextImage
       src={src}
       alt={alt}
-      width={width}
-      height={height}
+      {...(width !== undefined && { width })}
+      {...(height !== undefined && { height })}
       fill={fill}
       sizes={sizes || "100vw"}
       quality={quality}
@@ -60,7 +60,7 @@ export function OptimizedImage({
       loading={priority ? "eager" : "lazy"}
       placeholder="blur"
       blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-      className={cn("object-cover", className)}
+      className={cn("object-cover", className ?? undefined)}
     />
   );
 }
@@ -83,7 +83,7 @@ export function ProductImage({ src, alt, className }: ProductImageProps) {
       alt={alt}
       fill
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      className={className}
+      className={className ?? undefined}
     />
   );
 }

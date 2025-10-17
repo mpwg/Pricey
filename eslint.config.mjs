@@ -17,14 +17,9 @@
  */
 
 import { FlatCompat } from "@eslint/eslintrc";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: import.meta.dirname,
 });
 
 const eslintConfig = [
@@ -37,14 +32,30 @@ const eslintConfig = [
       "dist/**",
       ".cache/**",
       "public/**",
+      "scripts/**", // Ignore utility scripts
       "*.config.js",
       "*.config.mjs",
       "next-env.d.ts",
     ],
   },
-  ...compat.config({
-    extends: ["next/core-web-vitals", "next/typescript"],
-  }),
+  ...compat.extends("next/core-web-vitals"),
+  ...compat.extends("next/typescript"),
+  {
+    rules: {
+      // Convert warnings to errors for strict compilation
+      "react/no-unescaped-entities": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "prefer-const": "error",
+      "no-var": "error",
+      "no-console": ["error", { allow: ["error"] }], // Allow console.error for logging
+      "no-debugger": "error",
+      "no-alert": "error",
+      "no-unused-vars": "off", // Use TypeScript version instead
+      "react-hooks/exhaustive-deps": "error",
+      "react-hooks/rules-of-hooks": "error",
+    },
+  },
 ];
 
 export default eslintConfig;

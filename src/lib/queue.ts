@@ -55,7 +55,7 @@ export function createScrapeWorker() {
   return new Worker(
     "scrape",
     async (job: Job<ScrapeJobData>) => {
-      console.log(`Processing scrape job ${job.id} for ${job.data.retailer}`);
+      console.error(`Processing scrape job ${job.id} for ${job.data.retailer}`);
       // TODO: Implement actual scraping logic
       // This is just a placeholder
       return { success: true, productId: job.data.productId };

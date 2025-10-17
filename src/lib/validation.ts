@@ -65,7 +65,10 @@ export function validateEmail(email: string): {
   if (result.success) {
     return { valid: true, email: result.data };
   }
-  return { valid: false, error: result.error.issues[0]?.message };
+  return {
+    valid: false,
+    error: result.error.issues[0]?.message ?? "Invalid input",
+  };
 }
 
 /**

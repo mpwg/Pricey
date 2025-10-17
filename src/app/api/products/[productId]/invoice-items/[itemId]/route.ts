@@ -21,7 +21,7 @@ import { prisma } from "@/lib/prisma";
 import { ApiResponse, InvoiceItem } from "@/types";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ productId: string; itemId: string }> }
 ) {
   try {
@@ -121,7 +121,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ productId: string; itemId: string }> }
 ) {
   try {

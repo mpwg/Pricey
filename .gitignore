@@ -44,3 +44,4 @@ prisma/migrations/
 
 # Docker
 docker-compose.override.yml
+*.bak

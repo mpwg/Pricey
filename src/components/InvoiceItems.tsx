@@ -36,12 +36,19 @@ interface InvoiceItemFormData {
   unit: string;
 }
 
+interface ErrorState {
+  message: string;
+  type: "error" | "success";
+}
+
 export function InvoiceItems({ productId, productName }: InvoiceItemsProps) {
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState<ErrorState | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<InvoiceItemFormData>({
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toISOString().split("T")[0] ?? "",
     storeDescription: "",
     price: "",
     unit: "",
@@ -82,23 +89,33 @@ export function InvoiceItems({ productId, productName }: InvoiceItemsProps) {
       if (result.success) {
         setInvoiceItems([result.data, ...invoiceItems]);
         setFormData({
-          date: new Date().toISOString().split("T")[0],
+          date: new Date().toISOString().split("T")[0] ?? "",
           storeDescription: "",
           price: "",
           unit: "",
         });
         setShowForm(false);
+        setError({
+          message: "Rechnungsposten erfolgreich erstellt",
+          type: "success",
+        });
       } else {
-        alert(result.error || "Fehler beim Erstellen des Rechnungspostens");
+        setError({
+          message: result.error || "Fehler beim Erstellen des Rechnungspostens",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error creating invoice item:", error);
-      alert("Fehler beim Erstellen des Rechnungspostens");
+      setError({
+        message: "Fehler beim Erstellen des Rechnungspostens",
+        type: "error",
+      });
     }
   };
 
   const handleDelete = async (itemId: string) => {
-    if (!confirm("Rechnungsposten wirklich löschen?")) return;
+    setError(null);
 
     try {
       const response = await fetch(
@@ -111,12 +128,21 @@ export function InvoiceItems({ productId, productName }: InvoiceItemsProps) {
       const result = await response.json();
       if (result.success) {
         setInvoiceItems(invoiceItems.filter((item) => item.id !== itemId));
+        setError({ message: "Rechnungsposten gelöscht", type: "success" });
       } else {
-        alert(result.error || "Fehler beim Löschen des Rechnungspostens");
+        setError({
+          message: result.error || "Fehler beim Löschen des Rechnungspostens",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error deleting invoice item:", error);
-      alert("Fehler beim Löschen des Rechnungspostens");
+      setError({
+        message: "Fehler beim Löschen des Rechnungspostens",
+        type: "error",
+      });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -137,6 +163,27 @@ export function InvoiceItems({ productId, productName }: InvoiceItemsProps) {
 
   return (
     <div className="space-y-6">
+      {/* Error/Success Message */}
+      {error && (
+        <div
+          className={`p-4 rounded-md ${
+            error.type === "error"
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-green-50 text-green-700 border border-green-200"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <span>{error.message}</span>
+            <button
+              onClick={() => setError(null)}
+              className="text-sm underline"
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">
           Rechnungsposten für {productName}
@@ -249,12 +296,31 @@ export function InvoiceItems({ productId, productName }: InvoiceItemsProps) {
                   </div>
                   <p className="text-gray-700">{item.storeDescription}</p>
                 </div>
-                <Button
-                  onClick={() => handleDelete(item.id)}
-                  className="bg-red-600 hover:bg-red-700 text-sm px-3 py-1"
-                >
-                  Löschen
-                </Button>
+                <div className="flex gap-2">
+                  {deletingId === item.id ? (
+                    <>
+                      <Button
+                        onClick={() => handleDelete(item.id)}
+                        className="bg-red-600 hover:bg-red-700 text-sm px-3 py-1"
+                      >
+                        Bestätigen
+                      </Button>
+                      <Button
+                        onClick={() => setDeletingId(null)}
+                        className="bg-gray-600 hover:bg-gray-700 text-sm px-3 py-1"
+                      >
+                        Abbrechen
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => setDeletingId(item.id)}
+                      className="bg-red-600 hover:bg-red-700 text-sm px-3 py-1"
+                    >
+                      Löschen
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card>
           ))}

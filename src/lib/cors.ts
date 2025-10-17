@@ -45,7 +45,7 @@ export function corsHeaders(origin?: string | null): HeadersInit {
   return {
     "Access-Control-Allow-Origin": isAllowedOrigin
       ? origin
-      : ALLOWED_ORIGINS[0],
+      : ALLOWED_ORIGINS[0] ?? "*",
     "Access-Control-Allow-Methods": ALLOWED_METHODS.join(", "),
     "Access-Control-Allow-Headers": ALLOWED_HEADERS.join(", "),
     "Access-Control-Max-Age": "86400", // 24 hours
