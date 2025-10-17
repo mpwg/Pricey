@@ -98,7 +98,7 @@ interface ApiResponse<T> {
 
 **Example**: `src/app/api/products/[productId]/invoice-items/route.ts`
 
-- Async params: `{ params }: { params: Promise<{ productId: string }> }` (await params!)
+- Params: `{ params }: { params: { productId: string } }` (access `params.productId` directly)
 - Validation: Check required fields, return 400 for bad input
 - Error handling: Always wrap in try/catch, return 500 with error message
 - Product existence: Verify FK relations exist before creating child records
