@@ -19,7 +19,7 @@ This is a **Next.js full-stack monolith** with background job processing:
 - Queue: BullMQ (for async scraping jobs)
 - Scraping: Playwright + Cheerio
 
-Refer to `ARCHITECTURE_RECOMMENDATIONS.md` for the architectural rationale - this project chose Option 1 (monolith) over microservices.
+**Architectural rationale:** This project uses a full-stack monolith (Next.js App Router for both frontend and backend) rather than microservices, to simplify deployment, reduce operational overhead, and enable rapid iteration. Background jobs are handled via BullMQ and Redis, while all business logic and APIs remain within the monolith for maintainability.
 
 ### Critical Developer Setup
 
