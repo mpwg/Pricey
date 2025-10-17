@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "dbaeumer.vscode-eslint",
-        "mattpocock.ts-error-translator"
+        "mattpocock.ts-error-translator",
+        "prisma.prisma",
+        "willluke.nextjs"
     ]
 }
