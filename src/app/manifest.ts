@@ -16,19 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  output: "standalone",
-  images: {
-    formats: ["image/avif", "image/webp"],
-    remotePatterns: [
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Pricey",
+    short_name: "Pricey",
+    description: "Smart price comparison assistant",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#000000",
+    orientation: "portrait-primary",
+    icons: [
       {
-        protocol: "https",
-        hostname: "**",
+        src: "/icon-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/icon-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
       },
     ],
-  },
-};
-
-export default nextConfig;
+  };
+}
