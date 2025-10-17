@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: "lts/jod"
+  NODE_VERSION: "lts/*"
 
 jobs:
   # Lint and Type Check
