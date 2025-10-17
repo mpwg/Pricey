@@ -22,13 +22,14 @@ import { ApiResponse, InvoiceItem } from "@/types";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { productId: string; itemId: string } }
+  { params }: { params: Promise<{ productId: string; itemId: string }> }
 ) {
   try {
+    const { productId, itemId } = await params;
     const invoiceItem = await prisma.invoiceItem.findFirst({
       where: {
-        id: params.itemId,
-        productId: params.productId,
+        id: itemId,
+        productId: productId,
       },
     });
 
@@ -60,16 +61,17 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { productId: string; itemId: string } }
+  { params }: { params: Promise<{ productId: string; itemId: string }> }
 ) {
   try {
+    const { productId, itemId } = await params;
     const body = await request.json();
     const { date, storeDescription, price, unit } = body;
 
     const invoiceItem = await prisma.invoiceItem.findFirst({
       where: {
-        id: params.itemId,
-        productId: params.productId,
+        id: itemId,
+        productId: productId,
       },
     });
 
@@ -84,7 +86,7 @@ export async function PUT(
     }
 
     const updatedInvoiceItem = await prisma.invoiceItem.update({
-      where: { id: params.itemId },
+      where: { id: itemId },
       data: {
         ...(date !== undefined && { date: new Date(date) }),
         ...(storeDescription !== undefined && { storeDescription }),
@@ -120,13 +122,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { productId: string; itemId: string } }
+  { params }: { params: Promise<{ productId: string; itemId: string }> }
 ) {
   try {
+    const { productId, itemId } = await params;
     const invoiceItem = await prisma.invoiceItem.findFirst({
       where: {
-        id: params.itemId,
-        productId: params.productId,
+        id: itemId,
+        productId: productId,
       },
     });
 
@@ -141,7 +144,7 @@ export async function DELETE(
     }
 
     await prisma.invoiceItem.delete({
-      where: { id: params.itemId },
+      where: { id: itemId },
     });
 
     return NextResponse.json({

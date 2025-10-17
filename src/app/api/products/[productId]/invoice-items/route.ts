@@ -22,12 +22,13 @@ import { ApiResponse, InvoiceItem } from "@/types";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
+    const { productId } = await params;
     const invoiceItems = await prisma.invoiceItem.findMany({
       where: {
-        productId: params.productId,
+        productId: productId,
       },
       orderBy: {
         date: "desc",
@@ -52,9 +53,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
+    const { productId } = await params;
     const body = await request.json();
     const { date, storeDescription, price, unit } = body;
 
@@ -70,7 +72,7 @@ export async function POST(
 
     // Verify product exists
     const product = await prisma.product.findUnique({
-      where: { id: params.productId },
+      where: { id: productId },
     });
 
     if (!product) {
@@ -97,7 +99,7 @@ export async function POST(
 
     const invoiceItem = await prisma.invoiceItem.create({
       data: {
-        productId: params.productId,
+        productId: productId,
         date: new Date(date),
         storeDescription,
         price: parsedPrice,
