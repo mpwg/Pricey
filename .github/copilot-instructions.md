@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Pricey** is a Progressive Web App (PWA) for price comparison built with Next.js 14 App Router, TypeScript, PostgreSQL (Prisma), Redis, and BullMQ. It tracks product prices across retailers, provides price alerts, and uses background workers for web scraping.
+**Pricey** is a Progressive Web App (PWA) for price comparison built with Next.js 15 App Router, TypeScript, PostgreSQL (Prisma), Redis, and BullMQ. It tracks product prices across retailers, provides price alerts, and uses background workers for web scraping.
 
 **License**: AGPL-3.0 - ALL new source files MUST include the license header (use `npm run add-license` to automate).
 
@@ -12,7 +12,7 @@
 
 This is a **Next.js full-stack monolith** with background job processing:
 
-- Frontend: Next.js 14 App Router + React 19 + Tailwind CSS
+- Frontend: Next.js 15 App Router + React 19 + Tailwind CSS
 - Backend: Next.js API Routes (not a microservices architecture)
 - Database: PostgreSQL 16 with Prisma ORM
 - Cache: Redis 7 (for rate limiting and caching)
