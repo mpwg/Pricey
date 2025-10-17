@@ -241,8 +241,7 @@ Refer to `docs/PUSH_NOTIFICATIONS.md` for push notification implementation (futu
 
 ### Documentation Files
 
-- `QUICKSTART.md`: One-page reference for common commands
-- `GETTING_STARTED.md`: Detailed setup walkthrough
+- `QUICKSTART.md`: One-page reference for common commands and setup walkthrough
 - `docs/AUTHENTICATION.md`: NextAuth.js integration guide (not implemented yet)
 - `docs/INVOICE_ITEMS.md`: Invoice item feature documentation
 - `docs/SECURITY_AND_PERFORMANCE.md`: Best practices
