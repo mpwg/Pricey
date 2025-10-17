@@ -17,17 +17,11 @@
  */
 
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Pricey - Smart Price Comparison",
-  description: "Find the best prices across multiple shopping sites",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Pricey",
-  },
+  title: "Page Not Found - Pricey",
+  description: "The page you're looking for doesn't exist.",
 };
 
 export const viewport: Viewport = {
@@ -37,14 +31,29 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function NotFound() {
   return (
-    <html lang="en">
-      <body className="antialiased">{children}</body>
-    </html>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full text-center">
+        <div className="mb-8">
+          <h1 className="text-6xl font-bold text-gray-900 mb-2">404</h1>
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            Page Not Found
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Sorry, we couldn&apos;t find the page you&apos;re looking for.
+          </p>
+        </div>
+        
+        <div className="space-y-4">
+          <Link
+            href="/"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Go Home
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

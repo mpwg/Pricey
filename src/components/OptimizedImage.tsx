@@ -51,8 +51,8 @@ export function OptimizedImage({
     <NextImage
       src={src}
       alt={alt}
-      width={width}
-      height={height}
+      {...(width !== undefined && { width })}
+      {...(height !== undefined && { height })}
       fill={fill}
       sizes={sizes || "100vw"}
       quality={quality}
@@ -83,7 +83,7 @@ export function ProductImage({ src, alt, className }: ProductImageProps) {
       alt={alt}
       fill
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      className={className}
+      {...(className && { className })}
     />
   );
 }

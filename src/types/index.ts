@@ -26,6 +26,7 @@ export interface Product {
   brand?: string;
   createdAt: Date;
   updatedAt: Date;
+  invoiceItems?: InvoiceItem[];
 }
 
 // Price type
@@ -48,6 +49,18 @@ export interface PriceAlert {
   targetPrice: number;
   active: boolean;
   notified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Invoice Item type (Rechnungsposten)
+export interface InvoiceItem {
+  id: string;
+  productId: string;
+  date: Date;
+  storeDescription: string; // Bezeichnung lt. Geschäft
+  price: number;
+  unit: string; // Einheit
   createdAt: Date;
   updatedAt: Date;
 }

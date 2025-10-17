@@ -38,6 +38,7 @@ model Product {
   prices        Price[]
   priceAlerts   PriceAlert[]
   savedProducts SavedProduct[]
+  invoiceItems  InvoiceItem[]
 
   @@index([category])
   @@index([brand])
@@ -93,4 +94,21 @@ model SavedProduct {
   @@unique([userId, productId])
   @@index([userId])
   @@map("saved_products")
+}
+
+model InvoiceItem {
+  id               String   @id @default(cuid())
+  productId        String
+  date             DateTime
+  storeDescription String   // Bezeichnung lt. Geschäft
+  price            Float
+  unit             String   // Einheit (z.B. "kg", "Stück", "l", etc.)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([date])
+  @@map("invoice_items")
 }

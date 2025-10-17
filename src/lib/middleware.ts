@@ -63,7 +63,7 @@ function verifyApiKey(req: NextRequest): boolean {
   const validKeys = process.env.API_KEYS?.split(",") || [];
 
   if (validKeys.length === 0) {
-    console.warn("No API keys configured in environment variables");
+    console.error("No API keys configured in environment variables");
     return false;
   }
 

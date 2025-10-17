@@ -20,6 +20,18 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: process.cwd(),
+
+  // Treat TypeScript and ESLint warnings as errors during build
+  typescript: {
+    // Fail build on TypeScript errors
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    // Fail build on ESLint errors
+    ignoreDuringBuilds: false,
+  },
+
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
