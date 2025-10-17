@@ -1,6 +1,6 @@
 # Pricey 🏷️
 
-A Progressive Web App (PWA) for smart price comparison across multiple shopping sites. Built with Next.js 14, TypeScript, and modern web technologies.
+A Progressive Web App (PWA) for smart price comparison across multiple shopping sites. Built with Next.js 15, TypeScript, and modern web technologies.
 
 ## Features
 
@@ -15,7 +15,7 @@ A Progressive Web App (PWA) for smart price comparison across multiple shopping 
 
 ### Frontend
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **PWA**: next-pwa plugin
