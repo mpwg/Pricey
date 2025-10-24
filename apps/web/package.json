@@ -1,0 +1,14 @@
+{
+  "name": "@pricy/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pricy web frontend (Next.js PWA)",
+  "scripts": {
+    "dev": "echo 'Web app will be implemented in Phase 1'",
+    "build": "echo 'Web app will be implemented in Phase 1'",
+    "start": "echo 'Web app will be implemented in Phase 1'",
+    "lint": "echo 'Web app will be implemented in Phase 1'",
+    "typecheck": "echo 'Web app will be implemented in Phase 1'",
+    "clean": "echo 'Cleaning web app...'"
+  }
+}
