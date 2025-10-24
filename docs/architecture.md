@@ -69,10 +69,10 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 
 ### 3.1 Frontend
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js (latest stable, App Router support; recommend >=13)
 - **Language**: TypeScript
 - **UI Library**: React 18
-- **Styling**: TailwindCSS + shadcn/ui
+- **Styling**: TailwindCSS (v3+)+ shadcn/ui
 - **State Management**: Zustand or Redux Toolkit
 - **PWA**: next-pwa + Workbox
 - **Camera Integration**: react-webcam or native File API
@@ -80,12 +80,12 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 
 ### 3.2 Backend
 
-- **Framework**: Node.js with Express or Fastify
+- **Framework**: Node.js (20 LTS recommended) with Express or Fastify
 - **Language**: TypeScript
 - **API**: REST with OpenAPI/Swagger or GraphQL
 - **Authentication**: JWT with refresh tokens
 - **Validation**: Zod or Joi
-- **ORM**: Prisma or TypeORM
+- **ORM**: Prisma (v5+) or TypeORM
 
 ### 3.3 OCR & NLP Pipeline
 
@@ -98,8 +98,8 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 
 ### 3.4 Data Storage
 
-- **Primary Database**: PostgreSQL 15+
-- **Cache**: Redis 7+
+- **Primary Database**: PostgreSQL (v16+ recommended)
+- **Cache**: Redis (v7+)
 - **Object Storage**: MinIO (local) / S3 (cloud)
 - **Search**: PostgreSQL full-text search or Elasticsearch
 
