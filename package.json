@@ -1,0 +1,50 @@
+{
+  "name": "@pricy/root",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Smart receipt scanning and price comparison to help you save money on every purchase",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mpwg/Pricey.git"
+  },
+  "license": "AGPL-3.0",
+  "author": "Pricy Team",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,mdx,css,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,mdx,css,yaml,yml}\"",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "db:migrate": "pnpm --filter @pricy/database db:migrate",
+    "db:seed": "pnpm --filter @pricy/database db:seed",
+    "db:studio": "pnpm --filter @pricy/database db:studio",
+    "db:reset": "pnpm --filter @pricy/database db:reset",
+    "docker:dev": "docker-compose up -d",
+    "docker:dev:down": "docker-compose down",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.5.8",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}

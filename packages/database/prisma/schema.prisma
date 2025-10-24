@@ -1,0 +1,136 @@
+// Prisma schema for Pricy
+// Copyright (C) 2025 Matthias Wallner-Géhri
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// User model for authentication (Phase 1)
+model User {
+    id        String    @id @default(uuid())
+    email     String    @unique
+    name      String?
+    avatarUrl String?
+    receipts  Receipt[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    @@index([email])
+}
+
+// Receipt model - main entity for storing scanned receipts
+model Receipt {
+    id             String        @id @default(uuid())
+    userId         String?
+    user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+    imageUrl       String
+    storeName      String?
+    storeId        String?
+    store          Store?        @relation(fields: [storeId], references: [id])
+    purchaseDate   DateTime?
+    totalAmount    Decimal?      @db.Decimal(10, 2)
+    status         ReceiptStatus @default(PROCESSING)
+    ocrProvider    String        @default("tesseract")
+    ocrConfidence  Float?
+    rawOcrText     String?       @db.Text
+    processingTime Int? // in milliseconds
+    items          ReceiptItem[]
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+
+    @@index([userId])
+    @@index([status])
+    @@index([purchaseDate])
+    @@index([storeId])
+    @@index([createdAt])
+}
+
+enum ReceiptStatus {
+    PENDING
+    PROCESSING
+    COMPLETED
+    FAILED
+}
+
+// Receipt item - individual line items from receipt
+model ReceiptItem {
+    id         String   @id @default(uuid())
+    receiptId  String
+    receipt    Receipt  @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+    name       String
+    price      Decimal  @db.Decimal(10, 2)
+    quantity   Int      @default(1)
+    category   String?
+    lineNumber Int?
+    confidence Float? // OCR confidence for this item
+    productId  String?
+    product    Product? @relation(fields: [productId], references: [id])
+    createdAt  DateTime @default(now())
+
+    @@index([receiptId])
+    @@index([productId])
+}
+
+// Store model - known retail stores
+model Store {
+    id            String    @id @default(uuid())
+    name          String    @unique
+    aliases       String[] // Alternative names (e.g., "Walmart", "WAL-MART", "Walmart Supercenter")
+    logoUrl       String?
+    receiptFormat String? // Template/format identifier for OCR optimization
+    receipts      Receipt[]
+    createdAt     DateTime  @default(now())
+
+    @@index([name])
+}
+
+// Product model - normalized products (Phase 2+)
+model Product {
+    id           String         @id @default(uuid())
+    name         String
+    category     String?
+    barcode      String?        @unique
+    imageUrl     String?
+    description  String?
+    receiptItems ReceiptItem[]
+    prices       ProductPrice[]
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+
+    @@index([name])
+    @@index([category])
+    @@index([barcode])
+}
+
+// Product price history (Phase 2+)
+model ProductPrice {
+    id         String   @id @default(uuid())
+    productId  String
+    product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    storeId    String?
+    price      Decimal  @db.Decimal(10, 2)
+    currency   String   @default("USD")
+    recordedAt DateTime @default(now())
+
+    @@index([productId])
+    @@index([storeId])
+    @@index([recordedAt])
+}
