@@ -213,17 +213,71 @@ interface ShoppingRecommendation {
 
 ### 6.1 Authentication & Authorization
 
-- JWT-based authentication with refresh tokens
+#### Authentication Strategy
+
+Pricy implements a multi-provider authentication system supporting:
+
+**Social Login Providers:**
+
+- **Google OAuth 2.0** - Primary provider
+- **Microsoft Account (Live ID)** - Enterprise users
+- **Apple Sign In** - iOS users (required for App Store)
+- **Email/Password** - Traditional fallback
+
+**Authentication Flow:**
+
+```typescript
+// User authentication options
+interface AuthProvider {
+  google: "OAuth 2.0";
+  microsoft: "OAuth 2.0 / Azure AD";
+  apple: "Sign in with Apple";
+  email: "Email/Password with verification";
+}
+
+// JWT token structure
+interface JWTPayload {
+  sub: string; // User ID
+  email: string;
+  name: string;
+  picture?: string; // Profile picture URL
+  provider: "google" | "microsoft" | "apple" | "email";
+  role: "user" | "admin";
+  iat: number;
+  exp: number;
+}
+```
+
+**Implementation:**
+
+- **NextAuth.js** (v5 / Auth.js) for unified authentication
+- JWT with refresh tokens (access: 15min, refresh: 7 days)
+- Secure HTTP-only cookies for web
+- OAuth 2.0 PKCE flow for mobile apps
 - Role-based access control (RBAC)
-- API rate limiting
+- API rate limiting per user
 - CORS configuration
 
 ### 6.2 Data Privacy
 
-- PII encryption at rest
+**User Data Protection:**
+
+- PII encryption at rest (AES-256)
 - GDPR compliance for EU users
 - Receipt images encrypted in storage
-- User data isolation
+- User data isolation (row-level security)
+- OAuth tokens encrypted in database
+- No storage of social login passwords
+- Right to be forgotten (GDPR Article 17)
+- Data export functionality
+- Secure token rotation
+
+**Privacy by Design:**
+
+- Minimal data collection from social providers (email, name, profile picture)
+- No sharing of user data with third parties
+- Anonymous analytics (no PII in logs)
+- Secure session management
 
 ### 6.3 Security Headers
 
