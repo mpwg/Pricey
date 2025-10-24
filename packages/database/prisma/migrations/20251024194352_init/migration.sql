@@ -81,7 +81,7 @@ CREATE TABLE "ProductPrice" (
     "productId" TEXT NOT NULL,
     "storeId" TEXT,
     "price" DECIMAL(10,2) NOT NULL,
-    "currency" TEXT NOT NULL DEFAULT 'USD',
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
     "recordedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ProductPrice_pkey" PRIMARY KEY ("id")
