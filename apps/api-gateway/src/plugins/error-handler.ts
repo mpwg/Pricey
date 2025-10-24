@@ -34,7 +34,7 @@ export function errorHandler(
       error: {
         message: 'Validation error',
         code: 'VALIDATION_ERROR',
-        details: error.errors,
+        details: error.issues,
       },
     });
   }

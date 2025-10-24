@@ -11,10 +11,10 @@
   "license": "AGPL-3.0",
   "author": "Pricy Team",
   "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=24.10.0",
+    "pnpm": ">=10.19.0"
   },
-  "packageManager": "pnpm@10.0.0",
+  "packageManager": "pnpm@10.19.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
