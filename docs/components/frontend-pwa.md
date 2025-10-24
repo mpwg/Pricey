@@ -2113,20 +2113,234 @@ test.describe("Accessibility Compliance", () => {
 
 ---
 
+## React Server Components (RSC) Best Practices
+
+### What are React Server Components?
+
+React Server Components (introduced in React 18, matured in Next.js 13+) allow components to render on the server, reducing client-side JavaScript and improving performance.
+
+**Key Benefits:**
+
+- **Zero bundle size** - Server components don't ship JavaScript to client
+- **Direct database access** - Fetch data without API layer
+- **Automatic code splitting** - Only client components bundled
+- **Better security** - API keys stay on server
+- **Improved performance** - Faster initial page loads
+
+### RSC Strategy for Pricy
+
+```typescript
+// filepath: apps/web/src/app/receipts/page.tsx
+// ✅ Server Component (default) - No 'use client' directive
+import { prisma } from "@pricy/database";
+import { auth } from "@/auth";
+import { ReceiptList } from "@/components/ReceiptList";
+
+export default async function ReceiptsPage() {
+  // Fetch data directly in Server Component
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const receipts = await prisma.receipt.findMany({
+    where: { userId: session.user.id },
+    include: { store: true, items: true },
+    orderBy: { date: "desc" },
+  });
+
+  return (
+    <div>
+      <h1>My Receipts</h1>
+      {/* ReceiptList can be a Client Component for interactivity */}
+      <ReceiptList initialReceipts={receipts} />
+    </div>
+  );
+}
+```
+
+```typescript
+// filepath: apps/web/src/components/ReceiptList.tsx
+// ✅ Client Component - Needs interactivity
+"use client";
+
+import { useState } from "react";
+import { Receipt } from "@pricy/types";
+import { ReceiptCard } from "./ReceiptCard";
+
+export function ReceiptList({
+  initialReceipts,
+}: {
+  initialReceipts: Receipt[];
+}) {
+  const [filter, setFilter] = useState("all");
+  const [receipts, setReceipts] = useState(initialReceipts);
+
+  const filteredReceipts = receipts.filter(
+    (r) => filter === "all" || r.store?.name === filter
+  );
+
+  return (
+    <div>
+      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+        <option value="all">All Stores</option>
+        {/* ... */}
+      </select>
+      {filteredReceipts.map((receipt) => (
+        <ReceiptCard key={receipt.id} receipt={receipt} />
+      ))}
+    </div>
+  );
+}
+```
+
+### When to Use 'use client'
+
+**Use Client Components when you need:**
+
+- ✅ useState, useEffect, useContext
+- ✅ Event listeners (onClick, onChange, etc.)
+- ✅ Browser-only APIs (localStorage, geolocation)
+- ✅ Third-party libraries requiring browser APIs
+- ✅ Real-time updates (WebSockets)
+
+**Use Server Components (default) when:**
+
+- ✅ Fetching data from databases/APIs
+- ✅ Accessing backend resources directly
+- ✅ Using sensitive API keys
+- ✅ Rendering static content
+- ✅ SEO is important
+
+### Composition Patterns
+
+```typescript
+// ❌ BAD: Marking entire page as client component
+'use client';
+
+export default function ReceiptsPage() {
+  const [filter, setFilter] = useState('all');
+  const receipts = await fetch('/api/receipts'); // Can't use await in client
+  // ...
+}
+
+// ✅ GOOD: Server Component wraps Client Components
+export default async function ReceiptsPage() {
+  const receipts = await prisma.receipt.findMany({...}); // Server
+
+  return (
+    <div>
+      <ReceiptStats receipts={receipts} /> {/* Server */}
+      <ReceiptFilters /> {/* Client - interactive */}
+      <ReceiptList initialReceipts={receipts} /> {/* Client - interactive */}
+    </div>
+  );
+}
+```
+
+### Streaming with Suspense
+
+```typescript
+// filepath: apps/web/src/app/dashboard/page.tsx
+import { Suspense } from "react";
+import { RecentReceipts } from "@/components/RecentReceipts";
+import { PriceComparisons } from "@/components/PriceComparisons";
+import { ReceiptsSkeleton, ComparisonsSkeleton } from "@/components/skeletons";
+
+export default function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+
+      {/* Fast component loads immediately */}
+      <Suspense fallback={<ReceiptsSkeleton />}>
+        <RecentReceipts />
+      </Suspense>
+
+      {/* Slow component streams in when ready */}
+      <Suspense fallback={<ComparisonsSkeleton />}>
+        <PriceComparisons />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### Data Fetching Patterns
+
+```typescript
+// ✅ Fetch in Server Component
+async function getReceipts(userId: string) {
+  return await prisma.receipt.findMany({
+    where: { userId },
+    include: { items: true },
+  });
+}
+
+// ✅ Pass data to Client Component
+export default async function Page() {
+  const receipts = await getReceipts(userId);
+  return <ClientComponent data={receipts} />;
+}
+
+// ❌ Don't fetch in Client Component
+("use client");
+export function ClientComponent() {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    fetch("/api/receipts")
+      .then((r) => r.json())
+      .then(setData);
+  }, []);
+  // Slower, more JavaScript, worse UX
+}
+```
+
+### Performance Optimization
+
+**Minimize Client-Side JavaScript:**
+
+```typescript
+// ✅ 95% Server Components, 5% Client Components
+apps/web/src/
+├── app/
+│   ├── page.tsx                    // Server Component
+│   ├── receipts/
+│   │   ├── page.tsx               // Server Component
+│   │   └── [id]/page.tsx          // Server Component
+│   └── api/                       // API Routes
+├── components/
+│   ├── ui/
+│   │   ├── Button.tsx             // Client (interactive)
+│   │   ├── Input.tsx              // Client (interactive)
+│   │   └── Card.tsx               // Server (static wrapper)
+│   ├── ReceiptList.tsx            // Client (filtering)
+│   ├── ReceiptCard.tsx            // Server (display only)
+│   └── UploadButton.tsx           // Client (file upload)
+```
+
+**Bundle Size Impact:**
+
+- Server Components: **0 KB** JavaScript to client
+- Client Components: Shipped to browser
+- Smart composition: **70-90% bundle size reduction**
+
 ## Best Practices
 
 1. **Always test offline functionality** in DevTools Network tab
 2. **Optimize images** before upload to save bandwidth
-3. **Use React Query** for all API calls
-4. **Implement error boundaries** for graceful error handling
-5. **Add loading states** for better UX
-6. **Use TypeScript strictly** - no `any` types
-7. **Follow WCAG 2.1 AA accessibility standards** (see Accessibility section above)
-8. **Test on real devices** for PWA functionality
-9. **Test with screen readers** (NVDA, JAWS, VoiceOver)
-10. **Ensure keyboard navigation** works throughout the app
-11. **Validate color contrast** with automated tools
-12. **Provide text alternatives** for all non-text content
+3. **Use React Query** for client-side API calls (Client Components only)
+4. **Default to Server Components** - only use 'use client' when needed
+5. **Implement error boundaries** for graceful error handling
+6. **Add loading states** with Suspense and streaming
+7. **Use TypeScript strictly** - no `any` types
+8. **Follow WCAG 2.1 AA accessibility standards** (see Accessibility section above)
+9. **Test on real devices** for PWA functionality
+10. **Test with screen readers** (NVDA, JAWS, VoiceOver)
+11. **Ensure keyboard navigation** works throughout the app
+12. **Validate color contrast** with automated tools
+13. **Provide text alternatives** for all non-text content
+14. **Minimize client JavaScript** by maximizing Server Components
+15. **Stream data with Suspense** for perceived performance
+16. **Co-locate data fetching** with Server Components that need it
 
 ## Common Issues & Solutions
 

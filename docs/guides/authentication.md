@@ -65,7 +65,7 @@ sequenceDiagram
 ### Token Flow
 
 ```typescript
-// Access Token (JWT)
+// Access Token (JWT) - Short-lived for security
 {
   "sub": "user-id",
   "email": "user@example.com",
@@ -73,17 +73,80 @@ sequenceDiagram
   "provider": "google",
   "role": "user",
   "iat": 1698148800,
-  "exp": 1698149700  // 15 minutes
+  "exp": 1698149700  // 15 minutes (900 seconds)
 }
 
-// Refresh Token (longer-lived)
+// Refresh Token (longer-lived) - Stored securely
 {
   "sub": "user-id",
   "type": "refresh",
   "iat": 1698148800,
-  "exp": 1698753600  // 7 days
+  "exp": 1698753600  // 7 days (604800 seconds)
 }
 ```
+
+### Token Lifespan Strategy
+
+**Access Token: 15 minutes**
+
+- Short lifespan reduces risk of token theft
+- Limits exposure window if compromised
+- Forces regular refresh for security validation
+- Balances security with user experience
+
+**Refresh Token: 7-30 days**
+
+- Development: 7 days (faster testing of expiration)
+- Production: 30 days (better UX for regular users)
+- Stored in httpOnly cookies (not localStorage)
+- Rotated on each refresh (one-time use)
+
+**Session Management Best Practices:**
+
+```typescript
+// Cookie configuration for refresh tokens
+const cookieOptions = {
+  httpOnly: true, // Not accessible via JavaScript (XSS protection)
+  secure: true, // HTTPS only
+  sameSite: "strict", // CSRF protection
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  path: "/api/auth", // Limit cookie scope
+};
+
+// Token rotation on refresh
+export async function refreshAccessToken(refreshToken: string) {
+  const payload = await verifyRefreshToken(refreshToken);
+
+  // Generate new tokens
+  const newTokens = generateTokens({
+    sub: payload.sub,
+    email: payload.email,
+    role: payload.role,
+  });
+
+  // Invalidate old refresh token (one-time use)
+  await revokeRefreshToken(refreshToken);
+
+  return newTokens;
+}
+```
+
+**Why Short-Lived Access Tokens?**
+
+1. **Reduced Attack Surface**: 15-minute window for token theft
+2. **Automatic Revocation**: Compromised tokens expire quickly
+3. **Audit Trail**: Frequent refreshes create security logs
+4. **Compliance**: Meets SOC 2, ISO 27001 requirements
+5. **Defense in Depth**: Multiple security layers
+
+**Token Storage Recommendations:**
+
+| Token Type       | Storage Location     | Accessible by JavaScript?  | Secure?           |
+| ---------------- | -------------------- | -------------------------- | ----------------- |
+| Access Token     | Memory (React state) | Yes (needed for API calls) | ✅ Short-lived    |
+| Refresh Token    | httpOnly Cookie      | No (XSS protection)        | ✅ Most secure    |
+| ❌ Access Token  | localStorage         | Yes                        | ⚠️ XSS vulnerable |
+| ❌ Refresh Token | localStorage         | Yes                        | 🚫 Never do this  |
 
 ## Implementation
 
@@ -236,21 +299,96 @@ See [Database Schema Documentation](../components/database-schema.md) for the co
 - Don't expose secrets in client-side code
 - Don't trust client-side user data
 
-### 2. OAuth Security
+### 2. OAuth 2.0 with PKCE (Proof Key for Code Exchange)
+
+**What is PKCE?**
+
+PKCE (RFC 7636) is a security extension to OAuth 2.0 that prevents authorization code interception attacks. It's essential for public clients (SPAs, mobile apps) where the client secret cannot be securely stored.
+
+**How PKCE Works:**
+
+1. Client generates a random `code_verifier` (43-128 characters)
+2. Client creates `code_challenge` = BASE64URL(SHA256(code_verifier))
+3. Authorization request includes `code_challenge` and `code_challenge_method=S256`
+4. Provider stores the challenge
+5. Token exchange includes the original `code_verifier`
+6. Provider validates: SHA256(code_verifier) matches stored challenge
+
+**Why PKCE Matters in 2025:**
+
+- **Prevents MITM attacks** on authorization code flow
+- **Required for mobile apps** (iOS, Android)
+- **Best practice for SPAs** even with client secrets
+- **OAuth 2.1 standard** (upcoming) mandates PKCE for all public clients
+
+**Implementation:**
 
 ```typescript
-// Use PKCE (Proof Key for Code Exchange) for enhanced security
-authorization: {
-  params: {
-    prompt: "consent",
-    access_type: "offline",
-    response_type: "code",
-    // PKCE parameters
-    code_challenge_method: "S256",
-    code_challenge: generateCodeChallenge(),
-  }
+// filepath: apps/web/src/utils/pkce.ts
+import crypto from "crypto";
+
+export function generateCodeVerifier(): string {
+  return base64URLEncode(crypto.randomBytes(32));
 }
+
+export function generateCodeChallenge(verifier: string): string {
+  return base64URLEncode(crypto.createHash("sha256").update(verifier).digest());
+}
+
+function base64URLEncode(buffer: Buffer): string {
+  return buffer
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}
+
+// Usage in NextAuth.js
+import { generateCodeVerifier, generateCodeChallenge } from "./pkce";
+
+export const authConfig = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+          // PKCE parameters
+          code_challenge_method: "S256",
+          code_challenge: generateCodeChallenge(generateCodeVerifier()),
+        },
+      },
+    }),
+  ],
+};
 ```
+
+**NextAuth.js v5 PKCE Support:**
+
+NextAuth.js v5 (Auth.js) automatically implements PKCE for OAuth providers. You don't need to manually implement it, but understanding the flow is important for security audits and compliance.
+
+```typescript
+// NextAuth.js v5 handles PKCE automatically
+export const authConfig = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // PKCE is enabled by default in NextAuth.js v5
+    }),
+  ],
+};
+```
+
+**Security Benefits:**
+
+✅ **No client secret exposure** - Even if intercepted, attacker can't exchange code  
+✅ **Replay attack prevention** - Each code_verifier is single-use  
+✅ **MITM protection** - Attacker can't steal authorization code  
+✅ **Mobile security** - Essential for iOS/Android OAuth flows
 
 ### 3. Rate Limiting
 

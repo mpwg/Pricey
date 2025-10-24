@@ -7,11 +7,12 @@
 
 ### Core Documentation
 
-| Document                                    | Purpose                      | Status      | Last Updated |
-| ------------------------------------------- | ---------------------------- | ----------- | ------------ |
-| [Architecture](architecture.md)             | System architecture overview | ✅ Complete | Oct 2025     |
-| [Monorepo Structure](monorepo-structure.md) | Repository organization      | ✅ Complete | Oct 2025     |
-| [Validation Report](VALIDATION_REPORT.md)   | Best practices review        | ✅ Complete | Oct 2025     |
+| Document                                    | Purpose                          | Status        | Last Updated |
+| ------------------------------------------- | -------------------------------- | ------------- | ------------ |
+| **[Product Roadmap](ROADMAP.md)**           | **MVP to v1.0 development plan** | **🟢 Active** | **Oct 2025** |
+| [Architecture](architecture.md)             | System architecture overview     | ✅ Complete   | Oct 2025     |
+| [Monorepo Structure](monorepo-structure.md) | Repository organization          | ✅ Complete   | Oct 2025     |
+| [Validation Report](VALIDATION_REPORT.md)   | Best practices review            | ✅ Complete   | Oct 2025     |
 
 ### Component Documentation
 
@@ -69,9 +70,10 @@
 
 ### For Product Managers
 
-1. **Overview**: [Architecture](architecture.md) → Executive Summary
-2. **Features**: Each component document → Key Features section
-3. **Roadmap**: Validation Report → Priority Recommendations
+1. **Roadmap**: **[Product Roadmap](ROADMAP.md)** → Phased development plan
+2. **Overview**: [Architecture](architecture.md) → Executive Summary
+3. **Features**: Each component document → Key Features section
+4. **Best Practices**: [Validation Report](VALIDATION_REPORT.md) → Priority Recommendations
 
 ## 🔍 Find Information By Topic
 

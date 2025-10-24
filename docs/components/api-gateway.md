@@ -703,11 +703,26 @@ export async function buildApp() {
     credentials: true,
   });
 
-  // Rate limiting
+  // Rate limiting with proper headers
   await app.register(rateLimit, {
     max: 100,
     timeWindow: "15 minutes",
     cache: 10000,
+    addHeaders: {
+      "x-ratelimit-limit": true, // Total requests allowed
+      "x-ratelimit-remaining": true, // Requests remaining
+      "x-ratelimit-reset": true, // Reset timestamp
+    },
+    errorResponseBuilder: (req, context) => {
+      return {
+        statusCode: 429,
+        error: "Too Many Requests",
+        message: `Rate limit exceeded. Try again in ${Math.ceil(
+          context.ttl / 1000
+        )} seconds.`,
+        retryAfter: Math.ceil(context.ttl / 1000),
+      };
+    },
   });
 
   // Compression
@@ -1417,13 +1432,148 @@ CMD ["node", "dist/index.js"]
 6. **Load Balancing**: Multiple API instances
 7. **Monitoring**: Track response times and errors
 
+## Rate Limiting Best Practices
+
+### HTTP Rate Limit Headers (2025 Standard)
+
+All API responses include standardized rate limit headers for client transparency:
+
+```typescript
+// Example Response Headers
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 100                    // Max requests per window
+X-RateLimit-Remaining: 73                 // Requests remaining
+X-RateLimit-Reset: 1698149700            // Unix timestamp when limit resets
+X-RateLimit-Window: 900                  // Window size in seconds (15 min)
+Retry-After: 127                         // (Only on 429) Seconds to wait
+```
+
+### Rate Limiting Strategy
+
+```typescript
+// filepath: apps/api/src/config/rate-limits.ts
+export const rateLimits = {
+  // Global default
+  global: {
+    max: 100,
+    timeWindow: "15 minutes",
+  },
+
+  // Authentication endpoints (stricter)
+  auth: {
+    max: 5,
+    timeWindow: "15 minutes",
+    keyGenerator: (req) => req.body.email || req.ip, // Per email or IP
+  },
+
+  // File upload endpoints (very strict)
+  upload: {
+    max: 10,
+    timeWindow: "1 hour",
+  },
+
+  // Read-only endpoints (lenient)
+  readonly: {
+    max: 300,
+    timeWindow: "15 minutes",
+  },
+
+  // Premium users (higher limits)
+  premium: {
+    max: 1000,
+    timeWindow: "15 minutes",
+  },
+};
+
+// Apply endpoint-specific limits
+app.register(rateLimit, {
+  ...rateLimits.auth,
+  // Custom key generator for user-based limiting
+  keyGenerator: async (req) => {
+    // Authenticated users: limit by user ID
+    if (req.user) {
+      return `user:${req.user.id}`;
+    }
+    // Anonymous users: limit by IP
+    return `ip:${req.ip}`;
+  },
+  // Skip rate limiting for admins
+  skip: (req) => req.user?.role === "admin",
+});
+```
+
+### Client-Side Rate Limit Handling
+
+```typescript
+// filepath: apps/web/src/utils/api-client.ts
+export async function apiRequest(url: string, options: RequestInit = {}) {
+  const response = await fetch(url, options);
+
+  // Parse rate limit headers
+  const rateLimit = {
+    limit: parseInt(response.headers.get("X-RateLimit-Limit") || "0"),
+    remaining: parseInt(response.headers.get("X-RateLimit-Remaining") || "0"),
+    reset: parseInt(response.headers.get("X-RateLimit-Reset") || "0"),
+  };
+
+  // Handle rate limit exceeded
+  if (response.status === 429) {
+    const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+    throw new RateLimitError(
+      `Rate limit exceeded. Retry in ${retryAfter} seconds.`,
+      retryAfter,
+      rateLimit
+    );
+  }
+
+  // Warn when approaching limit
+  if (rateLimit.remaining < rateLimit.limit * 0.1) {
+    console.warn("Approaching rate limit:", rateLimit);
+  }
+
+  return response;
+}
+
+// Exponential backoff with jitter
+export async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3
+): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error instanceof RateLimitError && i < maxRetries - 1) {
+        const delay = error.retryAfter * 1000 + Math.random() * 1000; // Add jitter
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error("Max retries exceeded");
+}
+```
+
+### Benefits of Rate Limit Headers
+
+✅ **Transparency**: Clients know their limits  
+✅ **Proactive Handling**: Apps can slow down before hitting limits  
+✅ **Better UX**: Show users remaining requests  
+✅ **Debugging**: Easier to diagnose rate limit issues  
+✅ **Compliance**: Industry standard (GitHub, Stripe, Twitter APIs)
+
 ## Best Practices
 
-1. Use TypeScript strict mode
-2. Validate all inputs with Zod
-3. Use structured logging (JSON)
-4. Implement proper error handling
-5. Add comprehensive tests
-6. Document all endpoints with OpenAPI
-7. Version your API (v1, v2, etc.)
-8. Use environment variables for configuration
+1. **Use TypeScript strict mode** for type safety
+2. **Validate all inputs** with Zod or TypeBox
+3. **Use structured logging** (JSON format with Pino)
+4. **Implement proper error handling** with custom error classes
+5. **Add comprehensive tests** (unit, integration, E2E)
+6. **Document all endpoints** with OpenAPI 3.0
+7. **Version your API** (URL versioning: `/api/v1`, `/api/v2`)
+8. **Use environment variables** for all configuration
+9. **Implement rate limiting** with clear headers
+10. **Monitor API performance** with metrics and tracing
+11. **Use short-lived JWT tokens** (15 minutes access, 7-30 days refresh)
+12. **Store refresh tokens securely** (httpOnly cookies, not localStorage)
