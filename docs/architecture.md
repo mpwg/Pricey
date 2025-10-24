@@ -4,7 +4,7 @@
 
 ## 1. Executive Summary
 
-Pricy is a web-based application that enables users to scan shopping receipts, automatically extract product information, and compare prices across different stores. The system uses OCR and NLP technologies to understand receipt data and provides intelligent shopping recommendations.
+Pricy is a web-based Progressive Web Application (PWA) that enables users to scan shopping receipts, automatically extract product information, and compare prices across different stores. The system uses OCR and NLP technologies to understand receipt data and provides intelligent shopping recommendations.
 
 ### Key Features
 
@@ -12,7 +12,8 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 - Product normalization and categorization
 - Price tracking across multiple stores
 - Shopping recommendations based on user's shopping list
-- PWA support for mobile devices
+- Full PWA support with "Add to Home Screen" capability
+- Works offline with service worker caching
 - Local and cloud deployment options
 
 ## 2. System Architecture
@@ -52,7 +53,7 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 
 #### Cloud Deployment
 
-- **Frontend**: Vercel/Netlify or AWS CloudFront + S3
+- **Frontend**: Vercel/Netlify (auto-SSL, CDN, PWA support) or AWS CloudFront + S3
 - **Backend**: AWS ECS/Fargate or Google Cloud Run
 - **Database**: AWS RDS/Aurora or Google Cloud SQL
 - **Storage**: AWS S3 or Google Cloud Storage
@@ -64,6 +65,7 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 - **OCR**: Tesseract OCR (open-source)
 - **Storage**: MinIO (S3-compatible local storage)
 - **Database**: PostgreSQL in Docker
+- **Frontend**: Served via nginx or Node.js with HTTPS (required for PWA)
 
 ## 3. Technology Stack
 
@@ -72,11 +74,12 @@ Pricy is a web-based application that enables users to scan shopping receipts, a
 - **Framework**: Next.js (latest stable, App Router support; recommend >=13)
 - **Language**: TypeScript
 - **UI Library**: React 18
-- **Styling**: TailwindCSS (v3+)+ shadcn/ui
+- **Styling**: TailwindCSS (v3+) + shadcn/ui
 - **State Management**: Zustand or Redux Toolkit
-- **PWA**: next-pwa + Workbox
+- **PWA**: next-pwa + Workbox (service worker, offline support, install prompts)
 - **Camera Integration**: react-webcam or native File API
 - **Image Processing**: browser-image-compression
+- **Offline Storage**: IndexedDB (via Dexie.js or localforage) for offline receipt queue
 
 ### 3.2 Backend
 
@@ -334,8 +337,9 @@ npm run dev:backend
 
 - Barcode scanning support
 - Multi-language receipt support
-- Social features (share prices)
-- Mobile native apps (React Native)
+- Social features (share prices, community pricing)
+- Browser notifications for price drops
+- Background sync for offline receipts
 
 ### Phase 3
 
@@ -343,6 +347,13 @@ npm run dev:backend
 - Predictive price trends
 - Loyalty card integration
 - Recipe suggestions based on purchases
+- Web Share API integration
+
+### Optional: Native Apps (Long-term)
+
+- If app store presence becomes necessary, consider Capacitor.js or PWABuilder
+- Convert existing PWA to native wrapper without code rewrite
+- Only pursue if web distribution proves insufficient
 
 ## 13. Technical Risks & Mitigations
 
