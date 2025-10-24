@@ -258,6 +258,156 @@ interface JWTPayload {
 - API rate limiting per user
 - CORS configuration
 
+#### API Versioning Strategy
+
+Pricy uses a comprehensive API versioning strategy to ensure backward compatibility and smooth migrations:
+
+**Versioning Approach:**
+
+- **URL Path Versioning** - Primary method for major versions
+  - Format: `/api/v1/receipts`, `/api/v2/receipts`
+  - Clear and explicit for external consumers
+  - Easy to route and cache
+- **Header-Based Versioning** - Optional for minor versions
+  - Header: `Accept-Version: 1.0`
+  - Allows granular control without URL changes
+
+**Version Lifecycle:**
+
+```
+Development → Beta → Stable → Deprecated → Sunset
+    |            |        |          |          |
+    └────────────┴────────┴──────────┴──────────┘
+         3 months    6 months   12 months   18 months
+```
+
+**Implementation:**
+
+```typescript
+// API version routing
+interface APIVersion {
+  version: "v1" | "v2";
+  status: "beta" | "stable" | "deprecated";
+  deprecationDate?: Date;
+  sunsetDate?: Date;
+  migrationGuide?: string;
+}
+
+// Version-specific endpoints
+const routes = {
+  v1: {
+    receipts: "/api/v1/receipts",
+    products: "/api/v1/products",
+    status: "stable",
+  },
+  v2: {
+    receipts: "/api/v2/receipts", // New response format
+    products: "/api/v2/products", // Additional fields
+    status: "beta",
+  },
+};
+
+// Backward compatibility middleware
+app.use("/api/v1/*", v1CompatibilityLayer);
+app.use("/api/v2/*", v2Features);
+
+// Version deprecation warnings
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/v1")) {
+    res.setHeader("Deprecation", "Sun, 01 Jan 2026 00:00:00 GMT");
+    res.setHeader("Sunset", "Sun, 01 Jul 2026 00:00:00 GMT");
+    res.setHeader("Link", '</api/v2>; rel="successor-version"');
+  }
+  next();
+});
+```
+
+**Breaking Changes Policy:**
+
+1. **Major Version** (v1 → v2) - Breaking changes allowed
+
+   - Response structure changes
+   - Endpoint removal
+   - Required field additions
+   - Authentication method changes
+
+2. **Minor Version** (v1.0 → v1.1) - Backward compatible
+
+   - New optional fields
+   - New endpoints
+   - Performance improvements
+   - Bug fixes
+
+3. **Patch Version** (v1.0.0 → v1.0.1) - Bug fixes only
+   - Security patches
+   - Critical bug fixes
+   - No API changes
+
+**Version Support Matrix:**
+
+| Version | Status     | Support Level | End of Support |
+| ------- | ---------- | ------------- | -------------- |
+| v2.x    | Beta       | Full support  | -              |
+| v1.x    | Stable     | Full support  | July 2026      |
+| v0.x    | Deprecated | Security only | January 2025   |
+
+**Migration Strategy:**
+
+- 6-month overlap for stable versions
+- Automated migration tools
+- Comprehensive migration guides
+- Version-specific SDKs
+- Client library auto-updates
+- Gradual rollout with feature flags
+
+**Example Migration Guide:**
+
+```markdown
+# Migrating from v1 to v2
+
+## Receipt Response Changes
+
+### v1 Response
+
+{
+"id": "123",
+"items": [...],
+"total": 45.99
+}
+
+### v2 Response
+
+{
+"id": "123",
+"receiptData": {
+"items": [...],
+"totals": {
+"subtotal": 42.00,
+"tax": 3.99,
+"total": 45.99
+}
+},
+"metadata": {
+"ocrConfidence": 0.95,
+"processingTime": 1234
+}
+}
+
+## Breaking Changes
+
+1. `total` moved to `receiptData.totals.total`
+2. Added `subtotal` and `tax` breakdown
+3. New `metadata` object with OCR details
+
+## Migration Code
+
+// Before (v1)
+const total = receipt.total;
+
+// After (v2)
+const total = receipt.receiptData.totals.total;
+```
+
 ### 6.2 Data Privacy
 
 **User Data Protection:**
