@@ -17,8 +17,8 @@ This project is licensed under **AGPL-3.0**. By contributing, you agree that you
 
 ### Prerequisites
 
-- Node.js 20.x or higher
-- pnpm 8.10.0 or higher
+- Node.js 22.x or higher
+- pnpm 10.0.0 or higher
 - Docker and Docker Compose
 - Git
 
