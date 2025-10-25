@@ -3,6 +3,8 @@
 # Licensed under AGPL-3.0
 
 name: CI
+permissions:
+    contents: read
 
 on:
     push:
