@@ -18,16 +18,17 @@
 
 import { FastifyInstance } from 'fastify';
 
-import { healthRoutes } from './health';
+import { healthRoutes } from './health.js';
+import { receiptsRoutes } from './receipts.js';
 
 export async function registerRoutes(app: FastifyInstance) {
   // Register health check routes
   await app.register(healthRoutes);
 
-  // API v1 routes will be added here
+  // API v1 routes
   await app.register(
     async (api) => {
-      // Future API routes will be registered here
+      // Root endpoint
       api.get('/', async () => {
         return {
           success: true,
@@ -38,6 +39,9 @@ export async function registerRoutes(app: FastifyInstance) {
           },
         };
       });
+
+      // Register receipts routes
+      await api.register(receiptsRoutes, { prefix: '/receipts' });
     },
     { prefix: '/api/v1' }
   );

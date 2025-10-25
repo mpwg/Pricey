@@ -1,5 +1,5 @@
 /**
- * Environment configuration for API Gateway
+ * Environment configuration for OCR Service
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,16 +22,11 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
-  PORT: z.string().default('3001').transform(Number),
-  HOST: z.string().default('0.0.0.0'),
   DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: z.string().url().default('redis://localhost:6379'),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
-  CORS_ORIGIN: z.string().default('*'),
-  RATE_LIMIT_MAX: z.string().default('100').transform(Number),
-  RATE_LIMIT_WINDOW: z.string().default('60000').transform(Number), // 1 minute
   // S3/MinIO Storage Configuration
   S3_ENDPOINT: z.string().default('localhost'),
   S3_PORT: z.string().default('9000').transform(Number),
@@ -42,6 +37,9 @@ const envSchema = z.object({
   S3_ACCESS_KEY: z.string().default('minioadmin'),
   S3_SECRET_KEY: z.string().default('minioadmin'),
   S3_BUCKET: z.string().default('pricy-receipts'),
+  // OCR Configuration
+  OCR_CONCURRENCY: z.string().default('5').transform(Number),
+  OCR_TIMEOUT: z.string().default('30000').transform(Number), // 30 seconds
 });
 
 export type Env = z.infer<typeof envSchema>;
