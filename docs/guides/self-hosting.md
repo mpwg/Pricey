@@ -870,7 +870,7 @@ When reporting issues, include:
 ---
 
 **Last Updated**: October 24, 2025  
-**Maintainer**: Pricy Team  
+**Maintainer**: Matthias Wallner-Géhri  
 **License**: AGPL-3.0
 
 For questions about self-hosting, open a [GitHub Discussion](https://github.com/yourusername/pricy/discussions).

@@ -71,6 +71,16 @@ pnpm typecheck           # TypeScript type checking
 
 ## Code Conventions
 
+### Dependency Management
+
+- **Latest Versions**: ⚠️ **MANDATORY** - Always use the latest stable versions of all dependencies (see `.github/instructions/dependency-management.instructions.md`)
+  - Run `pnpm outdated -r` before every commit - MUST show no outdated packages
+  - Use caret (`^`) ranges for all dependencies (e.g., `^5.2.1`)
+  - Update immediately when new versions are available
+  - Workspace dependencies use `workspace:*`
+  - Check changelogs for breaking changes
+  - Test thoroughly after updates
+
 ### TypeScript Patterns
 
 ```typescript
@@ -227,7 +237,11 @@ pnpm add -Dw vitest
 
 ## Testing & Quality
 
-- **Tests**: Currently no tests (technical debt in Phase 0)
+- **Tests**: ⚠️ **MANDATORY** - All new code MUST have comprehensive unit tests (see `.github/instructions/testing-mandate.instructions.md`)
+  - Framework: Vitest (fast, ESM-native, Jest-compatible API)
+  - Coverage: Minimum 75% overall, 80%+ for new code
+  - Co-locate tests: `*.test.ts` or `*.spec.ts` next to source files
+  - Test all: pure functions, validation schemas, API routes, parsers, error cases, edge cases
 - **Type Safety**: Strict TypeScript mode enabled (`noUncheckedIndexedAccess: true`)
 - **Linting**: ESLint with `@typescript-eslint` - warn on `any`, error on unused vars
 - **Formatting**: Prettier for `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md`, `.yaml`
