@@ -18,12 +18,13 @@
 
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import fastify from 'fastify';
 
-import { env } from './config/env';
-import { errorHandler } from './plugins/error-handler';
-import { registerRoutes } from './routes';
+import { env } from './config/env.js';
+import { errorHandler } from './plugins/error-handler.js';
+import { registerRoutes } from './routes/index.js';
 
 export async function buildApp() {
   const app = fastify({
@@ -53,6 +54,13 @@ export async function buildApp() {
   await app.register(cors, {
     origin: env.CORS_ORIGIN,
     credentials: true,
+  });
+
+  await app.register(multipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB
+      files: 1, // Only 1 file per request
+    },
   });
 
   await app.register(rateLimit, {

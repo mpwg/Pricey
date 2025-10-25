@@ -9,7 +9,7 @@
     "url": "git+https://github.com/mpwg/Pricey.git"
   },
   "license": "AGPL-3.0",
-  "author": "Pricy Team",
+  "author": "Matthias Wallner-Géhri",
   "engines": {
     "node": ">=24.10.0",
     "pnpm": ">=10.19.0"
@@ -24,6 +24,9 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,mdx,css,yaml,yml}\"",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "test:ui": "turbo run test:ui",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "db:migrate": "pnpm --filter @pricy/database db:migrate",
     "db:seed": "pnpm --filter @pricy/database db:seed",
@@ -39,12 +42,15 @@
     "@types/node": "^24.9.1",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "@vitest/coverage-v8": "^4.0.3",
+    "@vitest/ui": "^4.0.3",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.46.2",
+    "vitest": "^4.0.3"
   }
 }

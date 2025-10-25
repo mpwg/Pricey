@@ -32,6 +32,16 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('*'),
   RATE_LIMIT_MAX: z.string().default('100').transform(Number),
   RATE_LIMIT_WINDOW: z.string().default('60000').transform(Number), // 1 minute
+  // S3/MinIO Storage Configuration
+  S3_ENDPOINT: z.string().default('localhost'),
+  S3_PORT: z.string().default('9000').transform(Number),
+  S3_USE_SSL: z
+    .string()
+    .default('false')
+    .transform((val) => val === 'true'),
+  S3_ACCESS_KEY: z.string().default('minioadmin'),
+  S3_SECRET_KEY: z.string().default('minioadmin'),
+  S3_BUCKET: z.string().default('pricy-receipts'),
 });
 
 export type Env = z.infer<typeof envSchema>;

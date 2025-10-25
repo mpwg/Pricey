@@ -71,6 +71,16 @@ pnpm typecheck           # TypeScript type checking
 
 ## Code Conventions
 
+### Dependency Management
+
+- **Latest Versions**: ⚠️ **MANDATORY** - Always use the latest stable versions of all dependencies (see `.github/instructions/dependency-management.instructions.md`)
+  - Run `pnpm outdated -r` before every commit - MUST show no outdated packages
+  - Use caret (`^`) ranges for all dependencies (e.g., `^5.2.1`)
+  - Update immediately when new versions are available
+  - Workspace dependencies use `workspace:*`
+  - Check changelogs for breaking changes
+  - Test thoroughly after updates
+
 ### TypeScript Patterns
 
 ```typescript
@@ -161,6 +171,41 @@ model Product {
 
 ## Critical Workflows
 
+### Documentation-First Development (MANDATORY)
+
+**⚠️ CRITICAL RULE: Always fetch library documentation BEFORE implementing features**
+
+Before writing any code that uses external libraries or frameworks:
+
+1. **Identify** all libraries/frameworks involved in the feature
+2. **Resolve** library IDs using `mcp_context7_resolve-library-id` or `mcp_upstash_conte_resolve-library-id`
+3. **Fetch** current documentation using `mcp_context7_get-library-docs` or `mcp_upstash_conte_get-library-docs`
+4. **Review** the documentation for:
+   - Latest API patterns and best practices
+   - Recommended configurations
+   - Official examples and code snippets
+   - Deprecated features to avoid
+5. **Implement** the feature following official guidance
+
+**Examples of when this applies:**
+
+- Setting up Fastify routes, plugins, and middleware
+- Configuring Tesseract.js for OCR processing
+- Implementing BullMQ job queues and workers
+- Using Sharp for image preprocessing
+- Working with MinIO/S3 clients
+- Configuring Prisma schema and queries
+- Setting up Redis clients
+- ANY third-party library integration
+
+**Why this matters:**
+
+- ✅ Ensures use of latest, non-deprecated APIs
+- ✅ Avoids common pitfalls and anti-patterns
+- ✅ Leverages official best practices
+- ✅ Reduces bugs from incorrect usage
+- ✅ Saves time by not guessing API signatures
+
 ### Receipt Processing Pipeline
 
 1. **Upload** → Image stored in MinIO/S3
@@ -192,7 +237,11 @@ pnpm add -Dw vitest
 
 ## Testing & Quality
 
-- **Tests**: Currently no tests (technical debt in Phase 0)
+- **Tests**: ⚠️ **MANDATORY** - All new code MUST have comprehensive unit tests (see `.github/instructions/testing-mandate.instructions.md`)
+  - Framework: Vitest (fast, ESM-native, Jest-compatible API)
+  - Coverage: Minimum 75% overall, 80%+ for new code
+  - Co-locate tests: `*.test.ts` or `*.spec.ts` next to source files
+  - Test all: pure functions, validation schemas, API routes, parsers, error cases, edge cases
 - **Type Safety**: Strict TypeScript mode enabled (`noUncheckedIndexedAccess: true`)
 - **Linting**: ESLint with `@typescript-eslint` - warn on `any`, error on unused vars
 - **Formatting**: Prettier for `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md`, `.yaml`

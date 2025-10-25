@@ -23,9 +23,21 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
+      "dependsOn": ["^build"],
+      "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:ui": {
+      "cache": false,
+      "persistent": true
     },
     "clean": {
       "cache": false
