@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Pricy frontend is a Progressive Web Application (PWA) built with Next.js 13+ App Router, providing a native app-like experience while remaining a web application. It supports offline functionality, "Add to Home Screen" installation, and responsive design for all devices.
+The Pricy frontend is a Progressive Web Application (PWA) built with Next.js 16 App Router, providing a native app-like experience while remaining a web application. It supports offline functionality, "Add to Home Screen" installation, and responsive design for all devices.
 
 ## Technology Stack
 
-- **Framework**: Next.js 13+ (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript 5+
-- **UI Library**: React 18
+- **UI Library**: React 19
 - **Styling**: TailwindCSS v3 + shadcn/ui
 - **State Management**: Zustand
 - **Authentication**: NextAuth.js v5 (Auth.js)

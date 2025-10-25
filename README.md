@@ -2,6 +2,32 @@
 
 **Smart receipt scanning and price comparison to help you save money on every purchase.**
 
+<!-- Badges -->
+<div align="center">
+
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/mpwg/Pricey/blob/main/LICENSE.md)
+[![CI Status](https://github.com/mpwg/Pricey/workflows/CI/badge.svg)](https://github.com/mpwg/Pricey/actions/workflows/ci.yml)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24.10.0-brightgreen.svg)](https://nodejs.org/)
+[![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D10.19.0-orange.svg)](https://pnpm.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-success.svg)](https://github.com/mpwg/Pricey/network/updates)
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-5-000000.svg)](https://fastify.dev/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748.svg)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791.svg)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D.svg)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg)](https://www.docker.com/)
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mpwg/Pricey/blob/main/CONTRIBUTING.md)
+[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Monorepo: Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-EF4444.svg)](https://turbo.build/)
+
+</div>
+
+---
+
 Pricey is a Progressive Web Application (PWA) that digitizes your shopping receipts, tracks prices across stores, and helps you find the best deals. Scan receipts with your phone's camera, compare prices automatically, and never overpay again.
 
 ---
@@ -89,7 +115,7 @@ OCR Service  Product   Analytics
 
 **Technology Stack:**
 
-- **Frontend**: Next.js 13+, React 18, TypeScript, TailwindCSS
+- **Frontend**: Next.js 16, React 19, TypeScript, TailwindCSS
 - **Backend**: Node.js, Fastify, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
 - **Cache**: Redis

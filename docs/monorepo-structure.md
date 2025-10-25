@@ -135,7 +135,7 @@ pricy/
     "@turbo/gen": "^1.11.0",
     "turbo": "^1.11.0",
     "prettier": "^3.1.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@8.10.0"
 }

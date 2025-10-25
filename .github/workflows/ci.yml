@@ -3,6 +3,8 @@
 # Licensed under AGPL-3.0
 
 name: CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -97,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: pricy
           POSTGRES_PASSWORD: pricy

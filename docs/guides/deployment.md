@@ -413,7 +413,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: pricy
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

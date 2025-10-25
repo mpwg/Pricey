@@ -16,14 +16,14 @@
 
 ### Component Documentation
 
-| Component       | Document                                                | Purpose                 | Technology                        |
-| --------------- | ------------------------------------------------------- | ----------------------- | --------------------------------- |
-| Frontend        | [frontend-pwa.md](components/frontend-pwa.md)           | PWA implementation      | Next.js 13+, React 18, TypeScript |
-| API Gateway     | [api-gateway.md](components/api-gateway.md)             | API entry point         | Fastify, TypeScript               |
-| OCR Service     | [ocr-service.md](components/ocr-service.md)             | Receipt text extraction | Tesseract, Google Vision          |
-| Product Service | [product-service.md](components/product-service.md)     | Product normalization   | Transformers.js, pgvector         |
-| Analytics       | [analytics-service.md](components/analytics-service.md) | Price comparison        | TypeScript, Redis                 |
-| Database        | [database-schema.md](components/database-schema.md)     | Data modeling           | PostgreSQL, Prisma                |
+| Component       | Document                                                | Purpose                 | Tech Stack                       |
+| --------------- | ------------------------------------------------------- | ----------------------- | -------------------------------- |
+| Frontend        | [frontend-pwa.md](components/frontend-pwa.md)           | PWA implementation      | Next.js 16, React 19, TypeScript |
+| API Gateway     | [api-gateway.md](components/api-gateway.md)             | API entry point         | Fastify, TypeScript              |
+| OCR Service     | [ocr-service.md](components/ocr-service.md)             | Receipt text extraction | Tesseract, Google Vision         |
+| Product Service | [product-service.md](components/product-service.md)     | Product normalization   | Transformers.js, pgvector        |
+| Analytics       | [analytics-service.md](components/analytics-service.md) | Price comparison        | TypeScript, Redis                |
+| Database        | [database-schema.md](components/database-schema.md)     | Data modeling           | PostgreSQL, Prisma               |
 
 ### Guides
 
