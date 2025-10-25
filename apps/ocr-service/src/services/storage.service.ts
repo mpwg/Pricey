@@ -57,9 +57,20 @@ export class StorageService {
    * @returns S3 key
    */
   getKeyFromUrl(url: string): string {
-    // Extract key from URL like "http://localhost:9000/pricy-receipts/receipts/2025-10-25/uuid.jpg"
-    const match = url.match(/\/([^/]+\/[^/]+\/[^/]+\.[^/]+)$/);
-    return match?.[1] ?? url;
+    try {
+      const { pathname } = new URL(url);
+      // Remove leading slash and bucket name if present
+      const pathParts = pathname.split('/').filter(Boolean);
+      // If path has bucket name as first segment, skip it
+      if (pathParts.length < 2) {
+        return pathname.startsWith('/') ? pathname.slice(1) : pathname;
+      }
+      // Assume first segment is bucket, rest is key
+      return pathParts.slice(1).join('/');
+    } catch {
+      // Fallback: return original string if URL parsing fails
+      return url;
+    }
   }
 }
 

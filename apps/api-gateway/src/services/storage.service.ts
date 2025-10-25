@@ -26,15 +26,15 @@ export class StorageService {
   private bucket: string;
 
   constructor() {
-    this.bucket = env.S3_BUCKET || 'pricy-receipts';
+    this.bucket = env.S3_BUCKET;
 
     // Initialize MinIO/S3 client
     this.client = new Minio.Client({
-      endPoint: env.S3_ENDPOINT || 'localhost',
-      port: env.S3_PORT || 9000,
-      useSSL: env.S3_USE_SSL || false,
-      accessKey: env.S3_ACCESS_KEY || 'minioadmin',
-      secretKey: env.S3_SECRET_KEY || 'minioadmin',
+      endPoint: env.S3_ENDPOINT,
+      port: env.S3_PORT,
+      useSSL: env.S3_USE_SSL,
+      accessKey: env.S3_ACCESS_KEY,
+      secretKey: env.S3_SECRET_KEY,
     });
 
     this.ensureBucketExists();
@@ -131,8 +131,18 @@ export class StorageService {
    * @returns S3 key
    */
   getKeyFromUrl(url: string): string {
-    const match = url.match(/\/([^/]+\/[^/]+\/[^/]+\.[^/]+)$/);
-    return match?.[1] ?? url;
+    try {
+      const u = new URL(url);
+      // Pathname is /bucket/key or just /key depending on setup
+      const pathParts = u.pathname.split('/').filter(Boolean);
+      // If path has bucket name as first segment, skip it
+      if (pathParts.length < 2) return url;
+      // Assume first segment is bucket, rest is key
+      return pathParts.slice(1).join('/');
+    } catch {
+      // If URL parsing fails, return as-is
+      return url;
+    }
   }
 }
 

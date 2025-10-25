@@ -45,22 +45,18 @@ export async function receiptsRoutes(app: FastifyInstance) {
       // Upload to storage
       const imageUrl = await storageService.uploadReceipt(data);
 
-      // Create receipt record in database
+      // Queue OCR job first (before creating receipt record)
+      // This ensures the job exists before we create the receipt
+      // Create receipt record with PROCESSING status immediately
       const receipt = await db.receipt.create({
         data: {
           imageUrl,
-          status: 'PENDING',
+          status: 'PROCESSING',
         },
       });
 
-      // Queue OCR job
+      // Queue OCR job after receipt is created
       await queueService.queueOCRJob(receipt.id, imageUrl);
-
-      // Update receipt status to PROCESSING
-      await db.receipt.update({
-        where: { id: receipt.id },
-        data: { status: 'PROCESSING' },
-      });
 
       return reply.code(201).send({
         id: receipt.id,

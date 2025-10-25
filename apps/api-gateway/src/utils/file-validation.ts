@@ -41,8 +41,11 @@ const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
  * @throws ValidationError if validation fails
  */
 export async function validateImage(file: MultipartFile): Promise<void> {
-  // Check file size
-  if (file.file.bytesRead > MAX_FILE_SIZE) {
+  // First, get the buffer to check actual file size
+  const buffer = await file.toBuffer();
+
+  // Check actual file size from buffer
+  if (buffer.length > MAX_FILE_SIZE) {
     throw new ValidationError(
       `File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
       'FILE_TOO_LARGE'
@@ -68,7 +71,6 @@ export async function validateImage(file: MultipartFile): Promise<void> {
 
   // Validate actual image data
   try {
-    const buffer = await file.toBuffer();
     const metadata = await sharp(buffer).metadata();
 
     if (!metadata.width || !metadata.height) {

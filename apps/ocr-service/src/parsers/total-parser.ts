@@ -78,6 +78,9 @@ export function validateTotal(
   extractedTotal: number,
   calculatedTotal: number
 ): boolean {
+  if (extractedTotal <= 0) {
+    return false;
+  }
   const variance = Math.abs(extractedTotal - calculatedTotal) / extractedTotal;
   return variance <= 0.05; // Allow 5% variance for tax/discounts
 }

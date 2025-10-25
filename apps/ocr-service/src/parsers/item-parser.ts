@@ -130,7 +130,10 @@ function extractItemFromLine(
   }
 
   // Extract item name (everything before the price)
-  const name = line.substring(0, priceMatch.index).trim().replace(/\s+/g, ' ');
+  const name = line
+    .substring(0, priceMatch.index ?? 0)
+    .trim()
+    .replace(/\s+/g, ' ');
 
   if (!name || name.length < 2) {
     return null;
