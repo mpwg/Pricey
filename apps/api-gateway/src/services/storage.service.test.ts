@@ -132,6 +132,7 @@ describe('StorageService', () => {
 
       const url = await storageService.uploadReceipt(mockFile as MultipartFile);
 
+      expect(url).toBeDefined();
       expect(mockMinioClient.putObject).toHaveBeenCalledWith(
         'pricy-receipts',
         expect.stringMatching(/\.pdf$/),
