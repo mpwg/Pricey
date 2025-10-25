@@ -2,11 +2,11 @@
 
 ## Overview
 
-Pricy uses PostgreSQL 16+ with Prisma 5.x as the ORM. The schema supports receipt storage, product normalization, price tracking, and user management with proper indexing for performance.
+Pricy uses PostgreSQL 18 with Prisma 6.x as the ORM. The schema supports receipt storage, product normalization, price tracking, and user management with proper indexing for performance.
 
 ## Technology Stack
 
-- **Database**: PostgreSQL 16+
+- **Database**: PostgreSQL 18
 - **Extensions**:
   - pgvector (semantic search)
   - PostGIS (optional, for location-based features)

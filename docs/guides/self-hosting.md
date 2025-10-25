@@ -273,7 +273,7 @@ The default `docker-compose.prod.yml` includes PostgreSQL:
 
 ```yaml
 postgres:
-  image: postgres:15-alpine
+  image: postgres:18-alpine
   restart: always
   environment:
     POSTGRES_USER: ${POSTGRES_USER}

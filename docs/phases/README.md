@@ -44,7 +44,10 @@ phases/
 ### Technology Stack
 
 - **Monorepo**: Turborepo + pnpm
-- **Frontend**: Next.js 14 + React 18 + Tailwind CSS
+
+### Tech Stack
+
+- **Frontend**: Next.js 16 + React 19 + Tailwind CSS
 - **Backend**: Fastify + Node.js
 - **Database**: PostgreSQL + Prisma
 - **OCR**: Tesseract.js
