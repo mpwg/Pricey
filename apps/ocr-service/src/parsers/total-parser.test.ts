@@ -227,7 +227,7 @@ describe('calculateTotal', () => {
   it('should calculate total with quantities', () => {
     const items = [
       { price: 2.99, quantity: 3 },
-      { price: 1.50, quantity: 2 },
+      { price: 1.5, quantity: 2 },
     ];
     const total = calculateTotal(items);
 

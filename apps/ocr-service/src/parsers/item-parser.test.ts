@@ -151,7 +151,7 @@ describe('extractItems', () => {
       const items = extractItems(text);
 
       expect(items).toHaveLength(1);
-      expect(items[0]?.price).toBe(1.50);
+      expect(items[0]?.price).toBe(1.5);
     });
 
     it('should handle prices with "each" suffix', () => {
@@ -319,7 +319,8 @@ describe('extractItems', () => {
       const text = 'Good Item Name $5.99';
       const items = extractItems(text);
 
-      const text2 = 'VeryLongItemNameThatIsUnreasonablyLongForANormalReceiptItem $5.99';
+      const text2 =
+        'VeryLongItemNameThatIsUnreasonablyLongForANormalReceiptItem $5.99';
       const items2 = extractItems(text2);
 
       expect(items[0]?.confidence).toBeGreaterThan(items2[0]?.confidence ?? 0);

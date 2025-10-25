@@ -49,7 +49,7 @@ describe('file-validation', () => {
     height?: number;
   }): MultipartFile {
     const buffer = options.buffer || Buffer.from('fake-image-data');
-    
+
     // Set up mock sharp to return specified dimensions
     if (options.width && options.height) {
       mockSharpInstance.metadata.mockResolvedValue({
@@ -110,11 +110,7 @@ describe('file-validation', () => {
   });
 
   describe('validateImage - MIME type', () => {
-    const validTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-    ];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
     validTypes.forEach((mimeType) => {
       it(`should accept ${mimeType}`, async () => {
@@ -309,7 +305,7 @@ describe('file-validation', () => {
   describe('ValidationError', () => {
     it('should create error with message and code', () => {
       const error = new ValidationError('Test message', 'TEST_CODE');
-      
+
       expect(error.message).toBe('Test message');
       expect(error.code).toBe('TEST_CODE');
       expect(error.name).toBe('ValidationError');

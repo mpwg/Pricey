@@ -53,17 +53,13 @@ describe('ReceiptProcessor - Real Image Integration', () => {
     const invalidBuffer = Buffer.from('not-an-image');
 
     // Should either throw or return empty result
-    await expect(
-      processor.process(invalidBuffer)
-    ).rejects.toThrow();
+    await expect(processor.process(invalidBuffer)).rejects.toThrow();
   });
 
   it('should handle empty image buffer', async () => {
     const processor = new ReceiptProcessor();
     const emptyBuffer = Buffer.alloc(0);
 
-    await expect(
-      processor.process(emptyBuffer)
-    ).rejects.toThrow();
+    await expect(processor.process(emptyBuffer)).rejects.toThrow();
   });
 });

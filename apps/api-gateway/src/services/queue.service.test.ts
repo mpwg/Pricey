@@ -168,10 +168,7 @@ describe('QueueService', () => {
 
       const uuidReceiptId = '550e8400-e29b-41d4-a716-446655440000';
 
-      await queueService.queueOCRJob(
-        uuidReceiptId,
-        'http://test.com/img.jpg'
-      );
+      await queueService.queueOCRJob(uuidReceiptId, 'http://test.com/img.jpg');
 
       expect(mockQueue.add).toHaveBeenCalledWith(
         expect.any(String),
@@ -287,7 +284,9 @@ describe('QueueService', () => {
     });
 
     it('should handle close errors gracefully', async () => {
-      mockQueue.close.mockRejectedValueOnce(new Error('Connection already closed'));
+      mockQueue.close.mockRejectedValueOnce(
+        new Error('Connection already closed')
+      );
 
       await expect(queueService.close()).rejects.toThrow(
         'Connection already closed'

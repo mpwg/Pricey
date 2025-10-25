@@ -49,7 +49,7 @@ describe('env configuration', () => {
   describe('required fields', () => {
     it('should require DATABASE_URL', () => {
       const result = envSchema.safeParse({});
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         const databaseUrlError = result.error.issues.find(
@@ -65,7 +65,7 @@ describe('env configuration', () => {
       const result = envSchema.safeParse({
         DATABASE_URL: 'not-a-valid-url',
       });
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         const urlError = result.error.issues.find(
@@ -81,7 +81,7 @@ describe('env configuration', () => {
       const result = envSchema.safeParse({
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.DATABASE_URL).toBe(
@@ -211,7 +211,7 @@ describe('env configuration', () => {
         ...validEnv,
         PORT: '8080',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.PORT).toBe(8080);
@@ -224,7 +224,7 @@ describe('env configuration', () => {
         ...validEnv,
         RATE_LIMIT_MAX: '500',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.RATE_LIMIT_MAX).toBe(500);
@@ -237,7 +237,7 @@ describe('env configuration', () => {
         ...validEnv,
         RATE_LIMIT_WINDOW: '120000',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.RATE_LIMIT_WINDOW).toBe(120000);
@@ -250,7 +250,7 @@ describe('env configuration', () => {
         ...validEnv,
         S3_PORT: '443',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_PORT).toBe(443);
@@ -263,7 +263,7 @@ describe('env configuration', () => {
         ...validEnv,
         S3_USE_SSL: 'true',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_USE_SSL).toBe(true);
@@ -276,7 +276,7 @@ describe('env configuration', () => {
         ...validEnv,
         S3_USE_SSL: 'false',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_USE_SSL).toBe(false);
@@ -288,7 +288,7 @@ describe('env configuration', () => {
         ...validEnv,
         S3_USE_SSL: 'yes',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_USE_SSL).toBe(false);
@@ -335,7 +335,7 @@ describe('env configuration', () => {
 
     it('should accept all valid LOG_LEVEL values', () => {
       const logLevels = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
-      
+
       logLevels.forEach((level) => {
         const result = envSchema.safeParse({
           ...validEnv,
@@ -415,7 +415,7 @@ describe('env configuration', () => {
       };
 
       const result = envSchema.safeParse(completeEnv);
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toMatchObject({

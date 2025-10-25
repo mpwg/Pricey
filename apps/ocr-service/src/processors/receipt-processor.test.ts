@@ -22,7 +22,7 @@ import { ReceiptProcessor } from './receipt-processor.js';
 // Hoist mock to run before imports
 const { mockProcessReceipt } = vi.hoisted(() => {
   const mockProcessReceipt = vi.fn();
-  
+
   return { mockProcessReceipt };
 });
 
@@ -340,7 +340,7 @@ describe('ReceiptProcessor', () => {
     it('should reject future dates', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_FUTURE_DATE,
-        confidence: 0.90,
+        confidence: 0.9,
       });
 
       const result = await processor.process(Buffer.from('fake-image'));
@@ -401,7 +401,9 @@ describe('ReceiptProcessor', () => {
 
       // The current quantity parser looks for patterns like "5 @ $1.29" at start of line
       // Check that we at least extracted the items, even if quantities aren't perfectly parsed
-      const apples = result.items.find((i) => i.name.toLowerCase().includes('apple'));
+      const apples = result.items.find((i) =>
+        i.name.toLowerCase().includes('apple')
+      );
       expect(apples).toBeDefined();
     });
 
@@ -435,7 +437,7 @@ describe('ReceiptProcessor', () => {
     it('should handle hyphens and special formatting in item names', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_SPECIAL_CHARS,
-        confidence: 0.90,
+        confidence: 0.9,
       });
 
       const result = await processor.process(Buffer.from('fake-image'));
@@ -510,11 +512,15 @@ describe('ReceiptProcessor', () => {
       const month = testDate.getMonth() + 1; // 1-indexed for formatting
       const day = testDate.getDate();
       const year = testDate.getFullYear();
-      
+
       const dateFormats = [
         { text: `Date: ${month}/${day}/${year}` },
-        { text: `Date: ${testDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}` },
-        { text: `Date: ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` },
+        {
+          text: `Date: ${testDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
+        },
+        {
+          text: `Date: ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+        },
       ];
 
       for (const format of dateFormats) {

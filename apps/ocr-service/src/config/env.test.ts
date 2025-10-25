@@ -46,7 +46,7 @@ describe('ocr-service env configuration', () => {
   describe('required fields', () => {
     it('should require DATABASE_URL', () => {
       const result = envSchema.safeParse({});
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         const databaseUrlError = result.error.issues.find(
@@ -61,7 +61,7 @@ describe('ocr-service env configuration', () => {
       const result = envSchema.safeParse({
         DATABASE_URL: 'not-a-valid-url',
       });
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         const urlError = result.error.issues.find(
@@ -76,7 +76,7 @@ describe('ocr-service env configuration', () => {
       const result = envSchema.safeParse({
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.DATABASE_URL).toBe(
@@ -190,7 +190,7 @@ describe('ocr-service env configuration', () => {
         ...validEnv,
         S3_PORT: '443',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_PORT).toBe(443);
@@ -203,7 +203,7 @@ describe('ocr-service env configuration', () => {
         ...validEnv,
         S3_USE_SSL: 'true',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_USE_SSL).toBe(true);
@@ -216,7 +216,7 @@ describe('ocr-service env configuration', () => {
         ...validEnv,
         S3_USE_SSL: 'false',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.S3_USE_SSL).toBe(false);
@@ -228,7 +228,7 @@ describe('ocr-service env configuration', () => {
         ...validEnv,
         OCR_CONCURRENCY: '10',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.OCR_CONCURRENCY).toBe(10);
@@ -241,7 +241,7 @@ describe('ocr-service env configuration', () => {
         ...validEnv,
         OCR_TIMEOUT: '60000',
       });
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.OCR_TIMEOUT).toBe(60000);
@@ -289,7 +289,7 @@ describe('ocr-service env configuration', () => {
 
     it('should accept all valid LOG_LEVEL values', () => {
       const logLevels = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
-      
+
       logLevels.forEach((level) => {
         const result = envSchema.safeParse({
           ...validEnv,
@@ -365,7 +365,7 @@ describe('ocr-service env configuration', () => {
       };
 
       const result = envSchema.safeParse(completeEnv);
-      
+
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data).toMatchObject({

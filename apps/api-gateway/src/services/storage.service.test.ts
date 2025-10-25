@@ -92,9 +92,7 @@ describe('StorageService', () => {
         toBuffer: vi.fn().mockResolvedValue(Buffer.from('mock-image-data')),
       };
 
-      const url = await storageService.uploadReceipt(
-        mockFile as MultipartFile
-      );
+      const url = await storageService.uploadReceipt(mockFile as MultipartFile);
 
       expect(mockFile.toBuffer).toHaveBeenCalled();
       expect(mockMinioClient.putObject).toHaveBeenCalledWith(
@@ -132,9 +130,7 @@ describe('StorageService', () => {
         toBuffer: vi.fn().mockResolvedValue(Buffer.from('mock-pdf-data')),
       };
 
-      const url = await storageService.uploadReceipt(
-        mockFile as MultipartFile
-      );
+      const url = await storageService.uploadReceipt(mockFile as MultipartFile);
 
       expect(mockMinioClient.putObject).toHaveBeenCalledWith(
         'pricy-receipts',
@@ -169,9 +165,7 @@ describe('StorageService', () => {
         toBuffer: vi.fn().mockResolvedValue(Buffer.from('mock-data')),
       };
 
-      const url = await storageService.uploadReceipt(
-        mockFile as MultipartFile
-      );
+      const url = await storageService.uploadReceipt(mockFile as MultipartFile);
 
       expect(url).toBeDefined();
       // Key should still be valid even without extension
@@ -394,7 +388,8 @@ describe('StorageService', () => {
 
   describe('getKeyFromUrl', () => {
     it('should extract key from full URL', () => {
-      const url = 'http://localhost:9000/pricy-receipts/receipts/2024-01-15/abc-123.jpg';
+      const url =
+        'http://localhost:9000/pricy-receipts/receipts/2024-01-15/abc-123.jpg';
       const key = storageService.getKeyFromUrl(url);
 
       expect(key).toBe('receipts/2024-01-15/abc-123.jpg');
@@ -411,8 +406,10 @@ describe('StorageService', () => {
     });
 
     it('should handle different file extensions', () => {
-      const jpgUrl = 'http://localhost:9000/pricy-receipts/receipts/2024-01-15/test.jpg';
-      const pngUrl = 'http://localhost:9000/pricy-receipts/receipts/2024-01-15/test.png';
+      const jpgUrl =
+        'http://localhost:9000/pricy-receipts/receipts/2024-01-15/test.jpg';
+      const pngUrl =
+        'http://localhost:9000/pricy-receipts/receipts/2024-01-15/test.png';
 
       expect(storageService.getKeyFromUrl(jpgUrl)).toContain('.jpg');
       expect(storageService.getKeyFromUrl(pngUrl)).toContain('.png');
@@ -434,7 +431,8 @@ describe('StorageService', () => {
     });
 
     it('should handle URLs with different ports', () => {
-      const url = 'http://localhost:8080/pricy-receipts/receipts/2024-01-15/test.jpg';
+      const url =
+        'http://localhost:8080/pricy-receipts/receipts/2024-01-15/test.jpg';
       const key = storageService.getKeyFromUrl(url);
 
       expect(key).toBe('receipts/2024-01-15/test.jpg');
@@ -455,7 +453,10 @@ describe('StorageService', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(client.bucketExists).toHaveBeenCalled();
-      expect(client.makeBucket).toHaveBeenCalledWith('pricy-receipts', 'us-east-1');
+      expect(client.makeBucket).toHaveBeenCalledWith(
+        'pricy-receipts',
+        'us-east-1'
+      );
     });
 
     it('should not create bucket if it already exists', async () => {
