@@ -423,7 +423,7 @@ services:
     restart: always
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data

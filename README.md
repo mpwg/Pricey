@@ -16,7 +16,7 @@
 [![Fastify](https://img.shields.io/badge/Fastify-5-000000.svg)](https://fastify.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-6-2D3748.svg)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791.svg)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D.svg)](https://redis.io/)
+[![Redis](https://img.shields.io/badge/Redis-8-DC382D.svg)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg)](https://www.docker.com/)
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mpwg/Pricey/blob/main/CONTRIBUTING.md)

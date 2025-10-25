@@ -12,7 +12,7 @@ The Analytics Service provides price comparison, shopping recommendations, and t
   - @google-cloud/optimization (route optimization)
   - Linear programming libraries
 - **Graph**: Neo4j (optional, for complex route planning)
-- **Cache**: Redis 7.x + Redis Streams
+- **Cache**: Redis 8.x + Redis Streams
 - **Validation**: Zod 3.x
 - **ORM**: Prisma 5.x
 
