@@ -5,24 +5,36 @@
 <!-- Badges -->
 <div align="center">
 
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/mpwg/Pricey/blob/main/LICENSE.md)
+<!-- Project Status & License -->
+
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-663399.svg?logo=gnu&logoColor=white)](https://github.com/mpwg/Pricey/blob/main/LICENSE.md)
 [![CI Status](https://github.com/mpwg/Pricey/workflows/CI/badge.svg)](https://github.com/mpwg/Pricey/actions/workflows/ci.yml)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24.10.0-brightgreen.svg)](https://nodejs.org/)
-[![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D10.19.0-orange.svg)](https://pnpm.io/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-success.svg)](https://github.com/mpwg/Pricey/network/updates)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C.svg?logo=dependabot&logoColor=white)](https://github.com/mpwg/Pricey/network/updates)
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
-[![Fastify](https://img.shields.io/badge/Fastify-5-000000.svg)](https://fastify.dev/)
-[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748.svg)](https://www.prisma.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791.svg)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-8-DC382D.svg)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg)](https://www.docker.com/)
+<!-- Development Tools -->
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mpwg/Pricey/blob/main/CONTRIBUTING.md)
-[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![Monorepo: Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-EF4444.svg)](https://turbo.build/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24.10.0-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D10.19.0-F69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Monorepo: Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-EF4444.svg?logo=turborepo&logoColor=white)](https://turbo.build/)
+
+<!-- Frontend & Backend Stack -->
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-5-202020.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
+
+<!-- Infrastructure -->
+
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-8-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+
+<!-- Code Quality & Contribution -->
+
+[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-F7B93E.svg?logo=prettier&logoColor=white)](https://prettier.io/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196.svg?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-00C851.svg?logo=github&logoColor=white)](https://github.com/mpwg/Pricey/blob/main/CONTRIBUTING.md)
 
 </div>
 
