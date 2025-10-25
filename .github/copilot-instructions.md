@@ -161,6 +161,41 @@ model Product {
 
 ## Critical Workflows
 
+### Documentation-First Development (MANDATORY)
+
+**⚠️ CRITICAL RULE: Always fetch library documentation BEFORE implementing features**
+
+Before writing any code that uses external libraries or frameworks:
+
+1. **Identify** all libraries/frameworks involved in the feature
+2. **Resolve** library IDs using `mcp_context7_resolve-library-id` or `mcp_upstash_conte_resolve-library-id`
+3. **Fetch** current documentation using `mcp_context7_get-library-docs` or `mcp_upstash_conte_get-library-docs`
+4. **Review** the documentation for:
+   - Latest API patterns and best practices
+   - Recommended configurations
+   - Official examples and code snippets
+   - Deprecated features to avoid
+5. **Implement** the feature following official guidance
+
+**Examples of when this applies:**
+
+- Setting up Fastify routes, plugins, and middleware
+- Configuring Tesseract.js for OCR processing
+- Implementing BullMQ job queues and workers
+- Using Sharp for image preprocessing
+- Working with MinIO/S3 clients
+- Configuring Prisma schema and queries
+- Setting up Redis clients
+- ANY third-party library integration
+
+**Why this matters:**
+
+- ✅ Ensures use of latest, non-deprecated APIs
+- ✅ Avoids common pitfalls and anti-patterns
+- ✅ Leverages official best practices
+- ✅ Reduces bugs from incorrect usage
+- ✅ Saves time by not guessing API signatures
+
 ### Receipt Processing Pipeline
 
 1. **Upload** → Image stored in MinIO/S3
