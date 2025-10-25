@@ -54,10 +54,10 @@ Pricy implements comprehensive observability using the **three pillars**:
 
 ```typescript
 // filepath: packages/logger/src/logger.ts
-import pino from "pino";
+import pino from 'pino';
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || "info",
+  level: process.env.LOG_LEVEL || 'info',
   formatters: {
     level: (label) => ({ level: label.toUpperCase() }),
     bindings: (bindings) => ({
@@ -75,10 +75,10 @@ const logger = pino({
   },
   redact: {
     paths: [
-      "req.headers.authorization",
-      "req.headers.cookie",
-      "req.body.password",
-      "req.body.token",
+      'req.headers.authorization',
+      'req.headers.cookie',
+      'req.body.password',
+      'req.body.token',
     ],
     remove: true,
   },
@@ -102,8 +102,8 @@ export default logger;
 
 ```typescript
 // filepath: apps/api/src/middleware/logger.middleware.ts
-import logger from "@pricy/logger";
-import { randomUUID } from "crypto";
+import logger from '@pricy/logger';
+import { randomUUID } from 'crypto';
 
 export function requestLogger(
   req: FastifyRequest,
@@ -114,7 +114,7 @@ export function requestLogger(
 
   // Attach request ID to request
   req.id = requestId;
-  reply.header("X-Request-ID", requestId);
+  reply.header('X-Request-ID', requestId);
 
   // Create child logger with context
   req.log = logger.child({
@@ -123,20 +123,20 @@ export function requestLogger(
     method: req.method,
     path: req.url,
     ip: req.ip,
-    userAgent: req.headers["user-agent"],
+    userAgent: req.headers['user-agent'],
   });
 
   // Log request
-  req.log.info("Incoming request");
+  req.log.info('Incoming request');
 
   // Log response
-  reply.addHook("onResponse", () => {
+  reply.addHook('onResponse', () => {
     req.log.info(
       {
         statusCode: reply.statusCode,
         responseTime: reply.getResponseTime(),
       },
-      "Request completed"
+      'Request completed'
     );
   });
 
@@ -152,20 +152,20 @@ export class ReceiptService {
   async createReceipt(data: CreateReceiptDto): Promise<Receipt> {
     logger.info(
       {
-        event: "receipt.created",
+        event: 'receipt.created',
         userId: data.userId,
         storeId: data.storeId,
         itemCount: data.items.length,
         totalAmount: data.totalAmount,
       },
-      "Receipt created successfully"
+      'Receipt created successfully'
     );
 
     try {
       const receipt = await prisma.receipt.create({ data });
 
       // Emit event for analytics
-      await eventBus.emit("receipt.created", {
+      await eventBus.emit('receipt.created', {
         receiptId: receipt.id,
         userId: data.userId,
         timestamp: new Date(),
@@ -175,12 +175,12 @@ export class ReceiptService {
     } catch (error) {
       logger.error(
         {
-          event: "receipt.creation_failed",
+          event: 'receipt.creation_failed',
           userId: data.userId,
           error: error.message,
           stack: error.stack,
         },
-        "Failed to create receipt"
+        'Failed to create receipt'
       );
 
       throw error;
@@ -193,13 +193,13 @@ export class ReceiptService {
 
 ```yaml
 # filepath: docker-compose.monitoring.yml
-version: "3.8"
+version: '3.8'
 
 services:
   loki:
     image: grafana/loki:latest
     ports:
-      - "3100:3100"
+      - '3100:3100'
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
@@ -259,61 +259,61 @@ limits_config:
 
 ```typescript
 // filepath: packages/metrics/src/metrics.ts
-import client from "prom-client";
+import client from 'prom-client';
 
 // Register default metrics (CPU, memory, etc.)
 client.collectDefaultMetrics();
 
 // Custom metrics
 export const httpRequestDuration = new client.Histogram({
-  name: "http_request_duration_seconds",
-  help: "Duration of HTTP requests in seconds",
-  labelNames: ["method", "route", "status_code"],
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
   buckets: [0.1, 0.5, 1, 2, 5, 10],
 });
 
 export const httpRequestTotal = new client.Counter({
-  name: "http_requests_total",
-  help: "Total number of HTTP requests",
-  labelNames: ["method", "route", "status_code"],
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 export const activeConnections = new client.Gauge({
-  name: "active_connections",
-  help: "Number of active connections",
+  name: 'active_connections',
+  help: 'Number of active connections',
 });
 
 export const receiptProcessingDuration = new client.Histogram({
-  name: "receipt_processing_duration_seconds",
-  help: "Time taken to process receipts",
-  labelNames: ["ocr_provider", "status"],
+  name: 'receipt_processing_duration_seconds',
+  help: 'Time taken to process receipts',
+  labelNames: ['ocr_provider', 'status'],
   buckets: [1, 2, 5, 10, 30, 60],
 });
 
 export const databaseQueryDuration = new client.Histogram({
-  name: "database_query_duration_seconds",
-  help: "Duration of database queries",
-  labelNames: ["operation", "table"],
+  name: 'database_query_duration_seconds',
+  help: 'Duration of database queries',
+  labelNames: ['operation', 'table'],
   buckets: [0.001, 0.01, 0.1, 0.5, 1, 5],
 });
 
 export const queueSize = new client.Gauge({
-  name: "queue_size",
-  help: "Number of items in queue",
-  labelNames: ["queue_name"],
+  name: 'queue_size',
+  help: 'Number of items in queue',
+  labelNames: ['queue_name'],
 });
 
 // Business metrics
 export const receiptsCreated = new client.Counter({
-  name: "receipts_created_total",
-  help: "Total number of receipts created",
-  labelNames: ["store"],
+  name: 'receipts_created_total',
+  help: 'Total number of receipts created',
+  labelNames: ['store'],
 });
 
 export const ocrErrorRate = new client.Counter({
-  name: "ocr_errors_total",
-  help: "Total number of OCR errors",
-  labelNames: ["provider", "error_type"],
+  name: 'ocr_errors_total',
+  help: 'Total number of OCR errors',
+  labelNames: ['provider', 'error_type'],
 });
 ```
 
@@ -325,7 +325,7 @@ import {
   httpRequestDuration,
   httpRequestTotal,
   activeConnections,
-} from "@pricy/metrics";
+} from '@pricy/metrics';
 
 export function metricsMiddleware(
   req: FastifyRequest,
@@ -336,7 +336,7 @@ export function metricsMiddleware(
 
   activeConnections.inc();
 
-  reply.addHook("onResponse", () => {
+  reply.addHook('onResponse', () => {
     const duration = (Date.now() - start) / 1000;
     const route = req.routerPath || req.url;
 
@@ -364,30 +364,30 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: "api-gateway"
+  - job_name: 'api-gateway'
     static_configs:
-      - targets: ["api:3000"]
-    metrics_path: "/metrics"
+      - targets: ['api:3000']
+    metrics_path: '/metrics'
 
-  - job_name: "ocr-service"
+  - job_name: 'ocr-service'
     static_configs:
-      - targets: ["ocr-service:3001"]
+      - targets: ['ocr-service:3001']
 
-  - job_name: "product-service"
+  - job_name: 'product-service'
     static_configs:
-      - targets: ["product-service:3002"]
+      - targets: ['product-service:3002']
 
-  - job_name: "postgres"
+  - job_name: 'postgres'
     static_configs:
-      - targets: ["postgres-exporter:9187"]
+      - targets: ['postgres-exporter:9187']
 
-  - job_name: "redis"
+  - job_name: 'redis'
     static_configs:
-      - targets: ["redis-exporter:9121"]
+      - targets: ['redis-exporter:9121']
 
-  - job_name: "node"
+  - job_name: 'node'
     static_configs:
-      - targets: ["node-exporter:9100"]
+      - targets: ['node-exporter:9100']
 ```
 
 ---
@@ -398,37 +398,37 @@ scrape_configs:
 
 ```typescript
 // filepath: packages/tracing/src/tracing.ts
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
-import { Resource } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+import { Resource } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 const sdk = new NodeSDK({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]:
-      process.env.SERVICE_NAME || "pricy",
+      process.env.SERVICE_NAME || 'pricy',
     [SemanticResourceAttributes.SERVICE_VERSION]:
-      process.env.APP_VERSION || "1.0.0",
+      process.env.APP_VERSION || '1.0.0',
   }),
   traceExporter: new JaegerExporter({
     endpoint:
-      process.env.JAEGER_ENDPOINT || "http://localhost:14268/api/traces",
+      process.env.JAEGER_ENDPOINT || 'http://localhost:14268/api/traces',
   }),
   instrumentations: [
     getNodeAutoInstrumentations({
-      "@opentelemetry/instrumentation-fs": { enabled: false },
+      '@opentelemetry/instrumentation-fs': { enabled: false },
     }),
   ],
 });
 
 sdk.start();
 
-process.on("SIGTERM", () => {
+process.on('SIGTERM', () => {
   sdk
     .shutdown()
-    .then(() => console.log("Tracing terminated"))
-    .catch((error) => console.error("Error terminating tracing", error));
+    .then(() => console.log('Tracing terminated'))
+    .catch((error) => console.error('Error terminating tracing', error));
 });
 ```
 
@@ -436,31 +436,31 @@ process.on("SIGTERM", () => {
 
 ```typescript
 // filepath: apps/api/src/services/receipt.service.ts
-import { trace } from "@opentelemetry/api";
+import { trace } from '@opentelemetry/api';
 
-const tracer = trace.getTracer("receipt-service");
+const tracer = trace.getTracer('receipt-service');
 
 export class ReceiptService {
   async processReceipt(receiptId: string): Promise<Receipt> {
-    const span = tracer.startSpan("processReceipt");
+    const span = tracer.startSpan('processReceipt');
 
     try {
-      span.setAttribute("receipt.id", receiptId);
+      span.setAttribute('receipt.id', receiptId);
 
       // OCR processing
-      const ocrSpan = tracer.startSpan("ocr.process", {
+      const ocrSpan = tracer.startSpan('ocr.process', {
         parent: span,
       });
       const ocrResult = await this.ocrService.processImage(receiptId);
-      ocrSpan.setAttribute("ocr.confidence", ocrResult.confidence);
+      ocrSpan.setAttribute('ocr.confidence', ocrResult.confidence);
       ocrSpan.end();
 
       // Product matching
-      const matchSpan = tracer.startSpan("product.match", {
+      const matchSpan = tracer.startSpan('product.match', {
         parent: span,
       });
       const products = await this.productService.matchProducts(ocrResult.items);
-      matchSpan.setAttribute("product.count", products.length);
+      matchSpan.setAttribute('product.count', products.length);
       matchSpan.end();
 
       span.setStatus({ code: SpanStatusCode.OK });
@@ -487,8 +487,8 @@ export class ReceiptService {
 
 ```typescript
 // filepath: apps/api/src/config/sentry.ts
-import * as Sentry from "@sentry/node";
-import { ProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from '@sentry/node';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -496,7 +496,7 @@ Sentry.init({
   release: `pricy@${process.env.APP_VERSION}`,
 
   // Performance monitoring
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   profilesSampleRate: 1.0,
 
   integrations: [new ProfilingIntegration()],
@@ -504,7 +504,7 @@ Sentry.init({
   // Error filtering
   beforeSend(event, hint) {
     // Don't send validation errors
-    if (hint.originalException?.name === "ValidationError") {
+    if (hint.originalException?.name === 'ValidationError') {
       return null;
     }
 
@@ -541,7 +541,7 @@ export function sentryErrorHandler(error: Error, req: any, reply: any) {
 
 ```typescript
 // filepath: apps/web/src/lib/sentry.ts
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -560,8 +560,8 @@ Sentry.init({
 
   // Ignore common errors
   ignoreErrors: [
-    "ResizeObserver loop limit exceeded",
-    "Non-Error promise rejection captured",
+    'ResizeObserver loop limit exceeded',
+    'Non-Error promise rejection captured',
   ],
 });
 ```
@@ -574,7 +574,7 @@ Sentry.init({
 
 ```typescript
 // filepath: apps/api/src/middleware/apm.middleware.ts
-import { performance } from "perf_hooks";
+import { performance } from 'perf_hooks';
 
 export function performanceMonitoring(
   req: FastifyRequest,
@@ -583,7 +583,7 @@ export function performanceMonitoring(
 ) {
   const start = performance.now();
 
-  reply.addHook("onResponse", () => {
+  reply.addHook('onResponse', () => {
     const duration = performance.now() - start;
 
     // Track slow requests
@@ -595,16 +595,16 @@ export function performanceMonitoring(
           duration,
           userId: req.user?.id,
         },
-        "Slow request detected"
+        'Slow request detected'
       );
     }
 
     // Report to APM
     apm.recordTransaction({
       name: `${req.method} ${req.routerPath}`,
-      type: "request",
+      type: 'request',
       duration,
-      result: reply.statusCode < 400 ? "success" : "error",
+      result: reply.statusCode < 400 ? 'success' : 'error',
     });
   });
 
@@ -616,8 +616,8 @@ export function performanceMonitoring(
 
 ```typescript
 // filepath: packages/database/src/monitoring.ts
-import { PrismaClient } from "@prisma/client";
-import { databaseQueryDuration } from "@pricy/metrics";
+import { PrismaClient } from '@prisma/client';
+import { databaseQueryDuration } from '@pricy/metrics';
 
 const prisma = new PrismaClient();
 
@@ -630,7 +630,7 @@ prisma.$use(async (params, next) => {
     const duration = (Date.now() - start) / 1000;
 
     databaseQueryDuration
-      .labels(params.action, params.model || "unknown")
+      .labels(params.action, params.model || 'unknown')
       .observe(duration);
 
     // Log slow queries
@@ -641,7 +641,7 @@ prisma.$use(async (params, next) => {
           action: params.action,
           duration,
         },
-        "Slow database query"
+        'Slow database query'
       );
     }
 
@@ -653,7 +653,7 @@ prisma.$use(async (params, next) => {
         action: params.action,
         error: error.message,
       },
-      "Database query failed"
+      'Database query failed'
     );
     throw error;
   }
@@ -679,8 +679,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value }} errors/sec"
+          summary: 'High error rate detected'
+          description: 'Error rate is {{ $value }} errors/sec'
 
       # Slow response time
       - alert: SlowResponseTime
@@ -689,8 +689,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "API response time is slow"
-          description: "95th percentile is {{ $value }}s"
+          summary: 'API response time is slow'
+          description: '95th percentile is {{ $value }}s'
 
       # High CPU usage
       - alert: HighCPUUsage
@@ -699,7 +699,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High CPU usage"
+          summary: 'High CPU usage'
 
       # Database connection pool exhausted
       - alert: DatabasePoolExhausted
@@ -708,7 +708,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Database connection pool nearly exhausted"
+          summary: 'Database connection pool nearly exhausted'
 
       # Queue backlog
       - alert: QueueBacklog
@@ -717,8 +717,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "OCR queue backlog"
-          description: "{{ $value }} items in queue"
+          summary: 'OCR queue backlog'
+          description: '{{ $value }} items in queue'
 ```
 
 ### Notification Channels
@@ -729,50 +729,50 @@ global:
   resolve_timeout: 5m
 
 route:
-  group_by: ["alertname", "severity"]
+  group_by: ['alertname', 'severity']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 12h
-  receiver: "default"
+  receiver: 'default'
 
   routes:
     # Critical alerts -> PagerDuty + Slack
     - match:
         severity: critical
-      receiver: "pagerduty-critical"
+      receiver: 'pagerduty-critical'
       continue: true
 
     - match:
         severity: critical
-      receiver: "slack-critical"
+      receiver: 'slack-critical'
 
     # Warnings -> Slack only
     - match:
         severity: warning
-      receiver: "slack-warnings"
+      receiver: 'slack-warnings'
 
 receivers:
-  - name: "default"
+  - name: 'default'
     webhook_configs:
-      - url: "http://localhost:5001/webhook"
+      - url: 'http://localhost:5001/webhook'
 
-  - name: "pagerduty-critical"
+  - name: 'pagerduty-critical'
     pagerduty_configs:
-      - service_key: "<PAGERDUTY_KEY>"
-        severity: "critical"
+      - service_key: '<PAGERDUTY_KEY>'
+        severity: 'critical'
 
-  - name: "slack-critical"
+  - name: 'slack-critical'
     slack_configs:
-      - api_url: "<SLACK_WEBHOOK_URL>"
-        channel: "#alerts-critical"
-        title: "🚨 CRITICAL ALERT"
-        text: "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+      - api_url: '<SLACK_WEBHOOK_URL>'
+        channel: '#alerts-critical'
+        title: '🚨 CRITICAL ALERT'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
 
-  - name: "slack-warnings"
+  - name: 'slack-warnings'
     slack_configs:
-      - api_url: "<SLACK_WEBHOOK_URL>"
-        channel: "#alerts-warnings"
-        title: "⚠️ Warning"
+      - api_url: '<SLACK_WEBHOOK_URL>'
+        channel: '#alerts-warnings'
+        title: '⚠️ Warning'
 ```
 
 ---
@@ -832,21 +832,18 @@ receivers:
 ### Custom Dashboards
 
 1. **API Performance**
-
    - Request rate (RPS)
    - Error rate (%)
    - Response time percentiles (p50, p95, p99)
    - Active connections
 
 2. **Business Metrics**
-
    - Receipts uploaded/hour
    - OCR success rate
    - Product match accuracy
    - User registrations
 
 3. **Infrastructure**
-
    - CPU usage
    - Memory usage
    - Disk I/O

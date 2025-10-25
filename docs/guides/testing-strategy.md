@@ -116,49 +116,49 @@ export default defineConfig({
 
 ```typescript
 // filepath: packages/utils/src/date.test.ts
-import { describe, it, expect } from "vitest";
-import { formatDate, getDaysInMonth, isLeapYear } from "./date";
+import { describe, it, expect } from 'vitest';
+import { formatDate, getDaysInMonth, isLeapYear } from './date';
 
-describe("Date Utilities", () => {
-  describe("formatDate", () => {
-    it("should format date in ISO format", () => {
-      const date = new Date("2024-03-15T10:30:00Z");
-      expect(formatDate(date, "iso")).toBe("2024-03-15");
+describe('Date Utilities', () => {
+  describe('formatDate', () => {
+    it('should format date in ISO format', () => {
+      const date = new Date('2024-03-15T10:30:00Z');
+      expect(formatDate(date, 'iso')).toBe('2024-03-15');
     });
 
-    it("should format date in US format", () => {
-      const date = new Date("2024-03-15T10:30:00Z");
-      expect(formatDate(date, "us")).toBe("03/15/2024");
+    it('should format date in US format', () => {
+      const date = new Date('2024-03-15T10:30:00Z');
+      expect(formatDate(date, 'us')).toBe('03/15/2024');
     });
 
-    it("should handle invalid dates", () => {
-      expect(() => formatDate(new Date("invalid"), "iso")).toThrow(
-        "Invalid date"
+    it('should handle invalid dates', () => {
+      expect(() => formatDate(new Date('invalid'), 'iso')).toThrow(
+        'Invalid date'
       );
     });
   });
 
-  describe("isLeapYear", () => {
-    it("should identify leap years", () => {
+  describe('isLeapYear', () => {
+    it('should identify leap years', () => {
       expect(isLeapYear(2024)).toBe(true);
       expect(isLeapYear(2000)).toBe(true);
     });
 
-    it("should identify non-leap years", () => {
+    it('should identify non-leap years', () => {
       expect(isLeapYear(2023)).toBe(false);
       expect(isLeapYear(1900)).toBe(false);
     });
   });
 
-  describe("getDaysInMonth", () => {
-    it("should return correct days for each month", () => {
+  describe('getDaysInMonth', () => {
+    it('should return correct days for each month', () => {
       expect(getDaysInMonth(2024, 2)).toBe(29); // Feb in leap year
       expect(getDaysInMonth(2023, 2)).toBe(28); // Feb in non-leap year
       expect(getDaysInMonth(2024, 4)).toBe(30); // April
       expect(getDaysInMonth(2024, 1)).toBe(31); // January
     });
 
-    it("should throw error for invalid months", () => {
+    it('should throw error for invalid months', () => {
       expect(() => getDaysInMonth(2024, 0)).toThrow();
       expect(() => getDaysInMonth(2024, 13)).toThrow();
     });
@@ -170,59 +170,59 @@ describe("Date Utilities", () => {
 
 ```typescript
 // filepath: packages/utils/src/api.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ApiClient } from "./api";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ApiClient } from './api';
 
-describe("ApiClient", () => {
+describe('ApiClient', () => {
   let apiClient: ApiClient;
   let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockFetch = vi.fn();
     global.fetch = mockFetch;
-    apiClient = new ApiClient("https://api.example.com");
+    apiClient = new ApiClient('https://api.example.com');
   });
 
-  it("should make GET request", async () => {
+  it('should make GET request', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ data: "test" }),
+      json: async () => ({ data: 'test' }),
     });
 
-    const result = await apiClient.get("/users");
+    const result = await apiClient.get('/users');
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://api.example.com/users",
+      'https://api.example.com/users',
       expect.objectContaining({
-        method: "GET",
+        method: 'GET',
       })
     );
-    expect(result).toEqual({ data: "test" });
+    expect(result).toEqual({ data: 'test' });
   });
 
-  it("should handle errors", async () => {
+  it('should handle errors', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
-      statusText: "Not Found",
+      statusText: 'Not Found',
     });
 
-    await expect(apiClient.get("/users/999")).rejects.toThrow("Not Found");
+    await expect(apiClient.get('/users/999')).rejects.toThrow('Not Found');
   });
 
-  it("should retry on failure", async () => {
+  it('should retry on failure', async () => {
     mockFetch
-      .mockRejectedValueOnce(new Error("Network error"))
-      .mockRejectedValueOnce(new Error("Network error"))
+      .mockRejectedValueOnce(new Error('Network error'))
+      .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ data: "success" }),
+        json: async () => ({ data: 'success' }),
       });
 
-    const result = await apiClient.get("/users", { retries: 3 });
+    const result = await apiClient.get('/users', { retries: 3 });
 
     expect(mockFetch).toHaveBeenCalledTimes(3);
-    expect(result).toEqual({ data: "success" });
+    expect(result).toEqual({ data: 'success' });
   });
 });
 ```
@@ -231,72 +231,72 @@ describe("ApiClient", () => {
 
 ```typescript
 // filepath: packages/validation/src/receipt.test.ts
-import { describe, it, expect } from "vitest";
-import { receiptUploadSchema, receiptQuerySchema } from "./receipt.schema";
+import { describe, it, expect } from 'vitest';
+import { receiptUploadSchema, receiptQuerySchema } from './receipt.schema';
 
-describe("Receipt Validation Schemas", () => {
-  describe("receiptUploadSchema", () => {
-    it("should validate valid receipt upload", () => {
+describe('Receipt Validation Schemas', () => {
+  describe('receiptUploadSchema', () => {
+    it('should validate valid receipt upload', () => {
       const validData = {
-        image: new File(["test"], "receipt.jpg", { type: "image/jpeg" }),
-        storeId: "123e4567-e89b-12d3-a456-426614174000",
-        date: new Date("2024-01-15"),
-        notes: "Weekly groceries",
+        image: new File(['test'], 'receipt.jpg', { type: 'image/jpeg' }),
+        storeId: '123e4567-e89b-12d3-a456-426614174000',
+        date: new Date('2024-01-15'),
+        notes: 'Weekly groceries',
       };
 
       expect(() => receiptUploadSchema.parse(validData)).not.toThrow();
     });
 
-    it("should reject oversized images", () => {
+    it('should reject oversized images', () => {
       const oversizedFile = new File(
         [new ArrayBuffer(11 * 1024 * 1024)], // 11MB
-        "large.jpg",
-        { type: "image/jpeg" }
+        'large.jpg',
+        { type: 'image/jpeg' }
       );
 
       expect(() => receiptUploadSchema.parse({ image: oversizedFile })).toThrow(
-        "File must be less than 10MB"
+        'File must be less than 10MB'
       );
     });
 
-    it("should reject invalid file types", () => {
-      const invalidFile = new File(["test"], "doc.pdf", {
-        type: "application/pdf",
+    it('should reject invalid file types', () => {
+      const invalidFile = new File(['test'], 'doc.pdf', {
+        type: 'application/pdf',
       });
 
       expect(() => receiptUploadSchema.parse({ image: invalidFile })).toThrow(
-        "File must be an image"
+        'File must be an image'
       );
     });
 
-    it("should reject future dates", () => {
+    it('should reject future dates', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
 
       const data = {
-        image: new File(["test"], "receipt.jpg", { type: "image/jpeg" }),
+        image: new File(['test'], 'receipt.jpg', { type: 'image/jpeg' }),
         date: futureDate,
       };
 
       expect(() => receiptUploadSchema.parse(data)).toThrow(
-        "Date cannot be in the future"
+        'Date cannot be in the future'
       );
     });
   });
 
-  describe("receiptQuerySchema", () => {
-    it("should apply defaults", () => {
+  describe('receiptQuerySchema', () => {
+    it('should apply defaults', () => {
       const result = receiptQuerySchema.parse({});
 
       expect(result).toEqual({
         page: 1,
         limit: 20,
-        sortBy: "date",
-        order: "desc",
+        sortBy: 'date',
+        order: 'desc',
       });
     });
 
-    it("should validate pagination", () => {
+    it('should validate pagination', () => {
       expect(() => receiptQuerySchema.parse({ page: 0 })).toThrow();
 
       expect(() => receiptQuerySchema.parse({ limit: 101 })).toThrow();
@@ -320,21 +320,21 @@ describe("Receipt Validation Schemas", () => {
 
 ```typescript
 // filepath: apps/api/vitest.setup.ts
-import { beforeAll, afterAll, afterEach } from "vitest";
-import { PrismaClient } from "@prisma/client";
-import { execSync } from "child_process";
+import { beforeAll, afterAll, afterEach } from 'vitest';
+import { PrismaClient } from '@prisma/client';
+import { execSync } from 'child_process';
 
 const prisma = new PrismaClient();
 
 beforeAll(async () => {
   // Start test database
-  execSync("docker-compose -f docker-compose.test.yml up -d postgres-test");
+  execSync('docker-compose -f docker-compose.test.yml up -d postgres-test');
 
   // Wait for database to be ready
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Run migrations
-  execSync("DATABASE_URL=$TEST_DATABASE_URL pnpm prisma migrate deploy");
+  execSync('DATABASE_URL=$TEST_DATABASE_URL pnpm prisma migrate deploy');
 });
 
 afterEach(async () => {
@@ -345,7 +345,7 @@ afterEach(async () => {
 
 afterAll(async () => {
   await prisma.$disconnect();
-  execSync("docker-compose -f docker-compose.test.yml down");
+  execSync('docker-compose -f docker-compose.test.yml down');
 });
 ```
 
@@ -355,12 +355,12 @@ afterAll(async () => {
 
 ```typescript
 // filepath: apps/api/src/routes/receipts.test.ts
-import { describe, it, expect, beforeEach } from "vitest";
-import request from "supertest";
-import { app } from "../app";
-import { createTestUser, createAuthToken } from "../test/helpers";
+import { describe, it, expect, beforeEach } from 'vitest';
+import request from 'supertest';
+import { app } from '../app';
+import { createTestUser, createAuthToken } from '../test/helpers';
 
-describe("Receipt API", () => {
+describe('Receipt API', () => {
   let authToken: string;
   let userId: string;
 
@@ -370,59 +370,59 @@ describe("Receipt API", () => {
     authToken = createAuthToken(user);
   });
 
-  describe("POST /receipts", () => {
-    it("should upload receipt successfully", async () => {
+  describe('POST /receipts', () => {
+    it('should upload receipt successfully', async () => {
       const response = await request(app)
-        .post("/receipts")
-        .set("Authorization", `Bearer ${authToken}`)
-        .attach("image", "test/fixtures/receipt.jpg")
-        .field("storeId", "test-store-id")
-        .field("date", "2024-01-15")
+        .post('/receipts')
+        .set('Authorization', `Bearer ${authToken}`)
+        .attach('image', 'test/fixtures/receipt.jpg')
+        .field('storeId', 'test-store-id')
+        .field('date', '2024-01-15')
         .expect(201);
 
       expect(response.body).toMatchObject({
         id: expect.any(String),
         userId,
-        storeId: "test-store-id",
-        status: "pending",
+        storeId: 'test-store-id',
+        status: 'pending',
       });
     });
 
-    it("should reject unauthenticated requests", async () => {
+    it('should reject unauthenticated requests', async () => {
       await request(app)
-        .post("/receipts")
-        .attach("image", "test/fixtures/receipt.jpg")
+        .post('/receipts')
+        .attach('image', 'test/fixtures/receipt.jpg')
         .expect(401);
     });
 
-    it("should validate image size", async () => {
+    it('should validate image size', async () => {
       await request(app)
-        .post("/receipts")
-        .set("Authorization", `Bearer ${authToken}`)
-        .attach("image", "test/fixtures/large-receipt.jpg") // 11MB
+        .post('/receipts')
+        .set('Authorization', `Bearer ${authToken}`)
+        .attach('image', 'test/fixtures/large-receipt.jpg') // 11MB
         .expect(400)
         .expect((res) => {
-          expect(res.body.message).toContain("File must be less than 10MB");
+          expect(res.body.message).toContain('File must be less than 10MB');
         });
     });
   });
 
-  describe("GET /receipts", () => {
+  describe('GET /receipts', () => {
     beforeEach(async () => {
       // Create test receipts
       await prisma.receipt.createMany({
         data: [
-          { userId, storeId: "store-1", date: new Date("2024-01-01") },
-          { userId, storeId: "store-2", date: new Date("2024-01-02") },
-          { userId, storeId: "store-1", date: new Date("2024-01-03") },
+          { userId, storeId: 'store-1', date: new Date('2024-01-01') },
+          { userId, storeId: 'store-2', date: new Date('2024-01-02') },
+          { userId, storeId: 'store-1', date: new Date('2024-01-03') },
         ],
       });
     });
 
-    it("should return paginated receipts", async () => {
+    it('should return paginated receipts', async () => {
       const response = await request(app)
-        .get("/receipts?page=1&limit=2")
-        .set("Authorization", `Bearer ${authToken}`)
+        .get('/receipts?page=1&limit=2')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -434,43 +434,43 @@ describe("Receipt API", () => {
       });
     });
 
-    it("should filter by store", async () => {
+    it('should filter by store', async () => {
       const response = await request(app)
-        .get("/receipts?storeId=store-1")
-        .set("Authorization", `Bearer ${authToken}`)
+        .get('/receipts?storeId=store-1')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
       expect(
-        response.body.data.every((r: any) => r.storeId === "store-1")
+        response.body.data.every((r: any) => r.storeId === 'store-1')
       ).toBe(true);
     });
 
     it("should only return user's own receipts", async () => {
       // Create another user's receipt
-      const otherUser = await createTestUser({ email: "other@example.com" });
+      const otherUser = await createTestUser({ email: 'other@example.com' });
       await prisma.receipt.create({
-        data: { userId: otherUser.id, storeId: "store-3" },
+        data: { userId: otherUser.id, storeId: 'store-3' },
       });
 
       const response = await request(app)
-        .get("/receipts")
-        .set("Authorization", `Bearer ${authToken}`)
+        .get('/receipts')
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
       expect(response.body.data).toHaveLength(3); // Only current user's receipts
     });
   });
 
-  describe("DELETE /receipts/:id", () => {
-    it("should delete receipt", async () => {
+  describe('DELETE /receipts/:id', () => {
+    it('should delete receipt', async () => {
       const receipt = await prisma.receipt.create({
-        data: { userId, storeId: "store-1" },
+        data: { userId, storeId: 'store-1' },
       });
 
       await request(app)
         .delete(`/receipts/${receipt.id}`)
-        .set("Authorization", `Bearer ${authToken}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(204);
 
       const deleted = await prisma.receipt.findUnique({
@@ -480,14 +480,14 @@ describe("Receipt API", () => {
     });
 
     it("should prevent deleting other user's receipts", async () => {
-      const otherUser = await createTestUser({ email: "other@example.com" });
+      const otherUser = await createTestUser({ email: 'other@example.com' });
       const otherReceipt = await prisma.receipt.create({
-        data: { userId: otherUser.id, storeId: "store-1" },
+        data: { userId: otherUser.id, storeId: 'store-1' },
       });
 
       await request(app)
         .delete(`/receipts/${otherReceipt.id}`)
-        .set("Authorization", `Bearer ${authToken}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(404); // Not found (row-level security)
     });
   });
@@ -498,11 +498,11 @@ describe("Receipt API", () => {
 
 ```typescript
 // filepath: apps/api/src/services/receipt.service.test.ts
-import { describe, it, expect, beforeEach } from "vitest";
-import { ReceiptService } from "./receipt.service";
-import { createTestUser } from "../test/helpers";
+import { describe, it, expect, beforeEach } from 'vitest';
+import { ReceiptService } from './receipt.service';
+import { createTestUser } from '../test/helpers';
 
-describe("ReceiptService", () => {
+describe('ReceiptService', () => {
   let service: ReceiptService;
   let userId: string;
 
@@ -512,14 +512,14 @@ describe("ReceiptService", () => {
     userId = user.id;
   });
 
-  describe("createReceipt", () => {
-    it("should create receipt with items", async () => {
+  describe('createReceipt', () => {
+    it('should create receipt with items', async () => {
       const receipt = await service.createReceipt({
         userId,
-        storeId: "store-1",
+        storeId: 'store-1',
         items: [
-          { name: "Milk", price: 3.99, quantity: 1 },
-          { name: "Bread", price: 2.49, quantity: 2 },
+          { name: 'Milk', price: 3.99, quantity: 1 },
+          { name: 'Bread', price: 2.49, quantity: 2 },
         ],
       });
 
@@ -528,13 +528,13 @@ describe("ReceiptService", () => {
       expect(receipt.totalAmount).toBe(8.97);
     });
 
-    it("should handle transaction rollback on error", async () => {
+    it('should handle transaction rollback on error', async () => {
       await expect(
         service.createReceipt({
           userId,
-          storeId: "store-1",
+          storeId: 'store-1',
           items: [
-            { name: "Milk", price: -1, quantity: 1 }, // Invalid price
+            { name: 'Milk', price: -1, quantity: 1 }, // Invalid price
           ],
         })
       ).rejects.toThrow();
@@ -545,44 +545,44 @@ describe("ReceiptService", () => {
     });
   });
 
-  describe("getReceiptStatistics", () => {
+  describe('getReceiptStatistics', () => {
     beforeEach(async () => {
       // Create test data
       await prisma.receipt.createMany({
         data: [
           {
             userId,
-            storeId: "store-1",
+            storeId: 'store-1',
             totalAmount: 50,
-            date: new Date("2024-01-01"),
+            date: new Date('2024-01-01'),
           },
           {
             userId,
-            storeId: "store-2",
+            storeId: 'store-2',
             totalAmount: 30,
-            date: new Date("2024-01-15"),
+            date: new Date('2024-01-15'),
           },
           {
             userId,
-            storeId: "store-1",
+            storeId: 'store-1',
             totalAmount: 70,
-            date: new Date("2024-02-01"),
+            date: new Date('2024-02-01'),
           },
         ],
       });
     });
 
-    it("should calculate monthly statistics", async () => {
+    it('should calculate monthly statistics', async () => {
       const stats = await service.getReceiptStatistics(userId, {
-        startDate: new Date("2024-01-01"),
-        endDate: new Date("2024-01-31"),
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2024-01-31'),
       });
 
       expect(stats).toMatchObject({
         totalSpent: 80,
         receiptCount: 2,
         averageAmount: 40,
-        topStore: "store-1",
+        topStore: 'store-1',
       });
     });
   });
@@ -604,42 +604,42 @@ describe("ReceiptService", () => {
 
 ```typescript
 // filepath: apps/web/playwright.config.ts
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [["html"], ["junit", { outputFile: "test-results/junit.xml" }]],
+  reporter: [['html'], ['junit', { outputFile: 'test-results/junit.xml' }]],
   use: {
-    baseURL: "http://localhost:3001",
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
+    baseURL: 'http://localhost:3001',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
     // Mobile
     {
-      name: "Mobile Chrome",
-      use: { ...devices["Pixel 5"] },
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
     },
   ],
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3001",
+    command: 'pnpm dev',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
   },
 });
@@ -651,54 +651,54 @@ export default defineConfig({
 
 ```typescript
 // filepath: apps/web/e2e/auth.spec.ts
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test.describe("Authentication", () => {
-  test("should sign up with email and password", async ({ page }) => {
-    await page.goto("/signup");
+test.describe('Authentication', () => {
+  test('should sign up with email and password', async ({ page }) => {
+    await page.goto('/signup');
 
     // Fill form
-    await page.fill('[name="email"]', "test@example.com");
-    await page.fill('[name="password"]', "SecurePassword123!");
-    await page.fill('[name="confirmPassword"]', "SecurePassword123!");
+    await page.fill('[name="email"]', 'test@example.com');
+    await page.fill('[name="password"]', 'SecurePassword123!');
+    await page.fill('[name="confirmPassword"]', 'SecurePassword123!');
 
     // Submit
     await page.click('button[type="submit"]');
 
     // Verify redirect to dashboard
-    await expect(page).toHaveURL("/dashboard");
-    await expect(page.locator("h1")).toContainText("Welcome");
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.locator('h1')).toContainText('Welcome');
   });
 
-  test("should login with Google OAuth", async ({ page, context }) => {
-    await page.goto("/login");
+  test('should login with Google OAuth', async ({ page, context }) => {
+    await page.goto('/login');
 
     // Click Google sign-in button
     const [popup] = await Promise.all([
-      context.waitForEvent("page"),
+      context.waitForEvent('page'),
       page.click('button:has-text("Continue with Google")'),
     ]);
 
     // Handle Google OAuth popup (mocked in test environment)
     await popup.waitForLoadState();
-    await popup.fill('[name="email"]', "test@gmail.com");
-    await popup.fill('[name="password"]', "password");
+    await popup.fill('[name="email"]', 'test@gmail.com');
+    await popup.fill('[name="password"]', 'password');
     await popup.click('button[type="submit"]');
 
     // Verify redirect back to app
-    await expect(page).toHaveURL("/dashboard");
+    await expect(page).toHaveURL('/dashboard');
   });
 
-  test("should show error for invalid credentials", async ({ page }) => {
-    await page.goto("/login");
+  test('should show error for invalid credentials', async ({ page }) => {
+    await page.goto('/login');
 
-    await page.fill('[name="email"]', "test@example.com");
-    await page.fill('[name="password"]', "wrongpassword");
+    await page.fill('[name="email"]', 'test@example.com');
+    await page.fill('[name="password"]', 'wrongpassword');
     await page.click('button[type="submit"]');
 
     // Verify error message
     await expect(page.locator('[role="alert"]')).toContainText(
-      "Invalid email or password"
+      'Invalid email or password'
     );
   });
 });
@@ -708,30 +708,30 @@ test.describe("Authentication", () => {
 
 ```typescript
 // filepath: apps/web/e2e/receipt-upload.spec.ts
-import { test, expect } from "@playwright/test";
-import path from "path";
+import { test, expect } from '@playwright/test';
+import path from 'path';
 
-test.describe("Receipt Upload", () => {
+test.describe('Receipt Upload', () => {
   test.beforeEach(async ({ page }) => {
     // Login
-    await page.goto("/login");
-    await page.fill('[name="email"]', "test@example.com");
-    await page.fill('[name="password"]', "password");
+    await page.goto('/login');
+    await page.fill('[name="email"]', 'test@example.com');
+    await page.fill('[name="password"]', 'password');
     await page.click('button[type="submit"]');
-    await expect(page).toHaveURL("/dashboard");
+    await expect(page).toHaveURL('/dashboard');
   });
 
-  test("should upload receipt with camera", async ({ page, context }) => {
+  test('should upload receipt with camera', async ({ page, context }) => {
     // Grant camera permissions
-    await context.grantPermissions(["camera"]);
+    await context.grantPermissions(['camera']);
 
-    await page.goto("/receipts/upload");
+    await page.goto('/receipts/upload');
 
     // Click camera button
     await page.click('button:has-text("Take Photo")');
 
     // Wait for camera to initialize
-    await page.waitForSelector("video");
+    await page.waitForSelector('video');
 
     // Simulate taking photo
     await page.click('button:has-text("Capture")');
@@ -743,51 +743,51 @@ test.describe("Receipt Upload", () => {
     await page.click('button:has-text("Upload Receipt")');
 
     // Verify processing state
-    await expect(page.locator("text=Processing receipt...")).toBeVisible();
+    await expect(page.locator('text=Processing receipt...')).toBeVisible();
 
     // Wait for completion (mock OCR service)
-    await page.waitForSelector("text=Receipt processed successfully", {
+    await page.waitForSelector('text=Receipt processed successfully', {
       timeout: 10000,
     });
 
     // Verify receipt appears in list
-    await page.goto("/receipts");
-    await expect(page.locator(".receipt-item").first()).toBeVisible();
+    await page.goto('/receipts');
+    await expect(page.locator('.receipt-item').first()).toBeVisible();
   });
 
-  test("should upload receipt from file", async ({ page }) => {
-    await page.goto("/receipts/upload");
+  test('should upload receipt from file', async ({ page }) => {
+    await page.goto('/receipts/upload');
 
     // Upload file
-    const filePath = path.join(__dirname, "fixtures", "test-receipt.jpg");
+    const filePath = path.join(__dirname, 'fixtures', 'test-receipt.jpg');
     await page.setInputFiles('input[type="file"]', filePath);
 
     // Verify preview
     await expect(page.locator('img[alt="Receipt preview"]')).toBeVisible();
 
     // Add metadata
-    await page.fill('[name="notes"]', "Weekly groceries");
-    await page.selectOption('[name="storeId"]', "walmart");
+    await page.fill('[name="notes"]', 'Weekly groceries');
+    await page.selectOption('[name="storeId"]', 'walmart');
 
     // Submit
     await page.click('button:has-text("Upload Receipt")');
 
     // Verify success
     await expect(
-      page.locator("text=Receipt uploaded successfully")
+      page.locator('text=Receipt uploaded successfully')
     ).toBeVisible();
   });
 
-  test("should validate file size", async ({ page }) => {
-    await page.goto("/receipts/upload");
+  test('should validate file size', async ({ page }) => {
+    await page.goto('/receipts/upload');
 
     // Try to upload oversized file
-    const largePath = path.join(__dirname, "fixtures", "large-receipt.jpg");
+    const largePath = path.join(__dirname, 'fixtures', 'large-receipt.jpg');
     await page.setInputFiles('input[type="file"]', largePath);
 
     // Verify error message
     await expect(page.locator('[role="alert"]')).toContainText(
-      "File must be less than 10MB"
+      'File must be less than 10MB'
     );
   });
 });
@@ -797,39 +797,39 @@ test.describe("Receipt Upload", () => {
 
 ```typescript
 // filepath: apps/web/e2e/accessibility.spec.ts
-import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
-test.describe("Accessibility", () => {
-  test("should not have accessibility violations on homepage", async ({
+test.describe('Accessibility', () => {
+  test('should not have accessibility violations on homepage', async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto('/');
 
     const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
 
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test("should be keyboard navigable", async ({ page }) => {
-    await page.goto("/");
+  test('should be keyboard navigable', async ({ page }) => {
+    await page.goto('/');
 
     // Tab through interactive elements
-    await page.keyboard.press("Tab");
+    await page.keyboard.press('Tab');
     await expect(page.locator('a[href="/login"]')).toBeFocused();
 
-    await page.keyboard.press("Tab");
+    await page.keyboard.press('Tab');
     await expect(page.locator('a[href="/signup"]')).toBeFocused();
 
     // Test skip link
-    await page.keyboard.press("Tab");
+    await page.keyboard.press('Tab');
     await expect(page.locator('a:has-text("Skip to content")')).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expect(page.locator("main")).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('main')).toBeFocused();
   });
 
-  test("should support screen readers", async ({ page }) => {
-    await page.goto("/receipts");
+  test('should support screen readers', async ({ page }) => {
+    await page.goto('/receipts');
 
     // Verify ARIA labels
     await expect(
@@ -840,9 +840,9 @@ test.describe("Accessibility", () => {
     ).toBeVisible();
 
     // Verify semantic HTML
-    await expect(page.locator("main")).toBeVisible();
-    await expect(page.locator("header")).toBeVisible();
-    await expect(page.locator("footer")).toBeVisible();
+    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('header')).toBeVisible();
+    await expect(page.locator('footer')).toBeVisible();
   });
 });
 ```
@@ -1010,29 +1010,29 @@ describe("useReceipts", () => {
 
 ```typescript
 // filepath: apps/web/e2e/visual.spec.ts
-import { test } from "@playwright/test";
-import percySnapshot from "@percy/playwright";
+import { test } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
 
-test.describe("Visual Regression", () => {
-  test("homepage desktop", async ({ page }) => {
-    await page.goto("/");
-    await percySnapshot(page, "Homepage - Desktop");
+test.describe('Visual Regression', () => {
+  test('homepage desktop', async ({ page }) => {
+    await page.goto('/');
+    await percySnapshot(page, 'Homepage - Desktop');
   });
 
-  test("homepage mobile", async ({ page }) => {
+  test('homepage mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
-    await percySnapshot(page, "Homepage - Mobile");
+    await page.goto('/');
+    await percySnapshot(page, 'Homepage - Mobile');
   });
 
-  test("receipt list with data", async ({ page }) => {
-    await page.goto("/receipts");
-    await percySnapshot(page, "Receipt List - With Data");
+  test('receipt list with data', async ({ page }) => {
+    await page.goto('/receipts');
+    await percySnapshot(page, 'Receipt List - With Data');
   });
 
-  test("receipt list empty state", async ({ page }) => {
-    await page.goto("/receipts?empty=true");
-    await percySnapshot(page, "Receipt List - Empty");
+  test('receipt list empty state', async ({ page }) => {
+    await page.goto('/receipts?empty=true');
+    await percySnapshot(page, 'Receipt List - Empty');
   });
 });
 ```
@@ -1045,47 +1045,47 @@ test.describe("Visual Regression", () => {
 
 ```javascript
 // filepath: apps/api/k6/load-test.js
-import http from "k6/http";
-import { check, sleep } from "k6";
-import { Rate } from "k6/metrics";
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+import { Rate } from 'k6/metrics';
 
-const errorRate = new Rate("errors");
+const errorRate = new Rate('errors');
 
 export const options = {
   stages: [
-    { duration: "1m", target: 10 }, // Ramp up to 10 users
-    { duration: "3m", target: 10 }, // Stay at 10 users
-    { duration: "1m", target: 50 }, // Spike to 50 users
-    { duration: "3m", target: 50 }, // Stay at 50 users
-    { duration: "1m", target: 0 }, // Ramp down
+    { duration: '1m', target: 10 }, // Ramp up to 10 users
+    { duration: '3m', target: 10 }, // Stay at 10 users
+    { duration: '1m', target: 50 }, // Spike to 50 users
+    { duration: '3m', target: 50 }, // Stay at 50 users
+    { duration: '1m', target: 0 }, // Ramp down
   ],
   thresholds: {
-    http_req_duration: ["p(95)<500"], // 95% of requests under 500ms
-    errors: ["rate<0.1"], // Error rate under 10%
+    http_req_duration: ['p(95)<500'], // 95% of requests under 500ms
+    errors: ['rate<0.1'], // Error rate under 10%
   },
 };
 
 export default function () {
   // Test receipt listing
-  const listRes = http.get("https://api.pricy.app/receipts", {
+  const listRes = http.get('https://api.pricy.app/receipts', {
     headers: {
       Authorization: `Bearer ${__ENV.AUTH_TOKEN}`,
     },
   });
 
   check(listRes, {
-    "status is 200": (r) => r.status === 200,
-    "response time < 500ms": (r) => r.timings.duration < 500,
+    'status is 200': (r) => r.status === 200,
+    'response time < 500ms': (r) => r.timings.duration < 500,
   }) || errorRate.add(1);
 
   sleep(1);
 
   // Test receipt upload
   const uploadRes = http.post(
-    "https://api.pricy.app/receipts",
+    'https://api.pricy.app/receipts',
     {
-      image: http.file(open("./fixtures/receipt.jpg", "b"), "receipt.jpg"),
-      storeId: "walmart-1",
+      image: http.file(open('./fixtures/receipt.jpg', 'b'), 'receipt.jpg'),
+      storeId: 'walmart-1',
     },
     {
       headers: {
@@ -1095,8 +1095,8 @@ export default function () {
   );
 
   check(uploadRes, {
-    "upload status is 201": (r) => r.status === 201,
-    "upload time < 2s": (r) => r.timings.duration < 2000,
+    'upload status is 201': (r) => r.status === 201,
+    'upload time < 2s': (r) => r.timings.duration < 2000,
   }) || errorRate.add(1);
 
   sleep(2);
@@ -1118,7 +1118,7 @@ on:
     branches: [main, develop]
   pull_request:
   schedule:
-    - cron: "0 0 * * 1" # Weekly on Monday
+    - cron: '0 0 * * 1' # Weekly on Monday
 
 jobs:
   security-scan:
@@ -1139,16 +1139,16 @@ jobs:
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: "pricy"
-          path: "."
-          format: "HTML"
+          project: 'pricy'
+          path: '.'
+          format: 'HTML'
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: "fs"
-          scan-ref: "."
-          severity: "CRITICAL,HIGH"
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
 ```
 
 ---
@@ -1202,8 +1202,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -1234,8 +1234,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -1255,8 +1255,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -1349,19 +1349,19 @@ apps/api/
 
 ```typescript
 // ✅ Good: Descriptive, tests behavior
-test("should reject expired tokens", async () => {
+test('should reject expired tokens', async () => {
   const expiredToken = generateToken({ exp: Date.now() - 1000 });
-  await expect(validateToken(expiredToken)).rejects.toThrow("Token expired");
+  await expect(validateToken(expiredToken)).rejects.toThrow('Token expired');
 });
 
 // ❌ Bad: Vague, tests implementation
-test("token validation", async () => {
-  const result = validateToken("abc");
+test('token validation', async () => {
+  const result = validateToken('abc');
   expect(result).toBe(false);
 });
 
 // ✅ Good: Arrange-Act-Assert pattern
-test("should calculate receipt total", () => {
+test('should calculate receipt total', () => {
   // Arrange
   const items = [
     { price: 10, quantity: 2 },
@@ -1376,11 +1376,11 @@ test("should calculate receipt total", () => {
 });
 
 // ✅ Good: Test edge cases
-test("should handle empty receipt", () => {
+test('should handle empty receipt', () => {
   expect(calculateTotal([])).toBe(0);
 });
 
-test("should handle negative quantities", () => {
+test('should handle negative quantities', () => {
   expect(() => calculateTotal([{ price: 10, quantity: -1 }])).toThrow();
 });
 ```

@@ -75,27 +75,27 @@ apps/api/
 
 ```typescript
 // filepath: apps/api/src/routes/auth.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import * as authController from "../controllers/auth.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import * as authController from '../controllers/auth.controller';
 
 export default async function authRoutes(app: FastifyInstance) {
   // Register new user
   app.post(
-    "/auth/register",
+    '/auth/register',
     {
       schema: {
-        description: "Register a new user with email/password",
-        tags: ["auth"],
+        description: 'Register a new user with email/password',
+        tags: ['auth'],
         body: Type.Object({
-          email: Type.String({ format: "email" }),
+          email: Type.String({ format: 'email' }),
           password: Type.String({ minLength: 8 }),
           name: Type.String({ minLength: 1 }),
         }),
         response: {
           201: Type.Object({
             user: Type.Object({
-              id: Type.String({ format: "uuid" }),
+              id: Type.String({ format: 'uuid' }),
               email: Type.String(),
               name: Type.String(),
             }),
@@ -109,19 +109,19 @@ export default async function authRoutes(app: FastifyInstance) {
 
   // Login with email/password
   app.post(
-    "/auth/login",
+    '/auth/login',
     {
       schema: {
-        description: "Login with email and password",
-        tags: ["auth"],
+        description: 'Login with email and password',
+        tags: ['auth'],
         body: Type.Object({
-          email: Type.String({ format: "email" }),
+          email: Type.String({ format: 'email' }),
           password: Type.String(),
         }),
         response: {
           200: Type.Object({
             user: Type.Object({
-              id: Type.String({ format: "uuid" }),
+              id: Type.String({ format: 'uuid' }),
               email: Type.String(),
               name: Type.String(),
               role: Type.String(),
@@ -137,11 +137,11 @@ export default async function authRoutes(app: FastifyInstance) {
 
   // Refresh access token
   app.post(
-    "/auth/refresh",
+    '/auth/refresh',
     {
       schema: {
-        description: "Refresh access token using refresh token",
-        tags: ["auth"],
+        description: 'Refresh access token using refresh token',
+        tags: ['auth'],
         body: Type.Object({
           refreshToken: Type.String(),
         }),
@@ -158,12 +158,12 @@ export default async function authRoutes(app: FastifyInstance) {
 
   // Logout
   app.post(
-    "/auth/logout",
+    '/auth/logout',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Logout current user",
-        tags: ["auth"],
+        description: 'Logout current user',
+        tags: ['auth'],
         security: [{ bearerAuth: [] }],
       },
     },
@@ -172,12 +172,12 @@ export default async function authRoutes(app: FastifyInstance) {
 
   // Get current user
   app.get(
-    "/auth/me",
+    '/auth/me',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Get current authenticated user",
-        tags: ["auth"],
+        description: 'Get current authenticated user',
+        tags: ['auth'],
         security: [{ bearerAuth: [] }],
       },
     },
@@ -186,16 +186,16 @@ export default async function authRoutes(app: FastifyInstance) {
 
   // Social auth callback (for server-side OAuth flow if needed)
   app.post(
-    "/auth/social/:provider",
+    '/auth/social/:provider',
     {
       schema: {
-        description: "Handle social OAuth callback",
-        tags: ["auth"],
+        description: 'Handle social OAuth callback',
+        tags: ['auth'],
         params: Type.Object({
           provider: Type.Union([
-            Type.Literal("google"),
-            Type.Literal("microsoft"),
-            Type.Literal("apple"),
+            Type.Literal('google'),
+            Type.Literal('microsoft'),
+            Type.Literal('apple'),
           ]),
         }),
         body: Type.Object({
@@ -211,15 +211,15 @@ export default async function authRoutes(app: FastifyInstance) {
 
 ```typescript
 // filepath: apps/api/src/controllers/auth.controller.ts
-import { FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "@pricy/database";
-import bcrypt from "bcryptjs";
-import { generateTokens, verifyRefreshToken } from "../utils/jwt";
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from '@pricy/database';
+import bcrypt from 'bcryptjs';
+import { generateTokens, verifyRefreshToken } from '../utils/jwt';
 import {
   BadRequestError,
   UnauthorizedError,
   ConflictError,
-} from "../utils/errors";
+} from '../utils/errors';
 
 export async function register(
   request: FastifyRequest<{
@@ -239,7 +239,7 @@ export async function register(
   });
 
   if (existingUser) {
-    throw new ConflictError("User with this email already exists");
+    throw new ConflictError('User with this email already exists');
   }
 
   // Hash password
@@ -251,7 +251,7 @@ export async function register(
       email,
       passwordHash,
       name,
-      provider: "email",
+      provider: 'email',
       emailVerified: false, // Send verification email in production
     },
     select: {
@@ -263,7 +263,7 @@ export async function register(
 
   return reply.code(201).send({
     user,
-    message: "User registered successfully. Please verify your email.",
+    message: 'User registered successfully. Please verify your email.',
   });
 }
 
@@ -284,14 +284,14 @@ export async function login(
   });
 
   if (!user || !user.passwordHash) {
-    throw new UnauthorizedError("Invalid credentials");
+    throw new UnauthorizedError('Invalid credentials');
   }
 
   // Verify password
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
 
   if (!isValidPassword) {
-    throw new UnauthorizedError("Invalid credentials");
+    throw new UnauthorizedError('Invalid credentials');
   }
 
   // Update last login
@@ -341,7 +341,7 @@ export async function refresh(
 
     return tokens;
   } catch (error) {
-    throw new UnauthorizedError("Invalid refresh token");
+    throw new UnauthorizedError('Invalid refresh token');
   }
 }
 
@@ -351,7 +351,7 @@ export async function logout(request: FastifyRequest, reply: FastifyReply) {
   // 2. Delete refresh token from database
   // 3. Clear Redis cache for user
 
-  return { message: "Logged out successfully" };
+  return { message: 'Logged out successfully' };
 }
 
 export async function getCurrentUser(
@@ -375,7 +375,7 @@ export async function getCurrentUser(
   });
 
   if (!user) {
-    throw new UnauthorizedError("User not found");
+    throw new UnauthorizedError('User not found');
   }
 
   return user;
@@ -384,7 +384,7 @@ export async function getCurrentUser(
 export async function socialAuth(
   request: FastifyRequest<{
     Params: {
-      provider: "google" | "microsoft" | "apple";
+      provider: 'google' | 'microsoft' | 'apple';
     };
     Body: {
       code: string;
@@ -405,7 +405,7 @@ export async function socialAuth(
   // 4. Generate JWT tokens
 
   throw new BadRequestError(
-    "Social auth should be handled by NextAuth.js on the frontend"
+    'Social auth should be handled by NextAuth.js on the frontend'
   );
 }
 ```
@@ -414,23 +414,23 @@ export async function socialAuth(
 
 ```typescript
 // filepath: apps/api/src/routes/users.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import { authenticate } from "../middleware/auth.middleware";
-import * as usersController from "../controllers/users.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import { authenticate } from '../middleware/auth.middleware';
+import * as usersController from '../controllers/users.controller';
 
 export default async function usersRoutes(app: FastifyInstance) {
   // Get user profile
   app.get(
-    "/users/:id",
+    '/users/:id',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Get user profile",
-        tags: ["users"],
+        description: 'Get user profile',
+        tags: ['users'],
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -439,19 +439,19 @@ export default async function usersRoutes(app: FastifyInstance) {
 
   // Update user profile
   app.patch(
-    "/users/:id",
+    '/users/:id',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Update user profile",
-        tags: ["users"],
+        description: 'Update user profile',
+        tags: ['users'],
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
         body: Type.Object({
           name: Type.Optional(Type.String()),
-          image: Type.Optional(Type.String({ format: "uri" })),
+          image: Type.Optional(Type.String({ format: 'uri' })),
         }),
       },
     },
@@ -460,15 +460,15 @@ export default async function usersRoutes(app: FastifyInstance) {
 
   // Delete user account
   app.delete(
-    "/users/:id",
+    '/users/:id',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Delete user account (GDPR right to be forgotten)",
-        tags: ["users"],
+        description: 'Delete user account (GDPR right to be forgotten)',
+        tags: ['users'],
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -477,12 +477,12 @@ export default async function usersRoutes(app: FastifyInstance) {
 
   // Get user settings
   app.get(
-    "/users/:id/settings",
+    '/users/:id/settings',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Get user settings",
-        tags: ["users"],
+        description: 'Get user settings',
+        tags: ['users'],
         security: [{ bearerAuth: [] }],
       },
     },
@@ -491,12 +491,12 @@ export default async function usersRoutes(app: FastifyInstance) {
 
   // Update user settings
   app.put(
-    "/users/:id/settings",
+    '/users/:id/settings',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Update user settings",
-        tags: ["users"],
+        description: 'Update user settings',
+        tags: ['users'],
         security: [{ bearerAuth: [] }],
         body: Type.Object({
           currency: Type.Optional(Type.String()),
@@ -512,9 +512,9 @@ export default async function usersRoutes(app: FastifyInstance) {
 
 ```typescript
 // filepath: apps/api/src/controllers/users.controller.ts
-import { FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "@pricy/database";
-import { NotFoundError, ForbiddenError } from "../utils/errors";
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from '@pricy/database';
+import { NotFoundError, ForbiddenError } from '../utils/errors';
 
 export async function getUserProfile(
   request: FastifyRequest<{
@@ -525,8 +525,8 @@ export async function getUserProfile(
   const { id } = request.params;
 
   // Users can only view their own profile unless admin
-  if (id !== request.user!.id && request.user!.role !== "admin") {
-    throw new ForbiddenError("You can only view your own profile");
+  if (id !== request.user!.id && request.user!.role !== 'admin') {
+    throw new ForbiddenError('You can only view your own profile');
   }
 
   const user = await prisma.user.findUnique({
@@ -545,7 +545,7 @@ export async function getUserProfile(
   });
 
   if (!user) {
-    throw new NotFoundError("User not found");
+    throw new NotFoundError('User not found');
   }
 
   return user;
@@ -566,7 +566,7 @@ export async function updateUserProfile(
 
   // Users can only update their own profile
   if (id !== request.user!.id) {
-    throw new ForbiddenError("You can only update your own profile");
+    throw new ForbiddenError('You can only update your own profile');
   }
 
   const user = await prisma.user.update({
@@ -596,7 +596,7 @@ export async function deleteUser(
 
   // Users can only delete their own account
   if (id !== request.user!.id) {
-    throw new ForbiddenError("You can only delete your own account");
+    throw new ForbiddenError('You can only delete your own account');
   }
 
   // Delete user and all associated data (CASCADE)
@@ -616,7 +616,7 @@ export async function getUserSettings(
   const { id } = request.params;
 
   if (id !== request.user!.id) {
-    throw new ForbiddenError("You can only view your own settings");
+    throw new ForbiddenError('You can only view your own settings');
   }
 
   const settings = await prisma.userSettings.findUnique({
@@ -648,7 +648,7 @@ export async function updateUserSettings(
   const data = request.body;
 
   if (id !== request.user!.id) {
-    throw new ForbiddenError("You can only update your own settings");
+    throw new ForbiddenError('You can only update your own settings');
   }
 
   const settings = await prisma.userSettings.upsert({
@@ -668,16 +668,16 @@ export async function updateUserSettings(
 
 ```typescript
 // filepath: apps/api/src/app.ts
-import Fastify from "fastify";
-import cors from "@fastify/cors";
-import rateLimit from "@fastify/rate-limit";
-import helmet from "@fastify/helmet";
-import compress from "@fastify/compress";
-import multipart from "@fastify/multipart";
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
-import { logger } from "./utils/logger";
-import { errorHandler } from "./middleware/error.middleware";
-import routes from "./routes";
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
+import helmet from '@fastify/helmet';
+import compress from '@fastify/compress';
+import multipart from '@fastify/multipart';
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { logger } from './utils/logger';
+import { errorHandler } from './middleware/error.middleware';
+import routes from './routes';
 
 export async function buildApp() {
   const app = Fastify({
@@ -692,31 +692,31 @@ export async function buildApp() {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", 'data:', 'https:'],
       },
     },
   });
 
   // CORS
   await app.register(cors, {
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || "*",
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
     credentials: true,
   });
 
   // Rate limiting with proper headers
   await app.register(rateLimit, {
     max: 100,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
     cache: 10000,
     addHeaders: {
-      "x-ratelimit-limit": true, // Total requests allowed
-      "x-ratelimit-remaining": true, // Requests remaining
-      "x-ratelimit-reset": true, // Reset timestamp
+      'x-ratelimit-limit': true, // Total requests allowed
+      'x-ratelimit-remaining': true, // Requests remaining
+      'x-ratelimit-reset': true, // Reset timestamp
     },
     errorResponseBuilder: (req, context) => {
       return {
         statusCode: 429,
-        error: "Too Many Requests",
+        error: 'Too Many Requests',
         message: `Rate limit exceeded. Try again in ${Math.ceil(
           context.ttl / 1000
         )} seconds.`,
@@ -737,15 +737,15 @@ export async function buildApp() {
   });
 
   // Routes
-  await app.register(routes, { prefix: "/api/v1" });
+  await app.register(routes, { prefix: '/api/v1' });
 
   // Error handler
   app.setErrorHandler(errorHandler);
 
   // Health check
-  app.get("/health", async () => {
+  app.get('/health', async () => {
     return {
-      status: "ok",
+      status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
     };
@@ -759,11 +759,11 @@ export async function buildApp() {
 
 ```typescript
 // filepath: apps/api/src/middleware/auth.middleware.ts
-import { FastifyRequest, FastifyReply } from "fastify";
-import { verifyToken } from "../utils/jwt";
-import { UnauthorizedError } from "../utils/errors";
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { verifyToken } from '../utils/jwt';
+import { UnauthorizedError } from '../utils/errors';
 
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyRequest {
     user?: {
       id: string;
@@ -780,8 +780,8 @@ export async function authenticate(
   try {
     const authHeader = request.headers.authorization;
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      throw new UnauthorizedError("Missing or invalid authorization header");
+    if (!authHeader?.startsWith('Bearer ')) {
+      throw new UnauthorizedError('Missing or invalid authorization header');
     }
 
     const token = authHeader.substring(7);
@@ -793,18 +793,18 @@ export async function authenticate(
       role: payload.role,
     };
   } catch (error) {
-    throw new UnauthorizedError("Invalid token");
+    throw new UnauthorizedError('Invalid token');
   }
 }
 
 export async function authorize(...roles: string[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.user) {
-      throw new UnauthorizedError("Not authenticated");
+      throw new UnauthorizedError('Not authenticated');
     }
 
     if (!roles.includes(request.user.role)) {
-      throw new UnauthorizedError("Insufficient permissions");
+      throw new UnauthorizedError('Insufficient permissions');
     }
   };
 }
@@ -814,25 +814,25 @@ export async function authorize(...roles: string[]) {
 
 ```typescript
 // filepath: apps/api/src/routes/receipts.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import { authenticate } from "../middleware/auth.middleware";
-import * as receiptsController from "../controllers/receipts.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import { authenticate } from '../middleware/auth.middleware';
+import * as receiptsController from '../controllers/receipts.controller';
 
 export default async function receiptsRoutes(app: FastifyInstance) {
   // Upload receipt
   app.post(
-    "/receipts/upload",
+    '/receipts/upload',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Upload a receipt image for processing",
-        tags: ["receipts"],
+        description: 'Upload a receipt image for processing',
+        tags: ['receipts'],
         security: [{ bearerAuth: [] }],
-        consumes: ["multipart/form-data"],
+        consumes: ['multipart/form-data'],
         response: {
           201: Type.Object({
-            id: Type.String({ format: "uuid" }),
+            id: Type.String({ format: 'uuid' }),
             status: Type.String(),
             message: Type.String(),
           }),
@@ -844,19 +844,19 @@ export default async function receiptsRoutes(app: FastifyInstance) {
 
   // Get all receipts
   app.get(
-    "/receipts",
+    '/receipts',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Get all receipts for the authenticated user",
-        tags: ["receipts"],
+        description: 'Get all receipts for the authenticated user',
+        tags: ['receipts'],
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
           page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
           limit: Type.Optional(
             Type.Integer({ minimum: 1, maximum: 100, default: 20 })
           ),
-          storeId: Type.Optional(Type.String({ format: "uuid" })),
+          storeId: Type.Optional(Type.String({ format: 'uuid' })),
         }),
       },
     },
@@ -865,15 +865,15 @@ export default async function receiptsRoutes(app: FastifyInstance) {
 
   // Get receipt by ID
   app.get(
-    "/receipts/:id",
+    '/receipts/:id',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Get a specific receipt",
-        tags: ["receipts"],
+        description: 'Get a specific receipt',
+        tags: ['receipts'],
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -882,15 +882,15 @@ export default async function receiptsRoutes(app: FastifyInstance) {
 
   // Delete receipt
   app.delete(
-    "/receipts/:id",
+    '/receipts/:id',
     {
       onRequest: [authenticate],
       schema: {
-        description: "Delete a receipt",
-        tags: ["receipts"],
+        description: 'Delete a receipt',
+        tags: ['receipts'],
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -901,11 +901,11 @@ export default async function receiptsRoutes(app: FastifyInstance) {
 
 ```typescript
 // filepath: apps/api/src/controllers/receipts.controller.ts
-import { FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "@pricy/database";
-import { ocrClient } from "../services/ocr.client";
-import { storageClient } from "../services/storage.client";
-import { BadRequestError, NotFoundError } from "../utils/errors";
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from '@pricy/database';
+import { ocrClient } from '../services/ocr.client';
+import { storageClient } from '../services/storage.client';
+import { BadRequestError, NotFoundError } from '../utils/errors';
 
 export async function uploadReceipt(
   request: FastifyRequest,
@@ -914,12 +914,12 @@ export async function uploadReceipt(
   const data = await request.file();
 
   if (!data) {
-    throw new BadRequestError("No file uploaded");
+    throw new BadRequestError('No file uploaded');
   }
 
   // Validate file type
-  if (!data.mimetype.startsWith("image/")) {
-    throw new BadRequestError("File must be an image");
+  if (!data.mimetype.startsWith('image/')) {
+    throw new BadRequestError('File must be an image');
   }
 
   // Upload to storage
@@ -935,7 +935,7 @@ export async function uploadReceipt(
     data: {
       userId: request.user!.id,
       imageUrl,
-      status: "processing",
+      status: 'processing',
     },
   });
 
@@ -943,14 +943,14 @@ export async function uploadReceipt(
   ocrClient.processReceipt(receipt.id, imageUrl).catch((error) => {
     request.log.error(
       { receiptId: receipt.id, error },
-      "OCR processing failed"
+      'OCR processing failed'
     );
   });
 
   return reply.code(201).send({
     id: receipt.id,
-    status: "processing",
-    message: "Receipt uploaded successfully and is being processed",
+    status: 'processing',
+    message: 'Receipt uploaded successfully and is being processed',
   });
 }
 
@@ -977,7 +977,7 @@ export async function getReceipts(
       where,
       skip,
       take: limit,
-      orderBy: { date: "desc" },
+      orderBy: { date: 'desc' },
       include: {
         store: true,
         items: {
@@ -1027,7 +1027,7 @@ export async function getReceiptById(
   });
 
   if (!receipt) {
-    throw new NotFoundError("Receipt not found");
+    throw new NotFoundError('Receipt not found');
   }
 
   return receipt;
@@ -1047,7 +1047,7 @@ export async function deleteReceipt(
   });
 
   if (!receipt) {
-    throw new NotFoundError("Receipt not found");
+    throw new NotFoundError('Receipt not found');
   }
 
   // Delete from storage
@@ -1066,21 +1066,21 @@ export async function deleteReceipt(
 
 ```typescript
 // filepath: apps/api/src/services/ocr.client.ts
-import { logger } from "../utils/logger";
+import { logger } from '../utils/logger';
 
 class OCRClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.OCR_SERVICE_URL || "http://localhost:3001";
+    this.baseUrl = process.env.OCR_SERVICE_URL || 'http://localhost:3001';
   }
 
   async processReceipt(receiptId: string, imageUrl: string): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/process`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           receiptId,
@@ -1092,9 +1092,9 @@ class OCRClient {
         throw new Error(`OCR service error: ${response.statusText}`);
       }
 
-      logger.info({ receiptId }, "Receipt queued for OCR processing");
+      logger.info({ receiptId }, 'Receipt queued for OCR processing');
     } catch (error) {
-      logger.error({ receiptId, error }, "Failed to queue OCR processing");
+      logger.error({ receiptId, error }, 'Failed to queue OCR processing');
       throw error;
     }
   }
@@ -1109,9 +1109,9 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
-import { Readable } from "stream";
-import crypto from "crypto";
+} from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
+import crypto from 'crypto';
 
 class StorageClient {
   private s3: S3Client;
@@ -1119,7 +1119,7 @@ class StorageClient {
 
   constructor() {
     this.s3 = new S3Client({
-      region: process.env.S3_REGION || "us-east-1",
+      region: process.env.S3_REGION || 'us-east-1',
       endpoint: process.env.S3_ENDPOINT, // For MinIO
       credentials: process.env.S3_ACCESS_KEY_ID
         ? {
@@ -1129,7 +1129,7 @@ class StorageClient {
         : undefined,
       forcePathStyle: !!process.env.S3_ENDPOINT, // Required for MinIO
     });
-    this.bucket = process.env.S3_BUCKET || "pricy-receipts";
+    this.bucket = process.env.S3_BUCKET || 'pricy-receipts';
   }
 
   async upload({
@@ -1183,7 +1183,7 @@ class StorageClient {
 
   private extractKey(url: string): string {
     const urlObj = new URL(url);
-    return urlObj.pathname.replace(`/${this.bucket}/`, "");
+    return urlObj.pathname.replace(`/${this.bucket}/`, '');
   }
 }
 
@@ -1232,8 +1232,8 @@ export class ConflictError extends AppError {
 
 ```typescript
 // filepath: apps/api/src/middleware/error.middleware.ts
-import { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import { AppError } from "../utils/errors";
+import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+import { AppError } from '../utils/errors';
 
 export function errorHandler(
   error: FastifyError,
@@ -1255,7 +1255,7 @@ export function errorHandler(
   if (error.validation) {
     return reply.code(400).send({
       error: {
-        message: "Validation failed",
+        message: 'Validation failed',
         statusCode: 400,
         details: error.validation,
       },
@@ -1265,7 +1265,7 @@ export function errorHandler(
   // Default error
   return reply.code(500).send({
     error: {
-      message: "Internal server error",
+      message: 'Internal server error',
       statusCode: 500,
     },
   });
@@ -1278,8 +1278,8 @@ export function errorHandler(
 
 ```typescript
 // filepath: apps/api/src/app.ts (additional)
-import swagger from "@fastify/swagger";
-import swaggerUi from "@fastify/swagger-ui";
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 
 // ...existing code...
 
@@ -1287,22 +1287,22 @@ import swaggerUi from "@fastify/swagger-ui";
 await app.register(swagger, {
   openapi: {
     info: {
-      title: "Pricy API",
-      description: "Receipt scanner and price comparison API",
-      version: "1.0.0",
+      title: 'Pricy API',
+      description: 'Receipt scanner and price comparison API',
+      version: '1.0.0',
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Development server",
+        url: 'http://localhost:3000',
+        description: 'Development server',
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
         },
       },
     },
@@ -1310,9 +1310,9 @@ await app.register(swagger, {
 });
 
 await app.register(swaggerUi, {
-  routePrefix: "/docs",
+  routePrefix: '/docs',
   uiConfig: {
-    docExpansion: "list",
+    docExpansion: 'list',
     deepLinking: false,
   },
 });
@@ -1356,30 +1356,30 @@ ANALYTICS_SERVICE_URL=http://localhost:3003
 
 ```typescript
 // filepath: apps/api/src/__tests__/receipts.test.ts
-import { test } from "tap";
-import { buildApp } from "../app";
+import { test } from 'tap';
+import { buildApp } from '../app';
 
-test("POST /api/v1/receipts/upload - unauthorized", async (t) => {
+test('POST /api/v1/receipts/upload - unauthorized', async (t) => {
   const app = await buildApp();
 
   const response = await app.inject({
-    method: "POST",
-    url: "/api/v1/receipts/upload",
+    method: 'POST',
+    url: '/api/v1/receipts/upload',
   });
 
   t.equal(response.statusCode, 401);
   t.end();
 });
 
-test("GET /api/v1/receipts - success", async (t) => {
+test('GET /api/v1/receipts - success', async (t) => {
   const app = await buildApp();
 
   // Mock authentication
-  const token = "mock-token";
+  const token = 'mock-token';
 
   const response = await app.inject({
-    method: "GET",
-    url: "/api/v1/receipts",
+    method: 'GET',
+    url: '/api/v1/receipts',
     headers: {
       authorization: `Bearer ${token}`,
     },
@@ -1456,32 +1456,32 @@ export const rateLimits = {
   // Global default
   global: {
     max: 100,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
   },
 
   // Authentication endpoints (stricter)
   auth: {
     max: 5,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
     keyGenerator: (req) => req.body.email || req.ip, // Per email or IP
   },
 
   // File upload endpoints (very strict)
   upload: {
     max: 10,
-    timeWindow: "1 hour",
+    timeWindow: '1 hour',
   },
 
   // Read-only endpoints (lenient)
   readonly: {
     max: 300,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
   },
 
   // Premium users (higher limits)
   premium: {
     max: 1000,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
   },
 };
 
@@ -1498,7 +1498,7 @@ app.register(rateLimit, {
     return `ip:${req.ip}`;
   },
   // Skip rate limiting for admins
-  skip: (req) => req.user?.role === "admin",
+  skip: (req) => req.user?.role === 'admin',
 });
 ```
 
@@ -1511,14 +1511,14 @@ export async function apiRequest(url: string, options: RequestInit = {}) {
 
   // Parse rate limit headers
   const rateLimit = {
-    limit: parseInt(response.headers.get("X-RateLimit-Limit") || "0"),
-    remaining: parseInt(response.headers.get("X-RateLimit-Remaining") || "0"),
-    reset: parseInt(response.headers.get("X-RateLimit-Reset") || "0"),
+    limit: parseInt(response.headers.get('X-RateLimit-Limit') || '0'),
+    remaining: parseInt(response.headers.get('X-RateLimit-Remaining') || '0'),
+    reset: parseInt(response.headers.get('X-RateLimit-Reset') || '0'),
   };
 
   // Handle rate limit exceeded
   if (response.status === 429) {
-    const retryAfter = parseInt(response.headers.get("Retry-After") || "60");
+    const retryAfter = parseInt(response.headers.get('Retry-After') || '60');
     throw new RateLimitError(
       `Rate limit exceeded. Retry in ${retryAfter} seconds.`,
       retryAfter,
@@ -1528,7 +1528,7 @@ export async function apiRequest(url: string, options: RequestInit = {}) {
 
   // Warn when approaching limit
   if (rateLimit.remaining < rateLimit.limit * 0.1) {
-    console.warn("Approaching rate limit:", rateLimit);
+    console.warn('Approaching rate limit:', rateLimit);
   }
 
   return response;
@@ -1551,7 +1551,7 @@ export async function retryWithBackoff<T>(
       throw error;
     }
   }
-  throw new Error("Max retries exceeded");
+  throw new Error('Max retries exceeded');
 }
 ```
 

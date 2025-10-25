@@ -409,7 +409,7 @@ gcloud run deploy pricy-api \
 
 ```yaml
 # infrastructure/docker/docker-compose.prod.yml
-version: "3.8"
+version: '3.8'
 
 services:
   postgres:
@@ -480,8 +480,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro

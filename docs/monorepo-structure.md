@@ -300,9 +300,9 @@ export interface ReceiptItem {
 Prisma schema and database utilities.
 
 ```typescript
-export { prisma } from "./client";
-export * from "@prisma/client";
-export * from "./migrations";
+export { prisma } from './client';
+export * from '@prisma/client';
+export * from './migrations';
 ```
 
 ### @pricy/validation
@@ -310,7 +310,7 @@ export * from "./migrations";
 Zod schemas for request/response validation.
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 export const receiptUploadSchema = z.object({
   image: z.string().url(),
@@ -324,11 +324,11 @@ export const receiptUploadSchema = z.object({
 Common utility functions.
 
 ```typescript
-export { logger } from "./logger";
-export { cache } from "./cache";
-export { storage } from "./storage";
-export * from "./formatters";
-export * from "./validators";
+export { logger } from './logger';
+export { cache } from './cache';
+export { storage } from './storage';
+export * from './formatters';
+export * from './validators';
 ```
 
 ## Build & Deployment
@@ -468,7 +468,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
+          cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test

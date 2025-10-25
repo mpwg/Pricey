@@ -61,9 +61,9 @@ services/analytics/
 
 ```typescript
 // filepath: services/analytics/src/services/price-comparison/comparator.ts
-import { prisma } from "@pricy/database";
-import { Redis } from "ioredis";
-import { logger } from "../../utils/logger";
+import { prisma } from '@pricy/database';
+import { Redis } from 'ioredis';
+import { logger } from '../../utils/logger';
 
 interface PriceComparison {
   product: {
@@ -77,7 +77,7 @@ interface PriceComparison {
     currentPrice: number;
     unit: string;
     lastSeen: Date;
-    trend: "up" | "down" | "stable";
+    trend: 'up' | 'down' | 'stable';
     savingsVsAverage: number;
   }>;
   cheapestStore: string;
@@ -90,8 +90,8 @@ export class PriceComparator {
 
   constructor() {
     this.redis = new Redis({
-      host: process.env.REDIS_HOST || "localhost",
-      port: parseInt(process.env.REDIS_PORT || "6379"),
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
     });
   }
 
@@ -110,7 +110,7 @@ export class PriceComparator {
     });
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new Error('Product not found');
     }
 
     // Get recent prices grouped by store (last 30 days)
@@ -122,7 +122,7 @@ export class PriceComparator {
         },
       },
       include: { store: true },
-      orderBy: { date: "desc" },
+      orderBy: { date: 'desc' },
     });
 
     // Group by store and get latest price
@@ -171,8 +171,8 @@ export class PriceComparator {
         category: product.category.name,
       },
       prices,
-      cheapestStore: prices[0]?.store || "N/A",
-      mostExpensiveStore: prices[prices.length - 1]?.store || "N/A",
+      cheapestStore: prices[0]?.store || 'N/A',
+      mostExpensiveStore: prices[prices.length - 1]?.store || 'N/A',
       averagePrice: this.calculateAverage(prices.map((p) => p.currentPrice)),
     };
 
@@ -190,8 +190,8 @@ export class PriceComparator {
     return comparisons;
   }
 
-  private calculateTrend(prices: any[]): "up" | "down" | "stable" {
-    if (prices.length < 2) return "stable";
+  private calculateTrend(prices: any[]): 'up' | 'down' | 'stable' {
+    if (prices.length < 2) return 'stable';
 
     // Sort by date
     const sorted = prices.sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -200,9 +200,9 @@ export class PriceComparator {
     const last = Number(sorted[sorted.length - 1].unitPrice);
     const diff = ((last - first) / first) * 100;
 
-    if (diff > 5) return "up";
-    if (diff < -5) return "down";
-    return "stable";
+    if (diff > 5) return 'up';
+    if (diff < -5) return 'down';
+    return 'stable';
   }
 
   private calculateAverage(numbers: number[]): number {
@@ -216,7 +216,7 @@ export class PriceComparator {
 
 ```typescript
 // filepath: services/analytics/src/services/recommendations/single-store-optimizer.ts
-import { prisma } from "@pricy/database";
+import { prisma } from '@pricy/database';
 
 interface ShoppingItem {
   productId: string;
@@ -366,7 +366,7 @@ export class SingleStoreOptimizer {
 
 ```typescript
 // filepath: services/analytics/src/services/recommendations/multi-store-optimizer.ts
-import { SingleStoreOptimizer, ShoppingItem } from "./single-store-optimizer";
+import { SingleStoreOptimizer, ShoppingItem } from './single-store-optimizer';
 
 interface MultiStoreRecommendation {
   stores: Array<{
@@ -400,9 +400,8 @@ export class MultiStoreOptimizer {
     items: ShoppingItem[]
   ): Promise<MultiStoreRecommendation> {
     // Get best single store for comparison
-    const singleStoreRecs = await this.singleStoreOptimizer.findBestStore(
-      items
-    );
+    const singleStoreRecs =
+      await this.singleStoreOptimizer.findBestStore(items);
     const bestSingleStore = singleStoreRecs[0];
 
     // Use greedy algorithm: for each item, pick the store with lowest price
@@ -477,12 +476,12 @@ export class MultiStoreOptimizer {
 
 ```typescript
 // filepath: services/analytics/src/services/price-comparison/trend-analyzer.ts
-import { prisma } from "@pricy/database";
+import { prisma } from '@pricy/database';
 
 interface PriceTrend {
   productId: string;
   productName: string;
-  trend: "up" | "down" | "stable";
+  trend: 'up' | 'down' | 'stable';
   changePercent: number;
   predictedNextPrice: number;
   confidence: number;
@@ -504,7 +503,7 @@ export class TrendAnalyzer {
           },
         },
         include: { product: true },
-        orderBy: { date: "asc" },
+        orderBy: { date: 'asc' },
       });
 
       if (prices.length < 2) {
@@ -520,10 +519,10 @@ export class TrendAnalyzer {
       const last = Number(prices[prices.length - 1].unitPrice);
       const changePercent = ((last - first) / first) * 100;
 
-      let trend: "up" | "down" | "stable";
-      if (changePercent > 5) trend = "up";
-      else if (changePercent < -5) trend = "down";
-      else trend = "stable";
+      let trend: 'up' | 'down' | 'stable';
+      if (changePercent > 5) trend = 'up';
+      else if (changePercent < -5) trend = 'down';
+      else trend = 'stable';
 
       trends.push({
         productId,
@@ -573,18 +572,18 @@ export class TrendAnalyzer {
 
 ```typescript
 // filepath: services/analytics/src/routes/analytics.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import * as analyticsController from "../controllers/analytics.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import * as analyticsController from '../controllers/analytics.controller';
 
 export default async function analyticsRoutes(app: FastifyInstance) {
   // Compare product prices
   app.get(
-    "/compare/:productId",
+    '/compare/:productId',
     {
       schema: {
         params: Type.Object({
-          productId: Type.String({ format: "uuid" }),
+          productId: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -593,18 +592,18 @@ export default async function analyticsRoutes(app: FastifyInstance) {
 
   // Get shopping recommendations
   app.post(
-    "/recommend",
+    '/recommend',
     {
       schema: {
         body: Type.Object({
           items: Type.Array(
             Type.Object({
-              productId: Type.String({ format: "uuid" }),
+              productId: Type.String({ format: 'uuid' }),
               quantity: Type.Number({ minimum: 0.01 }),
             })
           ),
           optimize: Type.Optional(
-            Type.Union([Type.Literal("single"), Type.Literal("multi")])
+            Type.Union([Type.Literal('single'), Type.Literal('multi')])
           ),
         }),
       },
@@ -614,11 +613,11 @@ export default async function analyticsRoutes(app: FastifyInstance) {
 
   // Analyze price trends
   app.post(
-    "/trends",
+    '/trends',
     {
       schema: {
         body: Type.Object({
-          productIds: Type.Array(Type.String({ format: "uuid" })),
+          productIds: Type.Array(Type.String({ format: 'uuid' })),
           days: Type.Optional(Type.Integer({ minimum: 7, maximum: 365 })),
         }),
       },
@@ -628,11 +627,11 @@ export default async function analyticsRoutes(app: FastifyInstance) {
 
   // Get user insights
   app.get(
-    "/insights/:userId",
+    '/insights/:userId',
     {
       schema: {
         params: Type.Object({
-          userId: Type.String({ format: "uuid" }),
+          userId: Type.String({ format: 'uuid' }),
         }),
       },
     },

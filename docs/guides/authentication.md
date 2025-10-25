@@ -108,9 +108,9 @@ sequenceDiagram
 const cookieOptions = {
   httpOnly: true, // Not accessible via JavaScript (XSS protection)
   secure: true, // HTTPS only
-  sameSite: "strict", // CSRF protection
+  sameSite: 'strict', // CSRF protection
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  path: "/api/auth", // Limit cookie scope
+  path: '/api/auth', // Limit cookie scope
 };
 
 // Token rotation on refresh
@@ -175,11 +175,11 @@ Key files:
 
 ```typescript
 // filepath: apps/api/src/middleware/auth.middleware.ts
-import { FastifyRequest, FastifyReply } from "fastify";
-import { verifyToken } from "../utils/jwt";
-import { UnauthorizedError } from "../utils/errors";
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { verifyToken } from '../utils/jwt';
+import { UnauthorizedError } from '../utils/errors';
 
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyRequest {
     user?: {
       id: string;
@@ -197,8 +197,8 @@ export async function authenticate(
   try {
     const authHeader = request.headers.authorization;
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      throw new UnauthorizedError("Missing or invalid authorization header");
+    if (!authHeader?.startsWith('Bearer ')) {
+      throw new UnauthorizedError('Missing or invalid authorization header');
     }
 
     const token = authHeader.substring(7);
@@ -209,10 +209,10 @@ export async function authenticate(
       id: payload.sub,
       email: payload.email,
       role: payload.role,
-      provider: payload.provider || "email",
+      provider: payload.provider || 'email',
     };
   } catch (error) {
-    throw new UnauthorizedError("Invalid or expired token");
+    throw new UnauthorizedError('Invalid or expired token');
   }
 }
 
@@ -220,11 +220,11 @@ export async function authenticate(
 export function requireRole(...roles: string[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.user) {
-      throw new UnauthorizedError("Not authenticated");
+      throw new UnauthorizedError('Not authenticated');
     }
 
     if (!roles.includes(request.user.role)) {
-      throw new UnauthorizedError("Insufficient permissions");
+      throw new UnauthorizedError('Insufficient permissions');
     }
   };
 }
@@ -234,12 +234,12 @@ export function requireRole(...roles: string[]) {
 
 ```typescript
 // filepath: apps/api/src/utils/jwt.ts
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "15m";
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
+const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
 interface JWTPayload {
   sub: string;
@@ -254,7 +254,7 @@ export function generateTokens(payload: JWTPayload) {
   });
 
   const refreshToken = jwt.sign(
-    { sub: payload.sub, type: "refresh" },
+    { sub: payload.sub, type: 'refresh' },
     JWT_REFRESH_SECRET,
     { expiresIn: JWT_REFRESH_EXPIRES_IN }
   );
@@ -325,26 +325,26 @@ PKCE (RFC 7636) is a security extension to OAuth 2.0 that prevents authorization
 
 ```typescript
 // filepath: apps/web/src/utils/pkce.ts
-import crypto from "crypto";
+import crypto from 'crypto';
 
 export function generateCodeVerifier(): string {
   return base64URLEncode(crypto.randomBytes(32));
 }
 
 export function generateCodeChallenge(verifier: string): string {
-  return base64URLEncode(crypto.createHash("sha256").update(verifier).digest());
+  return base64URLEncode(crypto.createHash('sha256').update(verifier).digest());
 }
 
 function base64URLEncode(buffer: Buffer): string {
   return buffer
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
 }
 
 // Usage in NextAuth.js
-import { generateCodeVerifier, generateCodeChallenge } from "./pkce";
+import { generateCodeVerifier, generateCodeChallenge } from './pkce';
 
 export const authConfig = {
   providers: [
@@ -353,11 +353,11 @@ export const authConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
           // PKCE parameters
-          code_challenge_method: "S256",
+          code_challenge_method: 'S256',
           code_challenge: generateCodeChallenge(generateCodeVerifier()),
         },
       },
@@ -396,12 +396,12 @@ export const authConfig = {
 // Protect auth endpoints from brute force
 await app.register(rateLimit, {
   max: 5,
-  timeWindow: "15 minutes",
+  timeWindow: '15 minutes',
   keyGenerator: (req) => req.body.email || req.ip,
   errorResponseBuilder: () => ({
     statusCode: 429,
-    error: "Too Many Requests",
-    message: "Too many login attempts. Please try again later.",
+    error: 'Too Many Requests',
+    message: 'Too many login attempts. Please try again later.',
   }),
 });
 ```
@@ -416,11 +416,11 @@ const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 // Password requirements
 const passwordSchema = z
   .string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(/[a-z]/, "Password must contain lowercase letter")
-  .regex(/[A-Z]/, "Password must contain uppercase letter")
-  .regex(/[0-9]/, "Password must contain number")
-  .regex(/[^a-zA-Z0-9]/, "Password must contain special character");
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[a-z]/, 'Password must contain lowercase letter')
+  .regex(/[A-Z]/, 'Password must contain uppercase letter')
+  .regex(/[0-9]/, 'Password must contain number')
+  .regex(/[^a-zA-Z0-9]/, 'Password must contain special character');
 ```
 
 ## Setting Up OAuth Providers
@@ -428,19 +428,16 @@ const passwordSchema = z
 ### Google OAuth 2.0
 
 1. **Create Project**
-
    - Visit [Google Cloud Console](https://console.cloud.google.com/)
    - Create new project or select existing
    - Enable Google+ API
 
 2. **Create Credentials**
-
    - Navigate to "Credentials" → "Create Credentials" → "OAuth client ID"
    - Application type: "Web application"
    - Name: "Pricy"
 
 3. **Configure OAuth Consent Screen**
-
    - User type: "External"
    - App name: "Pricy"
    - User support email: your email
@@ -465,19 +462,16 @@ const passwordSchema = z
 ### Microsoft OAuth 2.0
 
 1. **Register Application**
-
    - Visit [Azure Portal](https://portal.azure.com/)
    - Navigate to "Azure Active Directory" → "App registrations"
    - Click "New registration"
 
 2. **Configure Application**
-
    - Name: "Pricy"
    - Supported account types: "Accounts in any organizational directory and personal Microsoft accounts"
    - Redirect URI: `Web` → `http://localhost:3001/api/auth/callback/microsoft`
 
 3. **Add Redirect URIs**
-
    - Go to "Authentication" → "Platform configurations" → "Web"
    - Add:
      ```
@@ -486,7 +480,6 @@ const passwordSchema = z
      ```
 
 4. **Create Client Secret**
-
    - Go to "Certificates & secrets"
    - Click "New client secret"
    - Description: "Pricy Production"
@@ -504,7 +497,6 @@ const passwordSchema = z
 ### Apple Sign In
 
 1. **Create App ID**
-
    - Visit [Apple Developer Portal](https://developer.apple.com/account/)
    - Navigate to "Certificates, Identifiers & Profiles"
    - Click "Identifiers" → "+" → "App IDs"
@@ -513,7 +505,6 @@ const passwordSchema = z
    - Capabilities: Enable "Sign In with Apple"
 
 2. **Create Service ID**
-
    - Click "Identifiers" → "+" → "Services IDs"
    - Description: "Pricy Sign In"
    - Identifier: `app.pricy.signin`
@@ -528,7 +519,6 @@ const passwordSchema = z
        ```
 
 3. **Create Private Key**
-
    - Click "Keys" → "+"
    - Key Name: "Pricy Sign In Key"
    - Enable: "Sign In with Apple"
@@ -542,18 +532,18 @@ const passwordSchema = z
 
    ```typescript
    // generate-apple-secret.ts
-   import jwt from "jsonwebtoken";
-   import fs from "fs";
+   import jwt from 'jsonwebtoken';
+   import fs from 'fs';
 
-   const privateKey = fs.readFileSync("./AuthKey_XXXXXXXXXX.p8", "utf8");
+   const privateKey = fs.readFileSync('./AuthKey_XXXXXXXXXX.p8', 'utf8');
 
    const clientSecret = jwt.sign({}, privateKey, {
-     algorithm: "ES256",
-     expiresIn: "180 days",
-     audience: "https://appleid.apple.com",
-     issuer: "YOUR_TEAM_ID", // From Apple Developer Account
-     subject: "app.pricy.signin", // Your Service ID
-     keyid: "YOUR_KEY_ID", // From the .p8 filename
+     algorithm: 'ES256',
+     expiresIn: '180 days',
+     audience: 'https://appleid.apple.com',
+     issuer: 'YOUR_TEAM_ID', // From Apple Developer Account
+     subject: 'app.pricy.signin', // Your Service ID
+     keyid: 'YOUR_KEY_ID', // From the .p8 filename
    });
 
    console.log(clientSecret);
@@ -642,20 +632,20 @@ DATABASE_URL=postgresql://...
 
 ```typescript
 // filepath: apps/api/src/__tests__/auth.test.ts
-import { test } from "tap";
-import { buildApp } from "../app";
-import { prisma } from "@pricy/database";
+import { test } from 'tap';
+import { buildApp } from '../app';
+import { prisma } from '@pricy/database';
 
-test("POST /auth/register - success", async (t) => {
+test('POST /auth/register - success', async (t) => {
   const app = await buildApp();
 
   const response = await app.inject({
-    method: "POST",
-    url: "/api/v1/auth/register",
+    method: 'POST',
+    url: '/api/v1/auth/register',
     payload: {
-      email: "new@example.com",
-      password: "SecurePass123!",
-      name: "New User",
+      email: 'new@example.com',
+      password: 'SecurePass123!',
+      name: 'New User',
     },
   });
 
@@ -664,19 +654,19 @@ test("POST /auth/register - success", async (t) => {
 
   // Cleanup
   await prisma.user.delete({
-    where: { email: "new@example.com" },
+    where: { email: 'new@example.com' },
   });
 });
 
-test("POST /auth/login - success", async (t) => {
+test('POST /auth/login - success', async (t) => {
   const app = await buildApp();
 
   const response = await app.inject({
-    method: "POST",
-    url: "/api/v1/auth/login",
+    method: 'POST',
+    url: '/api/v1/auth/login',
     payload: {
-      email: "demo@pricy.app",
-      password: "demo123",
+      email: 'demo@pricy.app',
+      password: 'demo123',
     },
   });
 

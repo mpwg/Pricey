@@ -333,7 +333,7 @@ await app.register(rateLimit, {
 **Recommendation**: Protect against cascading failures
 
 ```typescript
-import CircuitBreaker from "opossum";
+import CircuitBreaker from 'opossum';
 
 const breaker = new CircuitBreaker(ocrClient.processReceipt, {
   timeout: 30000,
@@ -341,7 +341,7 @@ const breaker = new CircuitBreaker(ocrClient.processReceipt, {
   resetTimeout: 30000,
 });
 
-breaker.fallback(() => ({ status: "queued" }));
+breaker.fallback(() => ({ status: 'queued' }));
 ```
 
 ### Best Practices Compliance
@@ -487,9 +487,9 @@ class ActiveLearner {
 ```typescript
 // Model versioning
 const MODEL_VERSIONS = {
-  current: "v2.1.0",
-  fallback: "v2.0.0",
-  path: "/models/product-matcher",
+  current: 'v2.1.0',
+  fallback: 'v2.0.0',
+  path: '/models/product-matcher',
 };
 ```
 
@@ -525,7 +525,7 @@ const MODEL_VERSIONS = {
 
 ```typescript
 // Real-time price monitoring
-import { Redis } from "ioredis";
+import { Redis } from 'ioredis';
 
 class PriceMonitor {
   private pubsub: Redis;
@@ -534,7 +534,7 @@ class PriceMonitor {
     // Subscribe to price updates
     await this.pubsub.subscribe(`price:${productId}`);
 
-    this.pubsub.on("message", (channel, message) => {
+    this.pubsub.on('message', (channel, message) => {
       const priceUpdate = JSON.parse(message);
       if (priceUpdate.change > 0.05) {
         // 5% change
@@ -552,7 +552,7 @@ class PriceMonitor {
 
 ```typescript
 // Advanced forecasting
-import { Prophet } from "prophet-js";
+import { Prophet } from 'prophet-js';
 
 class PriceForecaster {
   async forecastPrices(productId: string, days: number = 30) {

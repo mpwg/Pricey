@@ -86,16 +86,16 @@ export interface OCRProvider {
 
 ```typescript
 // filepath: services/ocr/src/services/ocr/tesseract.ts
-import Tesseract from "tesseract.js";
-import { OCRProvider, OCRResult } from "./base";
-import { preprocessImage } from "../../utils/image";
+import Tesseract from 'tesseract.js';
+import { OCRProvider, OCRResult } from './base';
+import { preprocessImage } from '../../utils/image';
 
 export class TesseractOCR implements OCRProvider {
-  name = "tesseract";
+  name = 'tesseract';
   private worker: Tesseract.Worker | null = null;
 
   async initialize() {
-    this.worker = await Tesseract.createWorker("eng", 1, {
+    this.worker = await Tesseract.createWorker('eng', 1, {
       logger: (m) => console.log(m),
     });
   }
@@ -147,11 +147,11 @@ export class TesseractOCR implements OCRProvider {
 
 ```typescript
 // filepath: services/ocr/src/services/ocr/google-vision.ts
-import vision from "@google-cloud/vision";
-import { OCRProvider, OCRResult } from "./base";
+import vision from '@google-cloud/vision';
+import { OCRProvider, OCRResult } from './base';
 
 export class GoogleVisionOCR implements OCRProvider {
-  name = "google-vision";
+  name = 'google-vision';
   private client: vision.ImageAnnotatorClient;
 
   constructor() {
@@ -166,7 +166,7 @@ export class GoogleVisionOCR implements OCRProvider {
 
     if (detections.length === 0) {
       return {
-        text: "",
+        text: '',
         confidence: 0,
         blocks: [],
       };
@@ -176,10 +176,10 @@ export class GoogleVisionOCR implements OCRProvider {
     const fullText = detections[0];
 
     return {
-      text: fullText.description || "",
+      text: fullText.description || '',
       confidence: 0.95, // Google doesn't provide overall confidence
       blocks: detections.slice(1).map((detection) => ({
-        text: detection.description || "",
+        text: detection.description || '',
         confidence: 0.95,
         boundingBox: {
           x: detection.boundingPoly?.vertices?.[0]?.x || 0,
@@ -201,9 +201,9 @@ export class GoogleVisionOCR implements OCRProvider {
 
 ```typescript
 // filepath: services/ocr/src/services/parser/receipt-parser.ts
-import { StoreDetector } from "./store-detector";
-import { DateExtractor } from "./date-extractor";
-import { ItemExtractor } from "./item-extractor";
+import { StoreDetector } from './store-detector';
+import { DateExtractor } from './date-extractor';
+import { ItemExtractor } from './item-extractor';
 
 export interface ParsedReceipt {
   store: {
@@ -237,7 +237,7 @@ export class ReceiptParser {
   }
 
   async parse(text: string): Promise<ParsedReceipt> {
-    const lines = text.split("\n").filter((line) => line.trim().length > 0);
+    const lines = text.split('\n').filter((line) => line.trim().length > 0);
 
     // Extract store information
     const store = this.storeDetector.detect(lines);
@@ -272,7 +272,7 @@ export class ReceiptParser {
       for (const pattern of totalPatterns) {
         const match = line.match(pattern);
         if (match) {
-          return parseFloat(match[1].replace(",", "."));
+          return parseFloat(match[1].replace(',', '.'));
         }
       }
     }
@@ -286,7 +286,7 @@ export class ReceiptParser {
 
 ```typescript
 // filepath: services/ocr/src/services/parser/store-detector.ts
-import { prisma } from "@pricy/database";
+import { prisma } from '@pricy/database';
 
 export class StoreDetector {
   private knownStores: Map<string, string> = new Map();
@@ -341,7 +341,7 @@ export class StoreDetector {
     // Address is usually on the next 1-3 lines
     const addressLines = lines.slice(storeLineIndex + 1, storeLineIndex + 4);
 
-    return addressLines.join(", ") || undefined;
+    return addressLines.join(', ') || undefined;
   }
 }
 ```
@@ -350,7 +350,7 @@ export class StoreDetector {
 
 ```typescript
 // filepath: services/ocr/src/services/parser/item-extractor.ts
-import { ParsedItem } from "./receipt-parser";
+import { ParsedItem } from './receipt-parser';
 
 export class ItemExtractor {
   private pricePattern = /€?\s*(\d+[.,]\d{2})\s*€?/;
@@ -383,7 +383,7 @@ export class ItemExtractor {
       return null;
     }
 
-    const price = parseFloat(priceMatch[1].replace(",", "."));
+    const price = parseFloat(priceMatch[1].replace(',', '.'));
 
     // Remove price from line to get description
     const descriptionPart = line.substring(0, priceMatch.index);
@@ -391,11 +391,11 @@ export class ItemExtractor {
     // Extract quantity and unit
     const quantityMatch = descriptionPart.match(this.quantityPattern);
     let quantity = 1;
-    let unit = "pcs";
+    let unit = 'pcs';
     let description = descriptionPart.trim();
 
     if (quantityMatch) {
-      quantity = parseFloat(quantityMatch[1].replace(",", "."));
+      quantity = parseFloat(quantityMatch[1].replace(',', '.'));
       unit = quantityMatch[2].toLowerCase();
       // Remove quantity from description
       description = descriptionPart.substring(0, quantityMatch.index).trim();
@@ -419,18 +419,18 @@ export class ItemExtractor {
 
   private isHeaderOrFooter(line: string): boolean {
     const headerFooterKeywords = [
-      "receipt",
-      "bon",
-      "kassenbon",
-      "thank",
-      "danke",
-      "mwst",
-      "vat",
-      "tax",
-      "total",
-      "sum",
-      "card",
-      "cash",
+      'receipt',
+      'bon',
+      'kassenbon',
+      'thank',
+      'danke',
+      'mwst',
+      'vat',
+      'tax',
+      'total',
+      'sum',
+      'card',
+      'cash',
     ];
 
     const lowerLine = line.toLowerCase();
@@ -439,7 +439,7 @@ export class ItemExtractor {
 
   private cleanDescription(description: string): string {
     // Remove special characters, extra spaces
-    return description.replace(/[*#@]/g, "").replace(/\s+/g, " ").trim();
+    return description.replace(/[*#@]/g, '').replace(/\s+/g, ' ').trim();
   }
 }
 ```
@@ -448,12 +448,12 @@ export class ItemExtractor {
 
 ```typescript
 // filepath: services/ocr/src/services/queue/processor.ts
-import { Queue, Worker } from "bullmq";
-import { prisma } from "@pricy/database";
-import { TesseractOCR } from "../ocr/tesseract";
-import { GoogleVisionOCR } from "../ocr/google-vision";
-import { ReceiptParser } from "../parser/receipt-parser";
-import { logger } from "../../utils/logger";
+import { Queue, Worker } from 'bullmq';
+import { prisma } from '@pricy/database';
+import { TesseractOCR } from '../ocr/tesseract';
+import { GoogleVisionOCR } from '../ocr/google-vision';
+import { ReceiptParser } from '../parser/receipt-parser';
+import { logger } from '../../utils/logger';
 
 interface OCRJob {
   receiptId: string;
@@ -467,49 +467,49 @@ export class OCRProcessor {
   private parser: ReceiptParser;
 
   constructor() {
-    this.queue = new Queue("ocr-processing", {
+    this.queue = new Queue('ocr-processing', {
       connection: {
-        host: process.env.REDIS_HOST || "localhost",
-        port: parseInt(process.env.REDIS_PORT || "6379"),
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
       },
     });
 
     // Select OCR provider
     this.ocrProvider =
-      process.env.OCR_PROVIDER === "google"
+      process.env.OCR_PROVIDER === 'google'
         ? new GoogleVisionOCR()
         : new TesseractOCR();
 
     this.parser = new ReceiptParser();
 
     this.worker = new Worker<OCRJob>(
-      "ocr-processing",
+      'ocr-processing',
       async (job) => {
         return this.processJob(job.data);
       },
       {
         connection: {
-          host: process.env.REDIS_HOST || "localhost",
-          port: parseInt(process.env.REDIS_PORT || "6379"),
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
         },
         concurrency: 5,
       }
     );
 
-    this.worker.on("completed", (job) => {
-      logger.info({ jobId: job.id }, "OCR job completed");
+    this.worker.on('completed', (job) => {
+      logger.info({ jobId: job.id }, 'OCR job completed');
     });
 
-    this.worker.on("failed", (job, err) => {
-      logger.error({ jobId: job?.id, error: err }, "OCR job failed");
+    this.worker.on('failed', (job, err) => {
+      logger.error({ jobId: job?.id, error: err }, 'OCR job failed');
     });
   }
 
   async addJob(data: OCRJob) {
-    await this.queue.add("process-receipt", data, {
+    await this.queue.add('process-receipt', data, {
       attempts: 3,
       backoff: {
-        type: "exponential",
+        type: 'exponential',
         delay: 5000,
       },
     });
@@ -522,7 +522,7 @@ export class OCRProcessor {
       // Update status
       await prisma.receipt.update({
         where: { id: receiptId },
-        data: { status: "processing" },
+        data: { status: 'processing' },
       });
 
       // Extract text
@@ -538,18 +538,18 @@ export class OCRProcessor {
       await prisma.receipt.update({
         where: { id: receiptId },
         data: {
-          status: "completed",
+          status: 'completed',
           rawOcrText: ocrResult.text,
         },
       });
 
-      logger.info({ receiptId }, "Receipt processed successfully");
+      logger.info({ receiptId }, 'Receipt processed successfully');
     } catch (error) {
-      logger.error({ receiptId, error }, "Receipt processing failed");
+      logger.error({ receiptId, error }, 'Receipt processing failed');
 
       await prisma.receipt.update({
         where: { id: receiptId },
-        data: { status: "failed" },
+        data: { status: 'failed' },
       });
 
       throw error;
@@ -603,7 +603,7 @@ export class OCRProcessor {
 
 ```typescript
 // filepath: services/ocr/src/utils/image.ts
-import sharp from "sharp";
+import sharp from 'sharp';
 
 export async function preprocessImage(buffer: Buffer): Promise<Buffer> {
   return (
@@ -616,7 +616,7 @@ export async function preprocessImage(buffer: Buffer): Promise<Buffer> {
       .sharpen()
       // Resize if too large (max 2000px width)
       .resize(2000, null, {
-        fit: "inside",
+        fit: 'inside',
         withoutEnlargement: true,
       })
       // Convert to PNG for best OCR results
@@ -630,18 +630,18 @@ export async function preprocessImage(buffer: Buffer): Promise<Buffer> {
 
 ```typescript
 // filepath: services/ocr/src/routes/ocr.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import * as ocrController from "../controllers/ocr.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import * as ocrController from '../controllers/ocr.controller';
 
 export default async function ocrRoutes(app: FastifyInstance) {
   app.post(
-    "/process",
+    '/process',
     {
       schema: {
         body: Type.Object({
-          receiptId: Type.String({ format: "uuid" }),
-          imageUrl: Type.String({ format: "uri" }),
+          receiptId: Type.String({ format: 'uuid' }),
+          imageUrl: Type.String({ format: 'uri' }),
         }),
       },
     },
@@ -649,11 +649,11 @@ export default async function ocrRoutes(app: FastifyInstance) {
   );
 
   app.get(
-    "/status/:receiptId",
+    '/status/:receiptId',
     {
       schema: {
         params: Type.Object({
-          receiptId: Type.String({ format: "uuid" }),
+          receiptId: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -694,10 +694,10 @@ DATABASE_URL=postgresql://pricy:pricy@localhost:5432/pricy
 
 ```typescript
 // filepath: services/ocr/src/__tests__/parser.test.ts
-import { test } from "tap";
-import { ReceiptParser } from "../services/parser/receipt-parser";
+import { test } from 'tap';
+import { ReceiptParser } from '../services/parser/receipt-parser';
 
-test("ReceiptParser - parse simple receipt", async (t) => {
+test('ReceiptParser - parse simple receipt', async (t) => {
   const parser = new ReceiptParser();
   const text = `
     WALMART
@@ -713,7 +713,7 @@ test("ReceiptParser - parse simple receipt", async (t) => {
 
   const result = await parser.parse(text);
 
-  t.equal(result.store?.name, "walmart");
+  t.equal(result.store?.name, 'walmart');
   t.equal(result.items.length, 3);
   t.equal(result.total, 5.48);
   t.end();

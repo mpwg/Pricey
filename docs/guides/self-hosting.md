@@ -282,7 +282,7 @@ postgres:
   volumes:
     - postgres_data:/var/lib/postgresql/data
   healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+    test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
     interval: 10s
     timeout: 5s
     retries: 5
@@ -352,8 +352,8 @@ minio:
   volumes:
     - minio_data:/data
   ports:
-    - "9000:9000"
-    - "9001:9001"
+    - '9000:9000'
+    - '9001:9001'
 ```
 
 Access MinIO console at `http://your-server:9001` to create buckets.
@@ -410,8 +410,8 @@ caddy:
   image: caddy:2-alpine
   restart: always
   ports:
-    - "80:80"
-    - "443:443"
+    - '80:80'
+    - '443:443'
   volumes:
     - ./Caddyfile:/etc/caddy/Caddyfile
     - caddy_data:/data
@@ -725,14 +725,14 @@ prometheus:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml
     - prometheus_data:/prometheus
   ports:
-    - "9090:9090"
+    - '9090:9090'
 
 grafana:
   image: grafana/grafana
   volumes:
     - grafana_data:/var/lib/grafana
   ports:
-    - "3030:3000"
+    - '3030:3000'
   environment:
     - GF_SECURITY_ADMIN_PASSWORD=admin
 ```

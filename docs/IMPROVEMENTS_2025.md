@@ -40,7 +40,7 @@ export function generateCodeVerifier(): string {
 }
 
 export function generateCodeChallenge(verifier: string): string {
-  return base64URLEncode(crypto.createHash("sha256").update(verifier).digest());
+  return base64URLEncode(crypto.createHash('sha256').update(verifier).digest());
 }
 ```
 
@@ -266,25 +266,21 @@ gantt
 ### Files Modified
 
 1. ✅ `docs/guides/authentication.md`
-
    - Added PKCE implementation section
    - Added token lifespan strategy
    - Added token storage recommendations
 
 2. ✅ `docs/components/api-gateway.md`
-
    - Added rate limiting headers documentation
    - Added rate limiting strategy guide
    - Added client-side retry logic examples
 
 3. ✅ `docs/components/frontend-pwa.md`
-
    - Added React Server Components best practices
    - Added composition patterns
    - Added streaming with Suspense guide
 
 4. ✅ `docs/guides/testing-strategy.md`
-
    - Added Shift-Left Testing philosophy
    - Added pre-commit hooks guide
    - Added quality gates documentation
@@ -296,7 +292,6 @@ gantt
 ### Files Created
 
 6. ✅ `docs/ROADMAP.md` (NEW)
-
    - Complete product roadmap
    - 5 phases with milestones
    - Success metrics and OKRs
@@ -411,19 +406,16 @@ gantt
 ### Consider for Future (Not Blocking)
 
 1. **WebAuthn/Passkeys** (Phase 3)
-
    - Passwordless authentication
    - Biometric login (Face ID, Touch ID)
    - Emerging 2025 standard
 
 2. **Edge Runtime** (Phase 3)
-
    - Deploy middleware to edge
    - Reduce latency globally
    - Next.js Edge Runtime
 
 3. **AI-Powered Testing** (Phase 4)
-
    - Self-healing tests
    - Auto-generated test cases
    - Visual regression with AI

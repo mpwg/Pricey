@@ -422,51 +422,51 @@ END $$;
 
 ```typescript
 // filepath: packages/database/prisma/seed.ts
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log('🌱 Seeding database...');
 
   // Create admin user
-  const adminPassword = await bcrypt.hash("admin123", 10);
+  const adminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@pricy.app" },
+    where: { email: 'admin@pricy.app' },
     update: {},
     create: {
-      email: "admin@pricy.app",
+      email: 'admin@pricy.app',
       passwordHash: adminPassword,
-      name: "Admin User",
-      role: "ADMIN",
+      name: 'Admin User',
+      role: 'ADMIN',
       emailVerified: true,
     },
   });
-  console.log("✅ Created admin user:", admin.email);
+  console.log('✅ Created admin user:', admin.email);
 
   // Create demo user
-  const demoPassword = await bcrypt.hash("demo123", 10);
+  const demoPassword = await bcrypt.hash('demo123', 10);
   const demo = await prisma.user.upsert({
-    where: { email: "demo@pricy.app" },
+    where: { email: 'demo@pricy.app' },
     update: {},
     create: {
-      email: "demo@pricy.app",
+      email: 'demo@pricy.app',
       passwordHash: demoPassword,
-      name: "Demo User",
-      role: "USER",
+      name: 'Demo User',
+      role: 'USER',
       emailVerified: true,
     },
   });
-  console.log("✅ Created demo user:", demo.email);
+  console.log('✅ Created demo user:', demo.email);
 
   // Create store chains
   const chains = [
-    { name: "Walmart", website: "https://walmart.com" },
-    { name: "ALDI", website: "https://aldi.com" },
-    { name: "Lidl", website: "https://lidl.com" },
-    { name: "Tesco", website: "https://tesco.com" },
-    { name: "Whole Foods", website: "https://wholefoodsmarket.com" },
+    { name: 'Walmart', website: 'https://walmart.com' },
+    { name: 'ALDI', website: 'https://aldi.com' },
+    { name: 'Lidl', website: 'https://lidl.com' },
+    { name: 'Tesco', website: 'https://tesco.com' },
+    { name: 'Whole Foods', website: 'https://wholefoodsmarket.com' },
   ];
 
   const createdChains = new Map();
@@ -478,37 +478,37 @@ async function main() {
     });
     createdChains.set(chain.name, created);
   }
-  console.log("✅ Created store chains");
+  console.log('✅ Created store chains');
 
   // Create stores
   const stores = [
     {
-      name: "Walmart Supercenter Downtown",
-      chainId: createdChains.get("Walmart").id,
-      address: "123 Main St",
-      city: "Springfield",
-      postalCode: "12345",
-      country: "US",
+      name: 'Walmart Supercenter Downtown',
+      chainId: createdChains.get('Walmart').id,
+      address: '123 Main St',
+      city: 'Springfield',
+      postalCode: '12345',
+      country: 'US',
       latitude: 37.7749,
       longitude: -122.4194,
     },
     {
-      name: "ALDI Springfield",
-      chainId: createdChains.get("ALDI").id,
-      address: "456 Oak Ave",
-      city: "Springfield",
-      postalCode: "12345",
-      country: "US",
+      name: 'ALDI Springfield',
+      chainId: createdChains.get('ALDI').id,
+      address: '456 Oak Ave',
+      city: 'Springfield',
+      postalCode: '12345',
+      country: 'US',
       latitude: 37.7849,
       longitude: -122.4294,
     },
     {
-      name: "Lidl Central",
-      chainId: createdChains.get("Lidl").id,
-      address: "789 Elm St",
-      city: "Springfield",
-      postalCode: "12346",
-      country: "US",
+      name: 'Lidl Central',
+      chainId: createdChains.get('Lidl').id,
+      address: '789 Elm St',
+      city: 'Springfield',
+      postalCode: '12346',
+      country: 'US',
       latitude: 37.7949,
       longitude: -122.4394,
     },
@@ -521,19 +521,19 @@ async function main() {
       create: store,
     });
   }
-  console.log("✅ Created stores");
+  console.log('✅ Created stores');
 
   // Create categories
   const categories = [
-    { name: "Fruit", slug: "fruit", icon: "🍎" },
-    { name: "Vegetables", slug: "vegetables", icon: "🥕" },
-    { name: "Dairy", slug: "dairy", icon: "🥛" },
-    { name: "Bakery", slug: "bakery", icon: "🍞" },
-    { name: "Meat", slug: "meat", icon: "🥩" },
-    { name: "Beverages", slug: "beverages", icon: "🥤" },
-    { name: "Snacks", slug: "snacks", icon: "🍿" },
-    { name: "Frozen Foods", slug: "frozen-foods", icon: "🧊" },
-    { name: "Other", slug: "other", icon: "📦" },
+    { name: 'Fruit', slug: 'fruit', icon: '🍎' },
+    { name: 'Vegetables', slug: 'vegetables', icon: '🥕' },
+    { name: 'Dairy', slug: 'dairy', icon: '🥛' },
+    { name: 'Bakery', slug: 'bakery', icon: '🍞' },
+    { name: 'Meat', slug: 'meat', icon: '🥩' },
+    { name: 'Beverages', slug: 'beverages', icon: '🥤' },
+    { name: 'Snacks', slug: 'snacks', icon: '🍿' },
+    { name: 'Frozen Foods', slug: 'frozen-foods', icon: '🧊' },
+    { name: 'Other', slug: 'other', icon: '📦' },
   ];
 
   const createdCategories = new Map();
@@ -545,23 +545,23 @@ async function main() {
     });
     createdCategories.set(category.slug, created);
   }
-  console.log("✅ Created categories");
+  console.log('✅ Created categories');
 
   // Create sample products
   const products = [
-    { name: "Apple", normalized: "apple", category: "fruit" },
-    { name: "Banana", normalized: "banana", category: "fruit" },
-    { name: "Orange", normalized: "orange", category: "fruit" },
-    { name: "Carrot", normalized: "carrot", category: "vegetables" },
-    { name: "Potato", normalized: "potato", category: "vegetables" },
+    { name: 'Apple', normalized: 'apple', category: 'fruit' },
+    { name: 'Banana', normalized: 'banana', category: 'fruit' },
+    { name: 'Orange', normalized: 'orange', category: 'fruit' },
+    { name: 'Carrot', normalized: 'carrot', category: 'vegetables' },
+    { name: 'Potato', normalized: 'potato', category: 'vegetables' },
     {
-      name: "Milk",
-      normalized: "milk",
-      category: "dairy",
-      brand: "Organic Valley",
+      name: 'Milk',
+      normalized: 'milk',
+      category: 'dairy',
+      brand: 'Organic Valley',
     },
-    { name: "Bread", normalized: "bread", category: "bakery" },
-    { name: "Chicken Breast", normalized: "chicken breast", category: "meat" },
+    { name: 'Bread', normalized: 'bread', category: 'bakery' },
+    { name: 'Chicken Breast', normalized: 'chicken breast', category: 'meat' },
   ];
 
   for (const product of products) {
@@ -579,14 +579,14 @@ async function main() {
       },
     });
   }
-  console.log("✅ Created sample products");
+  console.log('✅ Created sample products');
 
-  console.log("🎉 Seeding completed!");
+  console.log('🎉 Seeding completed!');
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e);
+    console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

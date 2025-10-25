@@ -229,10 +229,10 @@ Pricy implements a multi-provider authentication system supporting:
 ```typescript
 // User authentication options
 interface AuthProvider {
-  google: "OAuth 2.0";
-  microsoft: "OAuth 2.0 / Azure AD";
-  apple: "Sign in with Apple";
-  email: "Email/Password with verification";
+  google: 'OAuth 2.0';
+  microsoft: 'OAuth 2.0 / Azure AD';
+  apple: 'Sign in with Apple';
+  email: 'Email/Password with verification';
 }
 
 // JWT token structure
@@ -241,8 +241,8 @@ interface JWTPayload {
   email: string;
   name: string;
   picture?: string; // Profile picture URL
-  provider: "google" | "microsoft" | "apple" | "email";
-  role: "user" | "admin";
+  provider: 'google' | 'microsoft' | 'apple' | 'email';
+  role: 'user' | 'admin';
   iat: number;
   exp: number;
 }
@@ -286,8 +286,8 @@ Development → Beta → Stable → Deprecated → Sunset
 ```typescript
 // API version routing
 interface APIVersion {
-  version: "v1" | "v2";
-  status: "beta" | "stable" | "deprecated";
+  version: 'v1' | 'v2';
+  status: 'beta' | 'stable' | 'deprecated';
   deprecationDate?: Date;
   sunsetDate?: Date;
   migrationGuide?: string;
@@ -296,27 +296,27 @@ interface APIVersion {
 // Version-specific endpoints
 const routes = {
   v1: {
-    receipts: "/api/v1/receipts",
-    products: "/api/v1/products",
-    status: "stable",
+    receipts: '/api/v1/receipts',
+    products: '/api/v1/products',
+    status: 'stable',
   },
   v2: {
-    receipts: "/api/v2/receipts", // New response format
-    products: "/api/v2/products", // Additional fields
-    status: "beta",
+    receipts: '/api/v2/receipts', // New response format
+    products: '/api/v2/products', // Additional fields
+    status: 'beta',
   },
 };
 
 // Backward compatibility middleware
-app.use("/api/v1/*", v1CompatibilityLayer);
-app.use("/api/v2/*", v2Features);
+app.use('/api/v1/*', v1CompatibilityLayer);
+app.use('/api/v2/*', v2Features);
 
 // Version deprecation warnings
 app.use((req, res, next) => {
-  if (req.path.startsWith("/api/v1")) {
-    res.setHeader("Deprecation", "Sun, 01 Jan 2026 00:00:00 GMT");
-    res.setHeader("Sunset", "Sun, 01 Jul 2026 00:00:00 GMT");
-    res.setHeader("Link", '</api/v2>; rel="successor-version"');
+  if (req.path.startsWith('/api/v1')) {
+    res.setHeader('Deprecation', 'Sun, 01 Jan 2026 00:00:00 GMT');
+    res.setHeader('Sunset', 'Sun, 01 Jul 2026 00:00:00 GMT');
+    res.setHeader('Link', '</api/v2>; rel="successor-version"');
   }
   next();
 });
@@ -325,14 +325,12 @@ app.use((req, res, next) => {
 **Breaking Changes Policy:**
 
 1. **Major Version** (v1 → v2) - Breaking changes allowed
-
    - Response structure changes
    - Endpoint removal
    - Required field additions
    - Authentication method changes
 
 2. **Minor Version** (v1.0 → v1.1) - Backward compatible
-
    - New optional fields
    - New endpoints
    - Performance improvements

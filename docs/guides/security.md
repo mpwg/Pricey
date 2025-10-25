@@ -54,8 +54,8 @@ Pricy follows the **CIA Triad** and **Zero Trust** security model:
 
 ```typescript
 // filepath: apps/api/src/services/mfa.service.ts
-import speakeasy from "speakeasy";
-import QRCode from "qrcode";
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
 export class MFAService {
   /**
@@ -64,7 +64,7 @@ export class MFAService {
   async generateSecret(userId: string, email: string) {
     const secret = speakeasy.generateSecret({
       name: `Pricy (${email})`,
-      issuer: "Pricy",
+      issuer: 'Pricy',
     });
 
     // Store secret in database (encrypted)
@@ -95,14 +95,14 @@ export class MFAService {
     });
 
     if (!user?.mfaSecret) {
-      throw new Error("MFA not configured");
+      throw new Error('MFA not configured');
     }
 
     const secret = decrypt(user.mfaSecret);
 
     return speakeasy.totp.verify({
       secret,
-      encoding: "base32",
+      encoding: 'base32',
       token,
       window: 2, // Allow 2 time steps before/after for clock drift
     });
@@ -113,7 +113,7 @@ export class MFAService {
    */
   async generateBackupCodes(userId: string): Promise<string[]> {
     const codes = Array.from({ length: 10 }, () =>
-      crypto.randomBytes(4).toString("hex").toUpperCase()
+      crypto.randomBytes(4).toString('hex').toUpperCase()
     );
 
     // Hash codes before storing
@@ -138,27 +138,27 @@ export class MFAService {
 ```typescript
 // filepath: packages/types/src/permissions.ts
 export enum Role {
-  USER = "user",
-  PREMIUM = "premium",
-  ADMIN = "admin",
+  USER = 'user',
+  PREMIUM = 'premium',
+  ADMIN = 'admin',
 }
 
 export enum Permission {
   // Receipt permissions
-  RECEIPT_READ = "receipt:read",
-  RECEIPT_CREATE = "receipt:create",
-  RECEIPT_UPDATE = "receipt:update",
-  RECEIPT_DELETE = "receipt:delete",
+  RECEIPT_READ = 'receipt:read',
+  RECEIPT_CREATE = 'receipt:create',
+  RECEIPT_UPDATE = 'receipt:update',
+  RECEIPT_DELETE = 'receipt:delete',
 
   // Product permissions
-  PRODUCT_READ = "product:read",
-  PRODUCT_CREATE = "product:create",
-  PRODUCT_UPDATE = "product:update",
+  PRODUCT_READ = 'product:read',
+  PRODUCT_CREATE = 'product:create',
+  PRODUCT_UPDATE = 'product:update',
 
   // Admin permissions
-  USER_MANAGE = "user:manage",
-  SETTINGS_MANAGE = "settings:manage",
-  ANALYTICS_ADMIN = "analytics:admin",
+  USER_MANAGE = 'user:manage',
+  SETTINGS_MANAGE = 'settings:manage',
+  ANALYTICS_ADMIN = 'analytics:admin',
 }
 
 export const rolePermissions: Record<Role, Permission[]> = {
@@ -183,7 +183,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
 
 ```typescript
 // filepath: apps/api/src/middleware/permissions.middleware.ts
-import { Permission, rolePermissions } from "@pricy/types";
+import { Permission, rolePermissions } from '@pricy/types';
 
 export function requirePermission(...permissions: Permission[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
@@ -196,7 +196,7 @@ export function requirePermission(...permissions: Permission[]) {
 
     if (!hasPermission) {
       throw new ForbiddenError(
-        "Insufficient permissions to perform this action"
+        'Insufficient permissions to perform this action'
       );
     }
   };
@@ -204,7 +204,7 @@ export function requirePermission(...permissions: Permission[]) {
 
 // Usage in routes
 app.delete(
-  "/receipts/:id",
+  '/receipts/:id',
   {
     onRequest: [authenticate, requirePermission(Permission.RECEIPT_DELETE)],
   },
@@ -232,7 +232,7 @@ export async function enforceUserOwnership(
   });
 
   if (!resource) {
-    throw new NotFoundError("Resource not found or access denied");
+    throw new NotFoundError('Resource not found or access denied');
   }
 
   // Attach resource to request for later use
@@ -248,10 +248,10 @@ export async function enforceUserOwnership(
 
 ```typescript
 // filepath: packages/utils/src/encryption.ts
-import crypto from "crypto";
+import crypto from 'crypto';
 
-const ALGORITHM = "aes-256-gcm";
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, "hex"); // 32 bytes
+const ALGORITHM = 'aes-256-gcm';
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'); // 32 bytes
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
@@ -259,28 +259,28 @@ export function encrypt(text: string): string {
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);
 
-  let encrypted = cipher.update(text, "utf8", "hex");
-  encrypted += cipher.final("hex");
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
 
   const authTag = cipher.getAuthTag();
 
   // Return: iv + authTag + encrypted data
-  return iv.toString("hex") + authTag.toString("hex") + encrypted;
+  return iv.toString('hex') + authTag.toString('hex') + encrypted;
 }
 
 export function decrypt(encrypted: string): string {
-  const iv = Buffer.from(encrypted.slice(0, IV_LENGTH * 2), "hex");
+  const iv = Buffer.from(encrypted.slice(0, IV_LENGTH * 2), 'hex');
   const authTag = Buffer.from(
     encrypted.slice(IV_LENGTH * 2, (IV_LENGTH + AUTH_TAG_LENGTH) * 2),
-    "hex"
+    'hex'
   );
   const encryptedData = encrypted.slice((IV_LENGTH + AUTH_TAG_LENGTH) * 2);
 
   const decipher = crypto.createDecipheriv(ALGORITHM, KEY, iv);
   decipher.setAuthTag(authTag);
 
-  let decrypted = decipher.update(encryptedData, "hex", "utf8");
-  decrypted += decipher.final("utf8");
+  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
 
   return decrypted;
 }
@@ -329,8 +329,8 @@ server {
 
 ```typescript
 // filepath: packages/utils/src/sanitize.ts
-import DOMPurify from "isomorphic-dompurify";
-import validator from "validator";
+import DOMPurify from 'isomorphic-dompurify';
+import validator from 'validator';
 
 export class Sanitizer {
   /**
@@ -338,8 +338,8 @@ export class Sanitizer {
    */
   static html(dirty: string): string {
     return DOMPurify.sanitize(dirty, {
-      ALLOWED_TAGS: ["b", "i", "em", "strong", "a"],
-      ALLOWED_ATTR: ["href"],
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
+      ALLOWED_ATTR: ['href'],
     });
   }
 
@@ -356,22 +356,22 @@ export class Sanitizer {
   static sql(input: string): string {
     // Remove SQL keywords and special characters
     return input
-      .replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC)\b)/gi, "")
-      .replace(/[;'"\\]/g, "");
+      .replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC)\b)/gi, '')
+      .replace(/[;'"\\]/g, '');
   }
 
   /**
    * Mask PII in logs
    */
   static maskPII(data: Record<string, any>): Record<string, any> {
-    const sensitiveFields = ["password", "ssn", "creditCard", "token"];
+    const sensitiveFields = ['password', 'ssn', 'creditCard', 'token'];
 
     return Object.fromEntries(
       Object.entries(data).map(([key, value]) => {
         if (
           sensitiveFields.some((field) => key.toLowerCase().includes(field))
         ) {
-          return [key, "***REDACTED***"];
+          return [key, '***REDACTED***'];
         }
         return [key, value];
       })
@@ -388,27 +388,27 @@ export class Sanitizer {
 
 ```typescript
 // filepath: packages/validation/src/schemas/receipt.schema.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const receiptUploadSchema = z.object({
   image: z
     .instanceof(File)
     .refine(
       (file) => file.size <= 10 * 1024 * 1024,
-      "File must be less than 10MB"
+      'File must be less than 10MB'
     )
     .refine(
-      (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
-      "File must be an image (JPEG, PNG, or WebP)"
+      (file) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
+      'File must be an image (JPEG, PNG, or WebP)'
     ),
   storeId: z.string().uuid().optional(),
   date: z.coerce
     .date()
-    .max(new Date(), "Date cannot be in the future")
+    .max(new Date(), 'Date cannot be in the future')
     .optional(),
   notes: z
     .string()
-    .max(500, "Notes must be less than 500 characters")
+    .max(500, 'Notes must be less than 500 characters')
     .optional(),
 });
 
@@ -418,8 +418,8 @@ export const receiptQuerySchema = z.object({
   storeId: z.string().uuid().optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
-  sortBy: z.enum(["date", "amount", "store"]).default("date"),
-  order: z.enum(["asc", "desc"]).default("desc"),
+  sortBy: z.enum(['date', 'amount', 'store']).default('date'),
+  order: z.enum(['asc', 'desc']).default('desc'),
 });
 ```
 
@@ -427,38 +427,38 @@ export const receiptQuerySchema = z.object({
 
 ```typescript
 // filepath: apps/api/src/config/rate-limit.ts
-import rateLimit from "@fastify/rate-limit";
+import rateLimit from '@fastify/rate-limit';
 
 export const rateLimitConfig = {
   // Global rate limit
   global: {
     max: 100,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
   },
 
   // Auth endpoints (stricter)
   auth: {
     max: 5,
-    timeWindow: "15 minutes",
+    timeWindow: '15 minutes',
     keyGenerator: (req: FastifyRequest) => req.body?.email || req.ip,
     errorResponseBuilder: () => ({
       statusCode: 429,
-      error: "Too Many Requests",
-      message: "Too many login attempts. Please try again in 15 minutes.",
+      error: 'Too Many Requests',
+      message: 'Too many login attempts. Please try again in 15 minutes.',
     }),
   },
 
   // Upload endpoints
   upload: {
     max: 10,
-    timeWindow: "1 hour",
+    timeWindow: '1 hour',
     keyGenerator: (req: FastifyRequest) => req.user?.id || req.ip,
   },
 
   // API endpoints (per user)
   api: {
     max: 1000,
-    timeWindow: "1 hour",
+    timeWindow: '1 hour',
     keyGenerator: (req: FastifyRequest) => req.user?.id || req.ip,
   },
 };
@@ -468,7 +468,7 @@ app.register(rateLimit, rateLimitConfig.global);
 
 // Route-specific rate limits
 app.register(authRoutes, {
-  prefix: "/auth",
+  prefix: '/auth',
   rateLimit: rateLimitConfig.auth,
 });
 ```
@@ -477,13 +477,13 @@ app.register(authRoutes, {
 
 ```typescript
 // filepath: apps/api/src/config/cors.ts
-import cors from "@fastify/cors";
+import cors from '@fastify/cors';
 
 const allowedOrigins = [
-  "https://pricy.app",
-  "https://www.pricy.app",
-  ...(process.env.NODE_ENV === "development"
-    ? ["http://localhost:3001", "http://localhost:3000"]
+  'https://pricy.app',
+  'https://www.pricy.app',
+  ...(process.env.NODE_ENV === 'development'
+    ? ['http://localhost:3001', 'http://localhost:3000']
     : []),
 ];
 
@@ -492,13 +492,13 @@ export const corsConfig = {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["X-Total-Count", "X-Page-Count"],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
   maxAge: 600, // 10 minutes
 };
 ```
@@ -521,24 +521,24 @@ const ContentSecurityPolicy = `
 
 const securityHeaders = [
   {
-    key: "Content-Security-Policy",
-    value: ContentSecurityPolicy.replace(/\s{2,}/g, " ").trim(),
+    key: 'Content-Security-Policy',
+    value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
   },
   {
-    key: "X-Frame-Options",
-    value: "DENY",
+    key: 'X-Frame-Options',
+    value: 'DENY',
   },
   {
-    key: "X-Content-Type-Options",
-    value: "nosniff",
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
   },
   {
-    key: "Referrer-Policy",
-    value: "strict-origin-when-cross-origin",
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
   },
   {
-    key: "Permissions-Policy",
-    value: "camera=(self), microphone=(), geolocation=()",
+    key: 'Permissions-Policy',
+    value: 'camera=(self), microphone=(), geolocation=()',
   },
 ];
 
@@ -546,7 +546,7 @@ module.exports = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: securityHeaders,
       },
     ];
@@ -592,18 +592,18 @@ export function UserContent({ content }: { content: string }) {
 
 ```typescript
 // filepath: apps/web/src/lib/api/csrf.ts
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
 /**
  * Generate CSRF token
  */
 export function generateCSRFToken(): string {
-  const token = crypto.randomBytes(32).toString("hex");
+  const token = crypto.randomBytes(32).toString('hex');
 
-  cookies().set("csrf-token", token, {
+  cookies().set('csrf-token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
     maxAge: 60 * 60 * 24, // 24 hours
   });
 
@@ -614,17 +614,17 @@ export function generateCSRFToken(): string {
  * Verify CSRF token
  */
 export function verifyCSRFToken(token: string): boolean {
-  const cookieToken = cookies().get("csrf-token")?.value;
+  const cookieToken = cookies().get('csrf-token')?.value;
   return token === cookieToken;
 }
 
 // Middleware for API routes
 export async function csrfMiddleware(request: Request) {
-  if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
-    const token = request.headers.get("X-CSRF-Token");
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+    const token = request.headers.get('X-CSRF-Token');
 
     if (!token || !verifyCSRFToken(token)) {
-      return new Response("Invalid CSRF token", { status: 403 });
+      return new Response('Invalid CSRF token', { status: 403 });
     }
   }
 }
@@ -639,7 +639,7 @@ export async function csrfMiddleware(request: Request) {
  * Use this for non-sensitive preferences only.
  */
 export class SecureStorage {
-  private prefix = "pricy_";
+  private prefix = 'pricy_';
 
   /**
    * Store non-sensitive data
@@ -649,7 +649,7 @@ export class SecureStorage {
       const serialized = JSON.stringify(value);
       localStorage.setItem(this.prefix + key, serialized);
     } catch (error) {
-      console.error("Storage error:", error);
+      console.error('Storage error:', error);
     }
   }
 
@@ -661,7 +661,7 @@ export class SecureStorage {
       const item = localStorage.getItem(this.prefix + key);
       return item ? JSON.parse(item) : null;
     } catch (error) {
-      console.error("Storage error:", error);
+      console.error('Storage error:', error);
       return null;
     }
   }
@@ -728,7 +728,7 @@ CMD ["node", "dist/index.js"]
 
 ```yaml
 # docker-compose.prod.yml
-version: "3.8"
+version: '3.8'
 
 services:
   api:
@@ -781,11 +781,11 @@ spec:
             - NET_BIND_SERVICE
       resources:
         limits:
-          memory: "512Mi"
-          cpu: "500m"
+          memory: '512Mi'
+          cpu: '500m'
         requests:
-          memory: "256Mi"
-          cpu: "250m"
+          memory: '256Mi'
+          cpu: '250m'
       livenessProbe:
         httpGet:
           path: /health
@@ -824,9 +824,9 @@ ENCRYPTION_KEY=$(openssl rand -hex 32)
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
-} from "@aws-sdk/client-secrets-manager";
+} from '@aws-sdk/client-secrets-manager';
 
-const client = new SecretsManagerClient({ region: "us-east-1" });
+const client = new SecretsManagerClient({ region: 'us-east-1' });
 
 export async function getSecret(secretName: string): Promise<string> {
   try {
@@ -838,24 +838,24 @@ export async function getSecret(secretName: string): Promise<string> {
 
     return response.SecretString!;
   } catch (error) {
-    console.error("Error retrieving secret:", error);
+    console.error('Error retrieving secret:', error);
     throw error;
   }
 }
 
 // Usage
-const dbPassword = await getSecret("pricy/database/password");
-const jwtSecret = await getSecret("pricy/jwt/secret");
+const dbPassword = await getSecret('pricy/database/password');
+const jwtSecret = await getSecret('pricy/jwt/secret');
 ```
 
 ### HashiCorp Vault (Alternative)
 
 ```typescript
 // filepath: apps/api/src/config/vault.ts
-import vault from "node-vault";
+import vault from 'node-vault';
 
 const vaultClient = vault({
-  apiVersion: "v1",
+  apiVersion: 'v1',
   endpoint: process.env.VAULT_ADDR,
   token: process.env.VAULT_TOKEN,
 });
@@ -865,7 +865,7 @@ export async function getVaultSecret(path: string): Promise<any> {
     const result = await vaultClient.read(path);
     return result.data;
   } catch (error) {
-    console.error("Vault error:", error);
+    console.error('Vault error:', error);
     throw error;
   }
 }
@@ -887,7 +887,7 @@ export class AuditLogger {
     resourceId?: string;
     ip: string;
     userAgent: string;
-    result: "success" | "failure";
+    result: 'success' | 'failure';
     metadata?: Record<string, any>;
   }) {
     await prisma.auditLog.create({
@@ -902,12 +902,12 @@ export class AuditLogger {
 // Usage in controllers
 await auditLogger.log({
   userId: request.user.id,
-  action: "DELETE",
-  resource: "receipt",
+  action: 'DELETE',
+  resource: 'receipt',
   resourceId: receiptId,
   ip: request.ip,
-  userAgent: request.headers["user-agent"],
-  result: "success",
+  userAgent: request.headers['user-agent'],
+  result: 'success',
 });
 ```
 
@@ -933,7 +933,7 @@ export class SecurityMonitor {
 
     if (failedAttempts >= 5) {
       // Alert security team
-      await this.alertSecurityTeam("Brute force detected", {
+      await this.alertSecurityTeam('Brute force detected', {
         email,
         ip,
         attempts: failedAttempts,
@@ -955,7 +955,7 @@ export class SecurityMonitor {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
         },
       },
-      orderBy: { timestamp: "desc" },
+      orderBy: { timestamp: 'desc' },
     });
 
     // Check for unusual patterns
@@ -964,7 +964,7 @@ export class SecurityMonitor {
 
     if (uniqueLocations > 3) {
       // Multiple locations in 24h - suspicious
-      await this.alertUser(userId, "Unusual account activity detected");
+      await this.alertUser(userId, 'Unusual account activity detected');
     }
   }
 }
@@ -1020,7 +1020,7 @@ export class GDPRService {
         where: { id: userId },
         data: {
           email: `deleted_${userId}@pricy.app`,
-          name: "Deleted User",
+          name: 'Deleted User',
           passwordHash: null,
           image: null,
           emailVerified: false,
@@ -1038,9 +1038,9 @@ export class GDPRService {
     await prisma.auditLog.create({
       data: {
         userId,
-        action: "GDPR_DELETE",
-        resource: "user",
-        result: "success",
+        action: 'GDPR_DELETE',
+        resource: 'user',
+        result: 'success',
         timestamp: new Date(),
       },
     });

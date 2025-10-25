@@ -151,14 +151,14 @@ apps/web/
 
 ```typescript
 // filepath: apps/web/src/auth/auth.config.ts
-import type { NextAuthConfig } from "next-auth";
-import Google from "next-auth/providers/google";
-import Microsoft from "next-auth/providers/microsoft";
-import Apple from "next-auth/providers/apple";
-import Credentials from "next-auth/providers/credentials";
-import { prisma } from "@pricy/database";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
+import type { NextAuthConfig } from 'next-auth';
+import Google from 'next-auth/providers/google';
+import Microsoft from 'next-auth/providers/microsoft';
+import Apple from 'next-auth/providers/apple';
+import Credentials from 'next-auth/providers/credentials';
+import { prisma } from '@pricy/database';
+import bcrypt from 'bcryptjs';
+import { z } from 'zod';
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -167,9 +167,9 @@ export const authConfig: NextAuthConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
         },
       },
     }),
@@ -178,7 +178,7 @@ export const authConfig: NextAuthConfig = {
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
       authorization: {
         params: {
-          scope: "openid profile email User.Read",
+          scope: 'openid profile email User.Read',
         },
       },
     }),
@@ -187,10 +187,10 @@ export const authConfig: NextAuthConfig = {
       clientSecret: process.env.APPLE_CLIENT_SECRET!,
     }),
     Credentials({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const parsedCredentials = z
@@ -229,7 +229,7 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async signIn({ user, account, profile }) {
       // Handle social login user creation/update
-      if (account?.provider !== "credentials") {
+      if (account?.provider !== 'credentials') {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
         });
@@ -239,7 +239,7 @@ export const authConfig: NextAuthConfig = {
           await prisma.user.create({
             data: {
               email: user.email!,
-              name: user.name || "",
+              name: user.name || '',
               image: user.image,
               emailVerified: true,
               provider: account.provider,
@@ -264,7 +264,7 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role || "user";
+        token.role = user.role || 'user';
         token.provider = account?.provider;
       }
       return token;
@@ -279,12 +279,12 @@ export const authConfig: NextAuthConfig = {
     },
   },
   pages: {
-    signIn: "/login",
-    signOut: "/login",
-    error: "/login",
+    signIn: '/login',
+    signOut: '/login',
+    error: '/login',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 7 * 24 * 60 * 60, // 7 days
   },
 };
@@ -292,8 +292,8 @@ export const authConfig: NextAuthConfig = {
 
 ```typescript
 // filepath: apps/web/src/auth/auth.ts
-import NextAuth from "next-auth";
-import { authConfig } from "./auth.config";
+import NextAuth from 'next-auth';
+import { authConfig } from './auth.config';
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
 ```
@@ -610,10 +610,10 @@ export default async function DashboardLayout({
 
 ```typescript
 // filepath: apps/web/src/lib/hooks/useAuth.ts
-"use client";
+'use client';
 
-import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export function useAuth() {
   const { data: session, status } = useSession();
@@ -621,14 +621,14 @@ export function useAuth() {
 
   const signOut = async () => {
     await nextAuthSignOut({ redirect: false });
-    router.push("/login");
+    router.push('/login');
     router.refresh();
   };
 
   return {
     user: session?.user,
     isAuthenticated: !!session,
-    isLoading: status === "loading",
+    isLoading: status === 'loading',
     signOut,
   };
 }
@@ -640,17 +640,17 @@ export function useAuth() {
 
 ```javascript
 // filepath: apps/web/next.config.js
-const withPWA = require("next-pwa")({
-  dest: "public",
+const withPWA = require('next-pwa')({
+  dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
+  disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/api\.pricy\.app\/.*/i,
-      handler: "NetworkFirst",
+      handler: 'NetworkFirst',
       options: {
-        cacheName: "api-cache",
+        cacheName: 'api-cache',
         expiration: {
           maxEntries: 50,
           maxAgeSeconds: 60 * 60 * 24, // 24 hours
@@ -660,9 +660,9 @@ const withPWA = require("next-pwa")({
     },
     {
       urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
-      handler: "CacheFirst",
+      handler: 'CacheFirst',
       options: {
-        cacheName: "image-cache",
+        cacheName: 'image-cache',
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
@@ -675,7 +675,7 @@ const withPWA = require("next-pwa")({
 module.exports = withPWA({
   reactStrictMode: true,
   images: {
-    domains: ["storage.googleapis.com", "s3.amazonaws.com"],
+    domains: ['storage.googleapis.com', 's3.amazonaws.com'],
   },
 });
 ```
@@ -725,11 +725,11 @@ module.exports = withPWA({
 
 ```typescript
 // filepath: apps/web/src/lib/db/schema.ts
-import Dexie, { Table } from "dexie";
-import type { Receipt, ReceiptItem } from "@pricy/types";
+import Dexie, { Table } from 'dexie';
+import type { Receipt, ReceiptItem } from '@pricy/types';
 
 export interface OfflineReceipt extends Receipt {
-  syncStatus: "pending" | "synced" | "failed";
+  syncStatus: 'pending' | 'synced' | 'failed';
   localImageUrl?: string;
 }
 
@@ -738,10 +738,10 @@ export class PricyDB extends Dexie {
   receiptItems!: Table<ReceiptItem>;
 
   constructor() {
-    super("PricyDB");
+    super('PricyDB');
     this.version(1).stores({
-      receipts: "++id, userId, storeId, date, syncStatus",
-      receiptItems: "++id, receiptId, productId",
+      receipts: '++id, userId, storeId, date, syncStatus',
+      receiptItems: '++id, receiptId, productId',
     });
   }
 }
@@ -753,30 +753,30 @@ export const db = new PricyDB();
 // filepath: apps/web/src/lib/pwa/sync.ts
 export async function syncOfflineReceipts() {
   const pendingReceipts = await db.receipts
-    .where("syncStatus")
-    .equals("pending")
+    .where('syncStatus')
+    .equals('pending')
     .toArray();
 
   for (const receipt of pendingReceipts) {
     try {
-      const response = await fetch("/api/receipts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/receipts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(receipt),
       });
 
       if (response.ok) {
-        await db.receipts.update(receipt.id, { syncStatus: "synced" });
+        await db.receipts.update(receipt.id, { syncStatus: 'synced' });
       }
     } catch (error) {
-      await db.receipts.update(receipt.id, { syncStatus: "failed" });
+      await db.receipts.update(receipt.id, { syncStatus: 'failed' });
     }
   }
 }
 
 // Register background sync
-if ("serviceWorker" in navigator && "sync" in registration) {
-  registration.sync.register("sync-receipts");
+if ('serviceWorker' in navigator && 'sync' in registration) {
+  registration.sync.register('sync-receipts');
 }
 ```
 
@@ -784,7 +784,7 @@ if ("serviceWorker" in navigator && "sync" in registration) {
 
 ```typescript
 // filepath: apps/web/src/lib/hooks/useInstallPrompt.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export function useInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -797,9 +797,9 @@ export function useInstallPrompt() {
       setIsInstallable(true);
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener('beforeinstallprompt', handler);
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const promptInstall = async () => {
@@ -811,7 +811,7 @@ export function useInstallPrompt() {
     setDeferredPrompt(null);
     setIsInstallable(false);
 
-    return outcome === "accepted";
+    return outcome === 'accepted';
   };
 
   return { isInstallable, promptInstall };
@@ -885,7 +885,7 @@ export function ReceiptCamera({ onCapture }: ReceiptCameraProps) {
 
 ```typescript
 // filepath: apps/web/src/lib/api/client.ts
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -907,7 +907,7 @@ export async function apiRequest<T>(
     {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...options?.headers,
       },
     }
@@ -923,14 +923,14 @@ export async function apiRequest<T>(
 
 ```typescript
 // filepath: apps/web/src/lib/hooks/useReceipts.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api/client";
-import type { Receipt } from "@pricy/types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/api/client';
+import type { Receipt } from '@pricy/types';
 
 export function useReceipts() {
   return useQuery({
-    queryKey: ["receipts"],
-    queryFn: () => apiRequest<Receipt[]>("/receipts"),
+    queryKey: ['receipts'],
+    queryFn: () => apiRequest<Receipt[]>('/receipts'),
   });
 }
 
@@ -940,15 +940,15 @@ export function useUploadReceipt() {
   return useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append("receipt", file);
+      formData.append('receipt', file);
 
       return fetch(`${process.env.NEXT_PUBLIC_API_URL}/receipts/upload`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
       }).then((res) => res.json());
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["receipts"] });
+      queryClient.invalidateQueries({ queryKey: ['receipts'] });
     },
   });
 }
@@ -958,8 +958,8 @@ export function useUploadReceipt() {
 
 ```typescript
 // filepath: apps/web/src/store/authStore.ts
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface User {
   id: string;
@@ -980,9 +980,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       login: async (email, password) => {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
 
@@ -992,7 +992,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ user: null, token: null }),
     }),
     {
-      name: "auth-storage",
+      name: 'auth-storage',
     }
   )
 );
@@ -1071,15 +1071,15 @@ Pricy enforces strict performance budgets to ensure fast, responsive user experi
 
 ```javascript
 // filepath: apps/web/next.config.js
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
 });
 
 module.exports = withBundleAnalyzer({
   // Performance budgets
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ["@radix-ui/react-icons", "lucide-react"],
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
 
   // Webpack configuration
@@ -1089,7 +1089,7 @@ module.exports = withBundleAnalyzer({
       config.performance = {
         maxAssetSize: 300 * 1024, // 300 KB
         maxEntrypointSize: 300 * 1024,
-        hints: "error",
+        hints: 'error',
       };
     }
 
@@ -1098,7 +1098,7 @@ module.exports = withBundleAnalyzer({
 
   // Image optimization
   images: {
-    formats: ["image/webp", "image/avif"],
+    formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96],
   },
@@ -1110,11 +1110,11 @@ module.exports = withBundleAnalyzer({
   async headers() {
     return [
       {
-        source: "/:all*(svg|jpg|png|webp|avif)",
+        source: '/:all*(svg|jpg|png|webp|avif)',
         headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
@@ -1128,42 +1128,42 @@ module.exports = withBundleAnalyzer({
 ```yaml
 # filepath: apps/web/.lighthouserc.json
 {
-  "ci":
+  'ci':
     {
-      "collect":
+      'collect':
         {
-          "numberOfRuns": 3,
-          "startServerCommand": "pnpm start",
-          "url":
+          'numberOfRuns': 3,
+          'startServerCommand': 'pnpm start',
+          'url':
             [
-              "http://localhost:3001/",
-              "http://localhost:3001/receipts",
-              "http://localhost:3001/receipts/upload",
+              'http://localhost:3001/',
+              'http://localhost:3001/receipts',
+              'http://localhost:3001/receipts/upload',
             ],
         },
-      "assert":
+      'assert':
         {
-          "preset": "lighthouse:recommended",
-          "assertions":
+          'preset': 'lighthouse:recommended',
+          'assertions':
             {
-              "categories:performance": ["error", { "minScore": 0.9 }],
-              "categories:accessibility": ["error", { "minScore": 0.9 }],
-              "categories:best-practices": ["error", { "minScore": 0.9 }],
-              "categories:seo": ["error", { "minScore": 0.9 }],
+              'categories:performance': ['error', { 'minScore': 0.9 }],
+              'categories:accessibility': ['error', { 'minScore': 0.9 }],
+              'categories:best-practices': ['error', { 'minScore': 0.9 }],
+              'categories:seo': ['error', { 'minScore': 0.9 }],
 
-              "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
-              "largest-contentful-paint":
-                ["error", { "maxNumericValue": 2500 }],
-              "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-              "total-blocking-time": ["error", { "maxNumericValue": 200 }],
+              'first-contentful-paint': ['error', { 'maxNumericValue': 1800 }],
+              'largest-contentful-paint':
+                ['error', { 'maxNumericValue': 2500 }],
+              'cumulative-layout-shift': ['error', { 'maxNumericValue': 0.1 }],
+              'total-blocking-time': ['error', { 'maxNumericValue': 200 }],
 
-              "uses-optimized-images": "error",
-              "uses-webp-images": "error",
-              "uses-text-compression": "error",
-              "uses-responsive-images": "error",
+              'uses-optimized-images': 'error',
+              'uses-webp-images': 'error',
+              'uses-text-compression': 'error',
+              'uses-responsive-images': 'error',
             },
         },
-      "upload": { "target": "temporary-public-storage" },
+      'upload': { 'target': 'temporary-public-storage' },
     },
 }
 ```
@@ -1187,8 +1187,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -1201,7 +1201,7 @@ jobs:
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
         with:
-          configPath: "./apps/web/.lighthouserc.json"
+          configPath: './apps/web/.lighthouserc.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
 
@@ -1243,15 +1243,15 @@ jobs:
 
 ```typescript
 // filepath: apps/web/src/lib/analytics/performance.ts
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from "web-vitals";
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
 
 export function reportWebVitals() {
   // Send to analytics
-  getCLS((metric) => sendToAnalytics("CLS", metric.value));
-  getFID((metric) => sendToAnalytics("FID", metric.value));
-  getFCP((metric) => sendToAnalytics("FCP", metric.value));
-  getLCP((metric) => sendToAnalytics("LCP", metric.value));
-  getTTFB((metric) => sendToAnalytics("TTFB", metric.value));
+  getCLS((metric) => sendToAnalytics('CLS', metric.value));
+  getFID((metric) => sendToAnalytics('FID', metric.value));
+  getFCP((metric) => sendToAnalytics('FCP', metric.value));
+  getLCP((metric) => sendToAnalytics('LCP', metric.value));
+  getTTFB((metric) => sendToAnalytics('TTFB', metric.value));
 }
 
 function sendToAnalytics(metric: string, value: number) {
@@ -1269,10 +1269,10 @@ function sendToAnalytics(metric: string, value: number) {
   }
 
   // Send to analytics service
-  if (typeof window !== "undefined" && window.gtag) {
-    window.gtag("event", metric, {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', metric, {
       value: Math.round(value),
-      metric_id: "web_vitals",
+      metric_id: 'web_vitals',
       metric_value: value,
       metric_delta: value,
     });
@@ -1305,21 +1305,21 @@ export default function RootLayout({
 
 ```typescript
 // filepath: apps/web/src/lib/utils/image.ts
-import imageCompression from "browser-image-compression";
+import imageCompression from 'browser-image-compression';
 
 export async function compressImage(file: File): Promise<File> {
   const options = {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,
     useWebWorker: true,
-    fileType: "image/jpeg",
+    fileType: 'image/jpeg',
   };
 
   return await imageCompression(file, options);
 }
 
 export function validateImageFile(file: File): boolean {
-  const validTypes = ["image/jpeg", "image/png", "image/webp"];
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const maxSize = 10 * 1024 * 1024; // 10MB
 
   return validTypes.includes(file.type) && file.size <= maxSize;
@@ -1377,19 +1377,19 @@ describe("ReceiptCard", () => {
 
 ```typescript
 // filepath: apps/web/e2e/receipt-upload.spec.ts
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("upload receipt flow", async ({ page }) => {
-  await page.goto("/receipts/upload");
+test('upload receipt flow', async ({ page }) => {
+  await page.goto('/receipts/upload');
 
   // Upload file
-  await page.setInputFiles('input[type="file"]', "./fixtures/receipt.jpg");
+  await page.setInputFiles('input[type="file"]', './fixtures/receipt.jpg');
 
   // Wait for processing
-  await expect(page.getByText("Processing receipt...")).toBeVisible();
+  await expect(page.getByText('Processing receipt...')).toBeVisible();
 
   // Verify success
-  await expect(page.getByText("Receipt uploaded successfully")).toBeVisible({
+  await expect(page.getByText('Receipt uploaded successfully')).toBeVisible({
     timeout: 30000,
   });
 });
@@ -1481,18 +1481,18 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/pricy
 
 ```typescript
 // Generate Apple client secret
-import jwt from "jsonwebtoken";
-import fs from "fs";
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
 
-const privateKey = fs.readFileSync("AuthKey_XXXXXXXXXX.p8");
+const privateKey = fs.readFileSync('AuthKey_XXXXXXXXXX.p8');
 
 const clientSecret = jwt.sign({}, privateKey, {
-  algorithm: "ES256",
-  expiresIn: "180 days",
-  audience: "https://appleid.apple.com",
-  issuer: "YOUR_TEAM_ID",
-  subject: "app.pricy.signin",
-  keyid: "YOUR_KEY_ID",
+  algorithm: 'ES256',
+  expiresIn: '180 days',
+  audience: 'https://appleid.apple.com',
+  issuer: 'YOUR_TEAM_ID',
+  subject: 'app.pricy.signin',
+  keyid: 'YOUR_KEY_ID',
 });
 
 console.log(clientSecret);
@@ -1502,7 +1502,7 @@ console.log(clientSecret);
 
 ```typescript
 // filepath: apps/web/src/app/api/auth/[...nextauth]/route.ts
-import { handlers } from "@/auth/auth";
+import { handlers } from '@/auth/auth';
 
 export const { GET, POST } = handlers;
 ```
@@ -1817,15 +1817,15 @@ module.exports = {
       colors: {
         // WCAG AA compliant color palette
         primary: {
-          50: "#e3f2fd", // Contrast ratio 11.1:1
-          100: "#bbdefb", // Contrast ratio 8.2:1
-          500: "#2196f3", // Contrast ratio 4.6:1 (AA Large Text)
-          700: "#1976d2", // Contrast ratio 7.1:1 (AA)
-          900: "#0d47a1", // Contrast ratio 12.6:1 (AAA)
+          50: '#e3f2fd', // Contrast ratio 11.1:1
+          100: '#bbdefb', // Contrast ratio 8.2:1
+          500: '#2196f3', // Contrast ratio 4.6:1 (AA Large Text)
+          700: '#1976d2', // Contrast ratio 7.1:1 (AA)
+          900: '#0d47a1', // Contrast ratio 12.6:1 (AAA)
         },
-        error: "#d32f2f", // Contrast ratio 7.4:1
-        success: "#388e3c", // Contrast ratio 4.9:1
-        warning: "#f57c00", // Contrast ratio 4.5:1
+        error: '#d32f2f', // Contrast ratio 7.4:1
+        success: '#388e3c', // Contrast ratio 4.9:1
+        warning: '#f57c00', // Contrast ratio 4.5:1
       },
     },
   },
@@ -1989,8 +1989,8 @@ body {
 /* Minimum touch target size: 44x44px (WCAG 2.1 AAA) */
 button,
 a,
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   min-width: 44px;
   min-height: 44px;
   padding: 0.75rem 1rem;
@@ -2041,22 +2041,22 @@ export function ReceiptImage({ receipt }: { receipt: Receipt }) {
 
 ```typescript
 // filepath: apps/web/e2e/accessibility.spec.ts
-import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
-test.describe("Accessibility Compliance", () => {
-  test("should not have WCAG violations", async ({ page }) => {
-    await page.goto("/");
+test.describe('Accessibility Compliance', () => {
+  test('should not have WCAG violations', async ({ page }) => {
+    await page.goto('/');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
 
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
-  test("should be fully keyboard navigable", async ({ page }) => {
-    await page.goto("/receipts");
+  test('should be fully keyboard navigable', async ({ page }) => {
+    await page.goto('/receipts');
 
     // Tab through all interactive elements
     const interactiveElements = await page.locator(
@@ -2064,7 +2064,7 @@ test.describe("Accessibility Compliance", () => {
     );
 
     for (let i = 0; i < (await interactiveElements.count()); i++) {
-      await page.keyboard.press("Tab");
+      await page.keyboard.press('Tab');
       const focused = await page.evaluate(
         () => document.activeElement?.tagName
       );
@@ -2072,15 +2072,15 @@ test.describe("Accessibility Compliance", () => {
     }
   });
 
-  test("should support screen reader announcements", async ({ page }) => {
-    await page.goto("/receipts/upload");
+  test('should support screen reader announcements', async ({ page }) => {
+    await page.goto('/receipts/upload');
 
     // Upload file
-    await page.setInputFiles('input[type="file"]', "test-receipt.jpg");
+    await page.setInputFiles('input[type="file"]', 'test-receipt.jpg');
 
     // Check for status announcements
     const status = await page.locator('[role="status"]');
-    await expect(status).toContainText("Processing");
+    await expect(status).toContainText('Processing');
   });
 });
 ```

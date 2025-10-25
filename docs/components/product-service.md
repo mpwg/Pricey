@@ -70,12 +70,12 @@ services/product/
 
 ```typescript
 // filepath: services/product/src/services/normalization/normalizer.ts
-import { pipeline, Pipeline } from "@xenova/transformers";
-import { FuzzyMatcher } from "./fuzzy-matcher";
-import { BrandExtractor } from "./brand-extractor";
-import { prisma } from "@pricy/database";
-import { logger } from "../../utils/logger";
-import { Redis } from "ioredis";
+import { pipeline, Pipeline } from '@xenova/transformers';
+import { FuzzyMatcher } from './fuzzy-matcher';
+import { BrandExtractor } from './brand-extractor';
+import { prisma } from '@pricy/database';
+import { logger } from '../../utils/logger';
+import { Redis } from 'ioredis';
 
 interface NormalizationResult {
   genericProduct: string;
@@ -96,24 +96,24 @@ export class ProductNormalizer {
     this.fuzzyMatcher = new FuzzyMatcher();
     this.brandExtractor = new BrandExtractor();
     this.redis = new Redis({
-      host: process.env.REDIS_HOST || "localhost",
-      port: parseInt(process.env.REDIS_PORT || "6379"),
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
     });
   }
 
   async initialize() {
-    logger.info("Loading embedding model...");
+    logger.info('Loading embedding model...');
 
     // Use multilingual MiniLM for semantic similarity
     this.embeddingModel = await pipeline(
-      "feature-extraction",
-      "Xenova/multilingual-e5-small"
+      'feature-extraction',
+      'Xenova/multilingual-e5-small'
     );
 
     // Load product embeddings from database
     await this.loadProductEmbeddings();
 
-    logger.info("Product normalizer initialized");
+    logger.info('Product normalizer initialized');
   }
 
   async normalize(description: string): Promise<NormalizationResult> {
@@ -131,7 +131,7 @@ export class ProductNormalizer {
     const brand = await this.brandExtractor.extract(cleaned);
 
     // Remove brand from description for better matching
-    const withoutBrand = brand ? cleaned.replace(brand, "").trim() : cleaned;
+    const withoutBrand = brand ? cleaned.replace(brand, '').trim() : cleaned;
 
     // Try semantic similarity first (most accurate)
     let result = await this.semanticMatch(withoutBrand);
@@ -172,7 +172,7 @@ export class ProductNormalizer {
     try {
       // Generate embedding for input description
       const output = await this.embeddingModel(description, {
-        pooling: "mean",
+        pooling: 'mean',
         normalize: true,
       });
 
@@ -205,7 +205,7 @@ export class ProductNormalizer {
         category: result[0].category_name,
       };
     } catch (error) {
-      logger.error({ error }, "Semantic matching failed");
+      logger.error({ error }, 'Semantic matching failed');
       return null;
     }
   }
@@ -214,14 +214,14 @@ export class ProductNormalizer {
     description: string
   ): Promise<NormalizationResult | null> {
     // Simple keyword-based matching
-    const keywords = description.toLowerCase().split(" ");
+    const keywords = description.toLowerCase().split(' ');
 
     const products = await prisma.product.findMany({
       where: {
         OR: keywords.map((kw) => ({
           normalized_name: {
             contains: kw,
-            mode: "insensitive",
+            mode: 'insensitive',
           },
         })),
       },
@@ -263,7 +263,7 @@ export class ProductNormalizer {
     // Generate and store embedding for future matches
     if (this.embeddingModel) {
       const output = await this.embeddingModel(description, {
-        pooling: "mean",
+        pooling: 'mean',
         normalize: true,
       });
       const embedding = Array.from(output.data);
@@ -287,11 +287,11 @@ export class ProductNormalizer {
     // Simple keyword-based categorization
     // In production, use ML classifier
     const keywords = {
-      Fruit: ["apple", "banana", "orange", "grape", "fruit"],
-      Vegetables: ["carrot", "potato", "tomato", "lettuce", "vegetable"],
-      Dairy: ["milk", "cheese", "yogurt", "butter", "cream"],
-      Bakery: ["bread", "roll", "bun", "cake", "pastry"],
-      Meat: ["beef", "chicken", "pork", "meat", "steak"],
+      Fruit: ['apple', 'banana', 'orange', 'grape', 'fruit'],
+      Vegetables: ['carrot', 'potato', 'tomato', 'lettuce', 'vegetable'],
+      Dairy: ['milk', 'cheese', 'yogurt', 'butter', 'cream'],
+      Bakery: ['bread', 'roll', 'bun', 'cake', 'pastry'],
+      Meat: ['beef', 'chicken', 'pork', 'meat', 'steak'],
     };
 
     const lowerDesc = description.toLowerCase();
@@ -308,8 +308,8 @@ export class ProductNormalizer {
 
     // Default category
     return await prisma.category.upsert({
-      where: { name: "Other" },
-      create: { name: "Other" },
+      where: { name: 'Other' },
+      create: { name: 'Other' },
       update: {},
     });
   }
@@ -317,8 +317,8 @@ export class ProductNormalizer {
   private cleanDescription(description: string): string {
     return description
       .toLowerCase()
-      .replace(/[^\w\s]/g, " ")
-      .replace(/\s+/g, " ")
+      .replace(/[^\w\s]/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 
@@ -335,7 +335,7 @@ export class ProductNormalizer {
       }
     });
 
-    logger.info({ count: products.length }, "Loaded product embeddings");
+    logger.info({ count: products.length }, 'Loaded product embeddings');
   }
 }
 ```
@@ -344,8 +344,8 @@ export class ProductNormalizer {
 
 ```typescript
 // filepath: services/product/src/services/normalization/fuzzy-matcher.ts
-import fuzz from "fuzzball";
-import { prisma } from "@pricy/database";
+import fuzz from 'fuzzball';
+import { prisma } from '@pricy/database';
 
 export class FuzzyMatcher {
   private productNames: Map<string, { id: string; category: string }> =
@@ -399,7 +399,7 @@ export class FuzzyMatcher {
 
 ```typescript
 // filepath: services/product/src/services/normalization/brand-extractor.ts
-import { prisma } from "@pricy/database";
+import { prisma } from '@pricy/database';
 
 export class BrandExtractor {
   private brands: Set<string> = new Set();
@@ -409,7 +409,7 @@ export class BrandExtractor {
     const products = await prisma.product.findMany({
       where: { brand: { not: null } },
       select: { brand: true },
-      distinct: ["brand"],
+      distinct: ['brand'],
     });
 
     products.forEach((p) => {
@@ -420,22 +420,22 @@ export class BrandExtractor {
 
     // Add common brands
     const commonBrands = [
-      "gala",
-      "granny smith",
-      "honeycrisp",
-      "organic",
-      "bio",
-      "fresh",
-      "coca cola",
-      "pepsi",
-      "nestlé",
+      'gala',
+      'granny smith',
+      'honeycrisp',
+      'organic',
+      'bio',
+      'fresh',
+      'coca cola',
+      'pepsi',
+      'nestlé',
     ];
 
     commonBrands.forEach((b) => this.brands.add(b.toLowerCase()));
   }
 
   extract(description: string): string | null {
-    const words = description.toLowerCase().split(" ");
+    const words = description.toLowerCase().split(' ');
 
     // Check for multi-word brands first
     for (let i = 0; i < words.length - 1; i++) {
@@ -461,8 +461,8 @@ export class BrandExtractor {
 
 ```typescript
 // filepath: services/product/src/services/price-tracking/price-tracker.ts
-import { prisma } from "@pricy/database";
-import { logger } from "../../utils/logger";
+import { prisma } from '@pricy/database';
+import { logger } from '../../utils/logger';
 
 export class PriceTracker {
   async trackPrice(data: {
@@ -497,10 +497,10 @@ export class PriceTracker {
 
       logger.info(
         { productId: data.productId, price: data.unitPrice },
-        "Price tracked"
+        'Price tracked'
       );
     } catch (error) {
-      logger.error({ error, data }, "Failed to track price");
+      logger.error({ error, data }, 'Failed to track price');
       throw error;
     }
   }
@@ -511,14 +511,14 @@ export class PriceTracker {
         productId,
         ...(storeId && { storeId }),
       },
-      orderBy: { date: "desc" },
+      orderBy: { date: 'desc' },
       take: 30,
     });
   }
 
   async comparePrices(productId: string) {
     const prices = await prisma.priceHistory.groupBy({
-      by: ["storeId"],
+      by: ['storeId'],
       where: {
         productId,
         date: {
@@ -542,7 +542,7 @@ export class PriceTracker {
       .map((p) => {
         const store = stores.find((s) => s.id === p.storeId);
         return {
-          store: store?.name || "Unknown",
+          store: store?.name || 'Unknown',
           storeId: p.storeId,
           averagePrice: p._avg.unitPrice,
           lowestPrice: p._min.unitPrice,
@@ -557,11 +557,11 @@ export class PriceTracker {
 
 ```typescript
 // filepath: services/product/src/services/queue/processor.ts
-import { Queue, Worker } from "bullmq";
-import { prisma } from "@pricy/database";
-import { ProductNormalizer } from "../normalization/normalizer";
-import { PriceTracker } from "../price-tracking/price-tracker";
-import { logger } from "../../utils/logger";
+import { Queue, Worker } from 'bullmq';
+import { prisma } from '@pricy/database';
+import { ProductNormalizer } from '../normalization/normalizer';
+import { PriceTracker } from '../price-tracking/price-tracker';
+import { logger } from '../../utils/logger';
 
 interface NormalizationJob {
   receiptId: string;
@@ -577,33 +577,33 @@ export class ProductProcessor {
     this.normalizer = new ProductNormalizer();
     this.priceTracker = new PriceTracker();
 
-    this.queue = new Queue("product-normalization", {
+    this.queue = new Queue('product-normalization', {
       connection: {
-        host: process.env.REDIS_HOST || "localhost",
-        port: parseInt(process.env.REDIS_PORT || "6379"),
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
       },
     });
 
     this.worker = new Worker<NormalizationJob>(
-      "product-normalization",
+      'product-normalization',
       async (job) => {
         return this.processJob(job.data);
       },
       {
         connection: {
-          host: process.env.REDIS_HOST || "localhost",
-          port: parseInt(process.env.REDIS_PORT || "6379"),
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
         },
         concurrency: 10,
       }
     );
 
-    this.worker.on("completed", (job) => {
-      logger.info({ jobId: job.id }, "Normalization completed");
+    this.worker.on('completed', (job) => {
+      logger.info({ jobId: job.id }, 'Normalization completed');
     });
 
-    this.worker.on("failed", (job, err) => {
-      logger.error({ jobId: job?.id, error: err }, "Normalization failed");
+    this.worker.on('failed', (job, err) => {
+      logger.error({ jobId: job?.id, error: err }, 'Normalization failed');
     });
   }
 
@@ -612,10 +612,10 @@ export class ProductProcessor {
   }
 
   async addJob(data: NormalizationJob) {
-    await this.queue.add("normalize-receipt", data, {
+    await this.queue.add('normalize-receipt', data, {
       attempts: 3,
       backoff: {
-        type: "exponential",
+        type: 'exponential',
         delay: 3000,
       },
     });
@@ -658,7 +658,7 @@ export class ProductProcessor {
       }
     }
 
-    logger.info({ receiptId, count: items.length }, "Receipt items normalized");
+    logger.info({ receiptId, count: items.length }, 'Receipt items normalized');
   }
 
   async close() {
@@ -672,14 +672,14 @@ export class ProductProcessor {
 
 ```typescript
 // filepath: services/product/src/routes/products.routes.ts
-import { FastifyInstance } from "fastify";
-import { Type } from "@sinclair/typebox";
-import * as productsController from "../controllers/products.controller";
+import { FastifyInstance } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import * as productsController from '../controllers/products.controller';
 
 export default async function productsRoutes(app: FastifyInstance) {
   // Normalize product description
   app.post(
-    "/normalize",
+    '/normalize',
     {
       schema: {
         body: Type.Object({
@@ -688,7 +688,7 @@ export default async function productsRoutes(app: FastifyInstance) {
         response: {
           200: Type.Object({
             genericProduct: Type.String(),
-            productId: Type.String({ format: "uuid" }),
+            productId: Type.String({ format: 'uuid' }),
             confidence: Type.Number(),
             brand: Type.Optional(Type.String()),
             category: Type.String(),
@@ -701,14 +701,14 @@ export default async function productsRoutes(app: FastifyInstance) {
 
   // Get product price history
   app.get(
-    "/products/:id/prices",
+    '/products/:id/prices',
     {
       schema: {
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
         querystring: Type.Object({
-          storeId: Type.Optional(Type.String({ format: "uuid" })),
+          storeId: Type.Optional(Type.String({ format: 'uuid' })),
         }),
       },
     },
@@ -717,11 +717,11 @@ export default async function productsRoutes(app: FastifyInstance) {
 
   // Compare prices across stores
   app.get(
-    "/products/:id/compare",
+    '/products/:id/compare',
     {
       schema: {
         params: Type.Object({
-          id: Type.String({ format: "uuid" }),
+          id: Type.String({ format: 'uuid' }),
         }),
       },
     },
@@ -730,7 +730,7 @@ export default async function productsRoutes(app: FastifyInstance) {
 
   // Search products
   app.get(
-    "/products/search",
+    '/products/search',
     {
       schema: {
         querystring: Type.Object({
