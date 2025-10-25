@@ -385,6 +385,61 @@ pnpm audit --json > security-report.json
 
 ---
 
+## Prefer Dependencies Over Custom Code
+
+**CRITICAL RULE: Only implement custom code if no reputable and maintained dependency exists.**
+
+### Why?
+
+- ✅ Battle-tested code with thousands of users
+- ✅ Active maintenance and security updates
+- ✅ Comprehensive test coverage
+- ✅ Better performance (often optimized)
+- ✅ Reduced maintenance burden
+- ✅ Community support and documentation
+
+### Examples
+
+❌ **Don't write custom code for:**
+
+- Date parsing → Use `date-fns`, `dayjs`, or `luxon`
+- UUID generation → Use `uuid` or `crypto.randomUUID()`
+- Email validation → Use `validator` or Zod schemas
+- String manipulation → Use `lodash` or native methods
+- HTTP requests → Use `undici`, `axios`, or `fetch`
+- File uploads → Use `@fastify/multipart`
+- Rate limiting → Use `@fastify/rate-limit`
+- Input validation → Use `zod` or `yup`
+- Date/time manipulation → Use `date-fns` or `dayjs`
+- Number formatting → Use `Intl.NumberFormat` or `numeral`
+- Color manipulation → Use `chroma-js` or `color`
+- Markdown parsing → Use `marked` or `remark`
+- CSV parsing → Use `csv-parse` or `papaparse`
+- Image processing → Use `sharp`
+- PDF generation → Use `pdfkit` or `puppeteer`
+
+✅ **Write custom code when:**
+
+- No suitable library exists
+- Library is unmaintained (no updates in 1+ year)
+- Library is oversized for simple use case (check bundle size)
+- Business logic is truly unique to your domain
+- Performance critical and library is slow (benchmark first!)
+
+### Decision Checklist
+
+Before writing custom code, ask:
+
+1. [ ] Does a popular library exist for this? (Search npm, GitHub)
+2. [ ] Is the library actively maintained? (Check last commit date)
+3. [ ] Is the library well-tested? (Check coverage, downloads)
+4. [ ] Is the bundle size reasonable? (Check bundlephobia.com)
+5. [ ] Have I benchmarked if performance is a concern?
+
+**If you answer "yes" to questions 1-3, USE THE LIBRARY!**
+
+---
+
 ## Dependency Selection Criteria
 
 When choosing a new dependency, verify:

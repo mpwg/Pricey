@@ -16,9 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import * as chrono from 'chrono-node';
+import { isFuture, subYears } from 'date-fns';
 import { TesseractOCR } from '../ocr/tesseract.js';
 import { detectStore } from '../parsers/store-detector.js';
-import { extractDate } from '../parsers/date-parser.js';
 import { extractItems, type ReceiptItem } from '../parsers/item-parser.js';
 import { extractTotal, calculateTotal } from '../parsers/total-parser.js';
 
@@ -52,8 +53,8 @@ export class ReceiptProcessor {
     // Extract store name
     const storeName = detectStore(rawText);
 
-    // Extract date
-    const date = extractDate(rawText);
+    // Extract date using chrono-node natural language parser
+    const date = this.extractDate(rawText);
 
     // Extract items
     const items = extractItems(rawText);
@@ -73,5 +74,35 @@ export class ReceiptProcessor {
       rawText,
       confidence,
     };
+  }
+
+  /**
+   * Extract date from receipt text using chrono-node
+   * @param text - OCR extracted text
+   * @returns Date or null if not found
+   */
+  private extractDate(text: string): Date | null {
+    // Use chrono's strict mode to avoid false positives
+    const results = chrono.strict.parse(text, new Date());
+
+    // Find the first valid receipt date
+    for (const result of results) {
+      const date = result.start.date();
+
+      // Date must not be in the future
+      if (isFuture(date)) {
+        continue;
+      }
+
+      // Date must not be more than 1 year old (with 1 day buffer)
+      const oneYearOneDayAgo = subYears(new Date(), 1);
+      oneYearOneDayAgo.setDate(oneYearOneDayAgo.getDate() - 1);
+
+      if (date >= oneYearOneDayAgo) {
+        return date;
+      }
+    }
+
+    return null;
   }
 }
