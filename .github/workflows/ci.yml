@@ -91,6 +91,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules cache
+        id: cache-restore
         uses: actions/cache@v4
         with:
           path: |
@@ -99,6 +100,10 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Turborepo cache
         uses: actions/cache@v4
@@ -136,6 +141,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules cache
+        id: cache-restore
         uses: actions/cache@v4
         with:
           path: |
@@ -144,6 +150,10 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Turborepo cache
         uses: actions/cache@v4
@@ -181,6 +191,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules cache
+        id: cache-restore
         uses: actions/cache@v4
         with:
           path: |
@@ -189,6 +200,10 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Turborepo cache
         uses: actions/cache@v4
@@ -235,6 +250,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules cache
+        id: cache-restore
         uses: actions/cache@v4
         with:
           path: |
@@ -243,6 +259,10 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Turborepo cache
         uses: actions/cache@v4
@@ -306,6 +326,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore node_modules cache
+        id: cache-restore
         uses: actions/cache@v4
         with:
           path: |
@@ -314,6 +335,10 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Run database migrations
         env:
