@@ -12,27 +12,101 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  # Turborepo configuration
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  # Force color output for better logs
+  FORCE_COLOR: 3
+  # Centralized tool versions
+  PNPM_VERSION: '10.19.0'
+  NODE_VERSION: '24'
+
 jobs:
-  lint:
-    name: Lint
+  # Setup job - prepares environment and dependencies
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-install.outputs.cache-hit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 2 # Needed for turbo to detect changed files
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.19.0
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache node_modules
+        id: cache-install
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+            ${{ env.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
       - name: Install dependencies
+        if: steps.cache-install.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @pricy/database db:generate
+
+  # Lint job - runs ESLint and Prettier checks
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-lint-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-lint-
 
       - name: Run ESLint
         run: pnpm lint
@@ -40,26 +114,44 @@ jobs:
       - name: Check formatting
         run: pnpm format:check
 
+  # Type check job - validates TypeScript types
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.19.0
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'pnpm'
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-typecheck-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-typecheck-
 
       - name: Generate Prisma Client
         run: pnpm --filter @pricy/database db:generate
@@ -67,26 +159,44 @@ jobs:
       - name: Run TypeScript compiler
         run: pnpm typecheck
 
+  # Build job - compiles all packages
   build:
     name: Build
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.19.0
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'pnpm'
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-build-
 
       - name: Generate Prisma Client
         run: pnpm --filter @pricy/database db:generate
@@ -94,9 +204,78 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/dist
+            **/.next
+            **/build
+          key: build-${{ runner.os }}-${{ github.sha }}
+
+  # Test job - runs unit tests with coverage
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-test-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-test-
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @pricy/database db:generate
+
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v5
+        if: always()
+        with:
+          files: |
+            apps/api-gateway/coverage/lcov.info
+            apps/ocr-service/coverage/lcov.info
+          flags: unittests
+          name: pricy-coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # Database job - validates migrations and schema
   database:
     name: Database Checks
     runs-on: ubuntu-latest
+    needs: setup
     services:
       postgres:
         image: postgres:18-alpine
@@ -119,16 +298,22 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.19.0
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'pnpm'
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Run database migrations
         env:
@@ -139,3 +324,27 @@ jobs:
         env:
           DATABASE_URL: postgresql://pricy:pricy@localhost:5432/pricy_test
         run: pnpm --filter @pricy/database exec prisma migrate status
+
+      - name: Validate schema
+        env:
+          DATABASE_URL: postgresql://pricy:pricy@localhost:5432/pricy_test
+        run: pnpm --filter @pricy/database exec prisma validate
+
+  # Summary job - ensures all checks pass
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, build, test, database]
+    if: always()
+    steps:
+      - name: Check all jobs
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.typecheck.result }}" != "success" ]] || \
+             [[ "${{ needs.build.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.database.result }}" != "success" ]]; then
+            echo "One or more CI jobs failed"
+            exit 1
+          fi
+          echo "All CI jobs passed successfully!"
