@@ -256,5 +256,4 @@ The optimized CI pipeline maintains all quality checks while dramatically reduci
 
 **Expected savings**: ~40-60 hours/month of CI time for active development (assumes ~20 PRs/week)[^1]
 
-
 [^1]: Calculation: Each PR typically triggers multiple CI runs (e.g., pushes, updates, re-runs), averaging 6-8 runs per PR. With ~80 PRs/month × 6 runs/PR = 480 runs/month. At ~4 minutes saved per run, that's 1,920 minutes (~32 hours). Factoring in additional re-runs and parallel jobs, total savings can reach 40-60 hours/month.

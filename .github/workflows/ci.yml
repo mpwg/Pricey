@@ -55,6 +55,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            node_modules
+            **/node_modules
             ${{ env.STORE_PATH }}
           key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
@@ -88,8 +90,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+      - name: Restore node_modules cache
         id: cache-restore
         uses: actions/cache@v4
         with:
