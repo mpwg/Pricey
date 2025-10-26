@@ -24,6 +24,7 @@ import fastify from 'fastify';
 
 import { env } from './config/env.js';
 import { errorHandler } from './plugins/error-handler.js';
+import { bullBoardPlugin } from './plugins/bull-board.js';
 import { registerRoutes } from './routes/index.js';
 
 export async function buildApp() {
@@ -70,6 +71,11 @@ export async function buildApp() {
 
   // Set error handler
   app.setErrorHandler(errorHandler);
+
+  // Register Bull Board (queue monitoring dashboard)
+  if (env.NODE_ENV === 'development') {
+    await app.register(bullBoardPlugin);
+  }
 
   // Add request logging
   app.addHook('onRequest', async (request) => {

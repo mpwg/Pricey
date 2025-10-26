@@ -89,6 +89,13 @@ export class QueueService {
   async close(): Promise<void> {
     await this.ocrQueue.close();
   }
+
+  /**
+   * Get the queue instance for Bull Board
+   */
+  getQueue(): Queue {
+    return this.ocrQueue;
+  }
 }
 
 export const queueService = new QueueService();

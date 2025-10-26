@@ -61,8 +61,8 @@ Pricey is a Progressive Web Application (PWA) that digitizes your shopping recei
 
 ### Prerequisites
 
-- **Node.js** 20.x or higher
-- **pnpm** 8.10.0 or higher
+- **Node.js** 24.x or higher
+- **pnpm** 10.19.0 or higher
 - **Docker** and **Docker Compose** (for local development)
 
 ### Installation
@@ -236,17 +236,18 @@ Comprehensive documentation is available in the [`docs/`](docs/) folder:
 ### Getting Started
 
 - [Getting Started Guide](docs/guides/getting-started.md) - Setup and first steps
-- [Architecture Overview](docs/architecture.md) - System design and components
+- [Current Architecture](docs/ARCHITECTURE-CURRENT.md) - **Currently implemented system (M0.2)**
+- [Full Architecture Overview](docs/architecture.md) - Complete system design (future)
 - [Monorepo Structure](docs/monorepo-structure.md) - Code organization
 
 ### Component Guides
 
-- [Frontend PWA](docs/components/frontend-pwa.md) - Next.js application
-- [API Gateway](docs/components/api-gateway.md) - REST API endpoints
-- [OCR Service](docs/components/ocr-service.md) - Receipt text extraction
-- [Product Service](docs/components/product-service.md) - Product normalization
-- [Analytics Service](docs/components/analytics-service.md) - Price comparison
-- [Database Schema](docs/components/database-schema.md) - Data modeling
+- [API Gateway](docs/components/api-gateway.md) - REST API endpoints (✅ Implemented)
+- [OCR Service](docs/components/ocr-service.md) - Receipt text extraction (✅ Implemented)
+- [Database Schema](docs/components/database-schema.md) - Data modeling (✅ Implemented)
+- [Frontend PWA](docs/components/frontend-pwa.md) - Next.js application (⏳ Planned)
+- [Product Service](docs/components/product-service.md) - Product normalization (⏳ Planned)
+- [Analytics Service](docs/components/analytics-service.md) - Price comparison (⏳ Planned)
 
 ### Operational Guides
 
