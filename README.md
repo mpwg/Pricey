@@ -13,27 +13,27 @@
 
 <!-- Development Tools -->
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24.10.0-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D10.19.0-F69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D10%2B-F69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5%2B-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Monorepo: Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-EF4444.svg?logo=turborepo&logoColor=white)](https://turbo.build/)
 
 <!-- Backend Stack -->
 
-[![Fastify](https://img.shields.io/badge/Fastify-5.2-202020.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.2-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Tesseract.js](https://img.shields.io/badge/Tesseract.js-6.0-0066CC.svg)](https://tesseract.projectnaptha.com/)
+[![Fastify](https://img.shields.io/badge/Fastify-5%2B-202020.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
+[![Prisma](https://img.shields.io/badge/Prisma-6%2B-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Tesseract.js](https://img.shields.io/badge/Tesseract.js-6%2B-0066CC.svg)](https://tesseract.projectnaptha.com/)
 
 <!-- Infrastructure -->
 
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-8-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18%2B-336791.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-8%2B-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 
 <!-- Code Quality & Contribution -->
 
 [![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-F7B93E.svg?logo=prettier&logoColor=white)](https://prettier.io/)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196.svg?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1%2B-FE5196.svg?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-00C851.svg?logo=github&logoColor=white)](https://github.com/mpwg/Pricey/blob/main/CONTRIBUTING.md)
 
 </div>
@@ -130,15 +130,15 @@ graph TB
 
 | Layer        | Technology   | Version | Purpose               |
 | ------------ | ------------ | ------- | --------------------- |
-| **API**      | Fastify      | 5.2.1   | REST endpoints        |
-| **OCR**      | Tesseract.js | 6.0.1   | Text extraction       |
-| **Database** | PostgreSQL   | 18      | Data persistence      |
-| **ORM**      | Prisma       | 6.2.1   | Database access       |
-| **Queue**    | BullMQ       | 5.36.3  | Job processing        |
-| **Cache**    | Redis        | 8       | Queue backing         |
-| **Storage**  | MinIO        | 8.0.6   | S3-compatible storage |
-| **Images**   | Sharp        | 0.34.4  | Preprocessing         |
-| **Parsing**  | chrono-node  | 2.9.0   | Date extraction       |
+| **API**      | Fastify      | 5+      | REST endpoints        |
+| **OCR**      | Tesseract.js | 6+      | Text extraction       |
+| **Database** | PostgreSQL   | 18+     | Data persistence      |
+| **ORM**      | Prisma       | 6+      | Database access       |
+| **Queue**    | BullMQ       | 5+      | Job processing        |
+| **Cache**    | Redis        | 8+      | Queue backing         |
+| **Storage**  | MinIO        | 8+      | S3-compatible storage |
+| **Images**   | Sharp        | 0+      | Preprocessing         |
+| **Parsing**  | chrono-node  | 2+      | Date extraction       |
 
 ---
 
@@ -146,8 +146,8 @@ graph TB
 
 ### Prerequisites
 
-- **Node.js** 24.10.0 or higher
-- **pnpm** 10.19.0 or higher
+- **Node.js** 24+ or higher
+- **pnpm** 10+ or higher
 - **Docker** and **Docker Compose**
 
 ### Installation
@@ -687,7 +687,7 @@ Need help?
 
 ## Project Status
 
-> **Current Version**: 0.2.0 (M0.2 - MVP Complete)  
+> **Current Version**: 0.2+ (M0.2 - MVP Complete)  
 > **Phase**: Phase 0 → Phase 1 Transition  
 > **Last Updated**: January 2025  
 > **Next Milestone**: Frontend PWA (February 2025)

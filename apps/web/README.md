@@ -4,10 +4,10 @@ Smart receipt scanning and price comparison PWA built with Next.js 16.
 
 ## 📦 Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
-- **React**: 19.2.0
-- **TypeScript**: 5.9
-- **Styling**: Tailwind CSS v4
+- **Framework**: Next.js 16+ (App Router)
+- **React**: 19+
+- **TypeScript**: 5+
+- **Styling**: Tailwind CSS v4+
 - **UI Components**: shadcn/ui + Radix UI
 - **Icons**: Lucide React
 - **Testing**: Vitest + React Testing Library
@@ -17,8 +17,8 @@ Smart receipt scanning and price comparison PWA built with Next.js 16.
 
 ### Prerequisites
 
-- Node.js 24.10.0+
-- pnpm 10.19.0+
+- Node.js 24+
+- pnpm 10+
 - API Gateway running on `http://localhost:3001`
 
 ### Environment Variables
