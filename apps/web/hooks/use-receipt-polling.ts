@@ -27,11 +27,20 @@ interface UseReceiptPollingResult {
 }
 
 /**
- * Hook that polls receipt status every 3 seconds for processing receipts
+ * Default polling interval in milliseconds
+ */
+const DEFAULT_POLLING_INTERVAL_MS = 3000;
+
+/**
+ * Hook that polls receipt status for processing receipts
+ * @param receiptId - The ID of the receipt to poll
+ * @param initialStatus - The initial status of the receipt
+ * @param pollingIntervalMs - How often to poll in milliseconds (default: 3000)
  */
 export function useReceiptPolling(
   receiptId: string,
-  initialStatus?: Receipt['status']
+  initialStatus?: Receipt['status'],
+  pollingIntervalMs: number = DEFAULT_POLLING_INTERVAL_MS
 ): UseReceiptPollingResult {
   const [status, setStatus] = useState<Receipt['status'] | null>(
     initialStatus || null
@@ -56,10 +65,10 @@ export function useReceiptPolling(
         console.error('Failed to fetch receipt status:', error);
         // Continue polling even if there's an error
       }
-    }, 3000); // Poll every 3 seconds
+    }, pollingIntervalMs);
 
     return () => clearInterval(interval);
-  }, [receiptId, polling]);
+  }, [receiptId, polling, pollingIntervalMs]);
 
   return { status, polling };
 }

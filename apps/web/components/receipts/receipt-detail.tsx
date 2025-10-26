@@ -67,7 +67,15 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
   // Reload receipt when status changes
   useEffect(() => {
     if (status && receipt && status !== receipt.status) {
-      apiClient.getReceipt(id).then(setReceipt).catch(console.error);
+      apiClient
+        .getReceipt(id)
+        .then(setReceipt)
+        .catch((err) => {
+          const message =
+            err instanceof Error ? err.message : 'Failed to reload receipt';
+          setError(message);
+          toast.error(message);
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, id]);

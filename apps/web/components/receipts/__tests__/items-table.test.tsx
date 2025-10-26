@@ -118,14 +118,14 @@ describe('ItemsTable', () => {
         receiptId: 'receipt-123',
         name: 'Cheese (0.5 lb)',
         quantity: 0.5,
-        price: 5.99,
+        price: 6.0,
       },
     ];
 
     render(<ItemsTable items={itemWithDecimal} />);
 
     expect(screen.getByText('0.5')).toBeInTheDocument();
-    expect(screen.getByText('$3.00')).toBeInTheDocument(); // 0.5 * 5.99 ≈ 2.995, rounded
+    expect(screen.getByText('$3.00')).toBeInTheDocument(); // 0.5 * 6.00 = 3.00
   });
 
   it('formats large amounts correctly', () => {

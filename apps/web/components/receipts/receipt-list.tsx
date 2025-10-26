@@ -19,6 +19,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { apiClient, type Receipt } from '@/lib/api';
 import { ReceiptCard } from './receipt-card';
@@ -29,26 +30,32 @@ export function ReceiptList() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const loadReceipts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await apiClient.getReceipts();
+      setReceipts(data);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to load receipts';
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadReceipts() {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await apiClient.getReceipts();
-        setReceipts(data);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to load receipts';
-        setError(message);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadReceipts();
   }, []);
+
+  const handleRetry = () => {
+    loadReceipts();
+    router.refresh();
+  };
 
   if (loading) {
     return <ReceiptListSkeleton />;
@@ -59,7 +66,7 @@ export function ReceiptList() {
       <div className="flex flex-col items-center justify-center rounded-lg border border-destructive/50 bg-destructive/10 p-8 text-center">
         <p className="text-destructive mb-4">{error}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={handleRetry}
           className="text-sm text-primary hover:underline"
         >
           Try again
