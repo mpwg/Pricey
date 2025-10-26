@@ -167,17 +167,13 @@ describe('Receipt Routes Integration Tests', () => {
       expect(db.receipt.create).toHaveBeenCalledWith({
         data: {
           imageUrl: mockImageUrl,
-          status: 'PENDING',
+          status: 'PROCESSING',
         },
       });
       expect(queueService.queueOCRJob).toHaveBeenCalledWith(
         mockReceiptId,
         mockImageUrl
       );
-      expect(db.receipt.update).toHaveBeenCalledWith({
-        where: { id: mockReceiptId },
-        data: { status: 'PROCESSING' },
-      });
     });
 
     it('should return 400 when no file is provided', async () => {
