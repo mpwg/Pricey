@@ -268,7 +268,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-test-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.test.*', '**/*.spec.*') }}
+          key: turbo-${{ runner.os }}-test-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/turbo.json') }}
           restore-keys: |
             turbo-${{ runner.os }}-test-
 
