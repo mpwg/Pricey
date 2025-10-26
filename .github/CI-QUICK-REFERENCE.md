@@ -42,6 +42,8 @@ All checks run in parallel after initial setup.
 
 ### Optional: Enable Turborepo Remote Caching
 
+> **Note:** Turborepo supports multiple caching options. By default, it uses local caching and can also leverage GitHub Actions cache or self-hosted remote caches. The instructions below describe enabling Vercel Remote Cache, which is one option for sharing cache across your team. For other providers and advanced setups, see the [Turborepo Remote Caching docs](https://turbo.build/repo/docs/core-concepts/remote-caching).
+
 Share cache across team and branches:
 
 1. Get Vercel token: https://vercel.com/account/tokens

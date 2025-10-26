@@ -63,10 +63,10 @@ jobs:
             pnpm-${{ runner.os }}-
 
       - name: Install dependencies
-        if: steps.cache-install.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
+        if: steps.cache-install.outputs.cache-hit != 'true'
         run: pnpm --filter @pricy/database db:generate
 
   # Lint job - runs ESLint and Prettier checks
@@ -109,7 +109,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-lint-${{ github.sha }}
+          key: turbo-${{ runner.os }}-lint-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx') }}
           restore-keys: |
             turbo-${{ runner.os }}-lint-
 
@@ -159,7 +159,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-typecheck-${{ github.sha }}
+          key: turbo-${{ runner.os }}-typecheck-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             turbo-${{ runner.os }}-typecheck-
 
@@ -209,7 +209,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-build-${{ github.sha }}
+          key: turbo-${{ runner.os }}-build-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx') }}
           restore-keys: |
             turbo-${{ runner.os }}-build-
 
@@ -268,7 +268,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-test-${{ github.sha }}
+          key: turbo-${{ runner.os }}-test-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.test.*', '**/*.spec.*') }}
           restore-keys: |
             turbo-${{ runner.os }}-test-
 
@@ -284,7 +284,6 @@ jobs:
         with:
           files: |
             apps/api-gateway/coverage/lcov.info
-            apps/ocr-service/coverage/lcov.info
           flags: unittests
           name: pricy-coverage
           fail_ci_if_error: false

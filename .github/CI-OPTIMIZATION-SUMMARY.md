@@ -63,8 +63,10 @@ The CI pipeline has been completely restructured to leverage Turborepo's caching
 | Scenario                   | Before  | After  | Improvement    |
 | -------------------------- | ------- | ------ | -------------- |
 | **Cold Start** (no cache)  | ~12 min | ~8 min | **33% faster** |
-| **Warm Run** (deps cached) | ~10 min | ~4 min | **60% faster** |
-| **Hot Run** (all cached)\* | ~10 min | ~1 min | **90% faster** |
+| **Warm Run** (deps cached) | ~12 min | ~4 min | **67% faster** |
+| **Hot Run** (all cached)\* | ~12 min | ~1 min | **92% faster** |
+
+_Note: Prior to optimization, all runs were effectively "cold" runs (~12 min) due to the absence of caching. "Warm" and "Hot" run improvements are relative to this baseline._
 
 \* Hot run: No code changes in any package (all Turborepo caches hit)
 
@@ -83,14 +85,14 @@ key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 ### Turborepo Cache
 
 ```yaml
-key: turbo-${{ runner.os }}-<task>-${{ github.sha }}
+key: turbo-${{ runner.os }}-<task>-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json', '**/*.ts', '**/*.tsx', '**/*.js') }}
 restore-keys: turbo-${{ runner.os }}-<task>-
 ```
 
 - **Per-Task**: Separate cache for lint, typecheck, build, test
-- **Invalidates**: Per commit (but restores from previous commits)
+- **Invalidates**: When input files (source code, dependencies) change
 - **Size**: ~50-200MB per task
-- **Benefit**: Skips work if input files unchanged since last run
+- **Benefit**: Skips work if input files unchanged; better cache reuse across commits with identical code
 
 ### Build Artifacts Cache
 
@@ -252,4 +254,6 @@ The optimized CI pipeline maintains all quality checks while dramatically reduci
 4. ✅ Build artifact reuse
 5. ✅ Incremental validation
 
-**Expected savings**: ~40-60 hours/month of CI time for active development (assumes ~20 PRs/week)
+**Expected savings**: ~40-60 hours/month of CI time for active development (assumes ~20 PRs/week)\*
+
+> \*Calculation: Each PR typically triggers multiple CI runs (e.g., pushes, updates, re-runs), averaging 6-8 runs per PR. With ~80 PRs/month × 6 runs/PR = 480 runs/month. At ~4 minutes saved per run, that's 1,920 minutes (~32 hours). Factoring in additional re-runs and parallel jobs, total savings can reach 40-60 hours/month.
