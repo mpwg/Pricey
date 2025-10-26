@@ -1396,7 +1396,7 @@ test('GET /api/v1/receipts - success', async (t) => {
 
 ```dockerfile
 # filepath: apps/api/Dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@8.10.0 --activate
 
 FROM base AS deps

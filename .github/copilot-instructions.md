@@ -9,7 +9,7 @@
 ### Tech Stack
 
 - **Frontend**: Next.js 16, React 19, TypeScript 5.9, TailwindCSS (planned for Phase 1)
-- **Backend**: Fastify 5, Node.js 24+, TypeScript
+- **Backend**: Fastify 5, Node.js 24.10.0+, TypeScript
 - **Database**: PostgreSQL 18 + Prisma 6
 - **Cache**: Redis 8
 - **Storage**: MinIO (local) / S3 (cloud)
