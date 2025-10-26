@@ -43,9 +43,16 @@ describe('StatusBadge', () => {
 
   it('applies correct variant classes', () => {
     const { rerender } = render(<StatusBadge status="COMPLETED" />);
-    expect(screen.getByText('Completed').closest('.inline-flex')).toBeTruthy();
+    const completedBadge = screen.getByText('Completed').closest('span');
+    expect(completedBadge).toBeInTheDocument();
+    // Badge component uses "flex" class for layout
+    expect(completedBadge).toHaveClass('flex');
+    expect(completedBadge).toHaveClass('items-center');
 
     rerender(<StatusBadge status="FAILED" />);
-    expect(screen.getByText('Failed').closest('.inline-flex')).toBeTruthy();
+    const failedBadge = screen.getByText('Failed').closest('span');
+    expect(failedBadge).toBeInTheDocument();
+    expect(failedBadge).toHaveClass('flex');
+    expect(failedBadge).toHaveClass('items-center');
   });
 });

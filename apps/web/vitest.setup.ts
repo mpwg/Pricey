@@ -18,6 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
+import React from 'react';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -34,9 +35,18 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js image component
 vi.mock('next/image', () => ({
   default: (props: Record<string, unknown>) => {
-    return props;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { src, alt, ...rest } = props as any;
+    // Return a plain img element using React.createElement
+    return React.createElement('img', { src, alt, ...rest });
   },
 }));
+
+// Mock URL.createObjectURL and revokeObjectURL for file previews
+global.URL.createObjectURL = vi.fn((file: Blob | MediaSource) => {
+  return `blob:mock-url/${file instanceof Blob ? 'blob' : 'media'}/${Date.now()}`;
+});
+global.URL.revokeObjectURL = vi.fn();
 
 // Mock environment variables
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3001';

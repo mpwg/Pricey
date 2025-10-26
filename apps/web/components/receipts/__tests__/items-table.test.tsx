@@ -73,9 +73,12 @@ describe('ItemsTable', () => {
   it('formats prices correctly', () => {
     render(<ItemsTable items={mockItems} />);
 
+    // Check for unique prices
     expect(screen.getByText('$3.99')).toBeInTheDocument();
-    expect(screen.getByText('$2.49')).toBeInTheDocument();
     expect(screen.getByText('$4.50')).toBeInTheDocument();
+
+    // $2.49 appears both as price and total for Bread
+    expect(screen.getAllByText('$2.49')).toHaveLength(2);
   });
 
   it('calculates and displays totals correctly', () => {
@@ -138,7 +141,8 @@ describe('ItemsTable', () => {
 
     render(<ItemsTable items={expensiveItem} />);
 
-    expect(screen.getByText('$1,234.56')).toBeInTheDocument();
+    // Both price and total should show $1,234.56
+    expect(screen.getAllByText('$1,234.56')).toHaveLength(2);
   });
 
   it('handles zero price items', () => {
