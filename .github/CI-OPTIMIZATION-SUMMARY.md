@@ -92,7 +92,7 @@ restore-keys: turbo-${{ runner.os }}-<task>-
 - **Per-Task**: Separate cache for lint, typecheck, build, test
 - **Invalidates**: When input files (source code, dependencies) change
 - **Size**: ~50-200MB per task
-- **Benefit**: Skips work if input files unchanged; better cache reuse across commits with identical code
+- **Benefit**: Skips work if input files unchanged; better cache reuse across commits with identical code.
 
 ### Build Artifacts Cache
 
