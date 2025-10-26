@@ -96,10 +96,13 @@ describe('file-validation', () => {
     });
 
     it('should reject files over 10MB', async () => {
+      // Create a buffer that's actually over 10MB
+      const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB
       const file = createMockFile({
         bytesRead: 11 * 1024 * 1024, // 11MB
         mimetype: 'image/jpeg',
         filename: 'test.jpg',
+        buffer: largeBuffer,
       });
 
       await expect(validateImage(file)).rejects.toThrow(ValidationError);

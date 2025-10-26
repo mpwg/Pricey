@@ -7,23 +7,25 @@
 
 ### Core Documentation
 
-| Document                                    | Purpose                          | Status        | Last Updated |
-| ------------------------------------------- | -------------------------------- | ------------- | ------------ |
-| **[Product Roadmap](ROADMAP.md)**           | **MVP to v1.0 development plan** | **🟢 Active** | **Oct 2025** |
-| [Architecture](architecture.md)             | System architecture overview     | ✅ Complete   | Oct 2025     |
-| [Monorepo Structure](monorepo-structure.md) | Repository organization          | ✅ Complete   | Oct 2025     |
-| [Validation Report](VALIDATION_REPORT.md)   | Best practices review            | ✅ Complete   | Oct 2025     |
+| Document                                                        | Purpose                                 | Status          | Last Updated |
+| --------------------------------------------------------------- | --------------------------------------- | --------------- | ------------ |
+| **[Product Roadmap](ROADMAP.md)**                               | **MVP to v1.0 development plan**        | **🟢 Active**   | **Oct 2025** |
+| **[Current Architecture](ARCHITECTURE-CURRENT.md)**             | **Currently implemented system (M0.2)** | **✅ Complete** | **Oct 2025** |
+| [Full Architecture](architecture.md)                            | Complete system architecture (future)   | 📋 Planned      | Oct 2025     |
+| [Monorepo Structure](monorepo-structure.md)                     | Repository organization                 | ✅ Complete     | Oct 2025     |
+| [Validation Report](VALIDATION_REPORT.md)                       | Best practices review                   | ✅ Complete     | Oct 2025     |
+| [M0.2 Validation](phases/phase-0-mvp/M0.2-VALIDATION-REPORT.md) | M0.2 implementation validation          | ✅ Complete     | Oct 2025     |
 
 ### Component Documentation
 
-| Component       | Document                                                | Purpose                 | Tech Stack                       |
-| --------------- | ------------------------------------------------------- | ----------------------- | -------------------------------- |
-| Frontend        | [frontend-pwa.md](components/frontend-pwa.md)           | PWA implementation      | Next.js 16, React 19, TypeScript |
-| API Gateway     | [api-gateway.md](components/api-gateway.md)             | API entry point         | Fastify, TypeScript              |
-| OCR Service     | [ocr-service.md](components/ocr-service.md)             | Receipt text extraction | Tesseract, Google Vision         |
-| Product Service | [product-service.md](components/product-service.md)     | Product normalization   | Transformers.js, pgvector        |
-| Analytics       | [analytics-service.md](components/analytics-service.md) | Price comparison        | TypeScript, Redis                |
-| Database        | [database-schema.md](components/database-schema.md)     | Data modeling           | PostgreSQL, Prisma               |
+| Component       | Document                                                | Purpose                 | Status         | Tech Stack                       |
+| --------------- | ------------------------------------------------------- | ----------------------- | -------------- | -------------------------------- |
+| API Gateway     | [api-gateway.md](components/api-gateway.md)             | API entry point         | ✅ Implemented | Fastify, TypeScript              |
+| OCR Service     | [ocr-service.md](components/ocr-service.md)             | Receipt text extraction | ✅ Implemented | Tesseract.js, Sharp              |
+| Database        | [database-schema.md](components/database-schema.md)     | Data modeling           | ✅ Implemented | PostgreSQL, Prisma               |
+| Frontend        | [frontend-pwa.md](components/frontend-pwa.md)           | PWA implementation      | ⏳ Planned     | Next.js 16, React 19, TypeScript |
+| Product Service | [product-service.md](components/product-service.md)     | Product normalization   | ⏳ Planned     | Transformers.js, pgvector        |
+| Analytics       | [analytics-service.md](components/analytics-service.md) | Price comparison        | ⏳ Planned     | TypeScript, Redis                |
 
 ### Guides
 
@@ -41,10 +43,11 @@
 ### For New Developers
 
 1. **Start here**: [Getting Started Guide](guides/getting-started.md)
-2. **Understand the system**: [Architecture](architecture.md)
-3. **Learn the structure**: [Monorepo Structure](monorepo-structure.md)
-4. **Pick a component**: Choose from component docs above
-5. **Read best practices**: [Validation Report](VALIDATION_REPORT.md)
+2. **See what's built**: [Current Architecture](ARCHITECTURE-CURRENT.md)
+3. **Understand the future**: [Full Architecture](architecture.md)
+4. **Learn the structure**: [Monorepo Structure](monorepo-structure.md)
+5. **Pick a component**: Choose from component docs above
+6. **Read best practices**: [Validation Report](VALIDATION_REPORT.md)
 
 ### For DevOps Engineers
 
