@@ -1187,7 +1187,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.10.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -1555,7 +1555,7 @@ pnpm build
 
 ```dockerfile
 # apps/web/Dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@8.10.0 --activate
 
 FROM base AS deps

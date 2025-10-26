@@ -350,7 +350,7 @@ Each service has its own Dockerfile with multi-stage builds:
 
 ```dockerfile
 # Example: services/ocr/Dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@8.10.0 --activate
 
 FROM base AS deps
@@ -467,7 +467,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24.10.0
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint

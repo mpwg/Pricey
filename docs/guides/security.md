@@ -689,7 +689,7 @@ export class SecureStorage {
 
 ```dockerfile
 # Secure Dockerfile example
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Run as non-root user
 RUN addgroup -g 1001 -S nodejs && \

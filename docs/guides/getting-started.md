@@ -11,7 +11,7 @@ Before you begin, ensure you have the following installed:
 - **Node.js** 20.x LTS or higher
 
   ```bash
-  node --version  # Should be v20.x.x or higher
+  node --version  # Should be v24.10.0 or higher
   ```
 
 - **pnpm** 8.10.0 or higher
