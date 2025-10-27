@@ -27,7 +27,7 @@ export default defineConfig({
       REDIS_URL: 'redis://localhost:6379',
       LOG_LEVEL: 'error', // Reduce log noise in tests
       LLM_BASE_URL: 'http://localhost:11434',
-      LLM_MODEL: 'llama3.2:3b',
+      LLM_MODEL: 'llava', // Vision model
       NODE_ENV: 'test',
     },
     coverage: {

@@ -88,21 +88,25 @@ export class LlmReceiptParser {
   }
 
   /**
-   * Parse receipt text using LLM with structured output
-   * @param ocrText - Raw OCR text from receipt
+   * Parse receipt image using vision LLM with structured output
+   * @param imageBuffer - Receipt image buffer
    * @returns Structured receipt data
    */
-  async parse(ocrText: string): Promise<LlmReceiptData> {
-    logger.info({ textLength: ocrText.length }, 'Starting LLM parsing');
+  async parse(imageBuffer: Buffer): Promise<LlmReceiptData> {
+    logger.info(
+      { imageSize: imageBuffer.length },
+      'Starting vision LLM parsing'
+    );
 
-    const prompt = this.buildPrompt(ocrText);
+    const prompt = this.buildPrompt();
     const schema = this.buildJsonSchema();
+    const base64Image = imageBuffer.toString('base64');
 
     try {
       const startTime = Date.now();
 
-      // Call Ollama API with structured output
-      const response = await this.callOllama(prompt, schema);
+      // Call Ollama API with vision model
+      const response = await this.callOllamaVision(prompt, base64Image, schema);
 
       const duration = Date.now() - startTime;
       logger.info(
@@ -112,12 +116,12 @@ export class LlmReceiptParser {
           itemCount: response.items.length,
           storeName: response.storeName,
         },
-        'LLM parsing complete'
+        'Vision LLM parsing complete'
       );
 
       return response;
     } catch (error) {
-      logger.error({ error }, 'LLM parsing failed');
+      logger.error({ error }, 'Vision LLM parsing failed');
       // Return empty result on failure
       return {
         storeName: null,
@@ -131,25 +135,21 @@ export class LlmReceiptParser {
   }
 
   /**
-   * Build the prompt for the LLM
-   * @param ocrText - Raw OCR text
-   * @returns Formatted prompt
+   * Build the prompt for the vision LLM
+   * @returns Formatted prompt for image analysis
    */
-  private buildPrompt(ocrText: string): string {
-    return `You are an expert receipt parser. Extract structured data from the following receipt text.
+  private buildPrompt(): string {
+    return `You are an expert receipt parser. Analyze this receipt image and extract structured data.
 
 IMPORTANT INSTRUCTIONS:
-- Extract the store/merchant name exactly as it appears
+- Extract the store/merchant name exactly as it appears on the receipt
 - Parse the date in ISO 8601 format (YYYY-MM-DD)
 - List ALL items with their prices and quantities
 - If quantity is not specified, assume 1
 - Extract the total amount (including tax)
 - Be precise with numbers (do not round)
 - If a field cannot be determined, set it to null
-- Set confidence between 0 and 1 based on text quality
-
-RECEIPT TEXT:
-${ocrText}
+- Set confidence between 0 and 1 based on image quality and clarity
 
 Extract the following information in valid JSON format.`;
   }
@@ -222,13 +222,15 @@ Extract the following information in valid JSON format.`;
   }
 
   /**
-   * Call Ollama API with structured output
+   * Call Ollama vision API with image input
    * @param prompt - Prompt text
+   * @param base64Image - Base64 encoded image
    * @param schema - JSON schema for structured output
    * @returns Parsed and validated receipt data
    */
-  private async callOllama(
+  private async callOllamaVision(
     prompt: string,
+    base64Image: string,
     schema: Record<string, unknown>
   ): Promise<LlmReceiptData> {
     const url = `${this.baseUrl}/api/generate`;
@@ -245,6 +247,7 @@ Extract the following information in valid JSON format.`;
         body: JSON.stringify({
           model: this.model,
           prompt,
+          images: [base64Image], // Vision model requires images array
           stream: false,
           format: schema, // Structured output with JSON schema
           options: {

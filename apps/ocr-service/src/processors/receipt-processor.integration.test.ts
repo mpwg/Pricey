@@ -33,33 +33,42 @@ describe('ReceiptProcessor - Real Image Integration', () => {
 
     // Verify basic structure
     expect(result).toBeDefined();
-    expect(result.rawText).toBeDefined();
-    expect(typeof result.rawText).toBe('string');
-    expect(result.rawText.length).toBeGreaterThan(0);
+
+    // Vision model doesn't use OCR text, so rawText is empty
+    expect(result.rawText).toBe('');
 
     // Verify confidence is reasonable
     expect(result.confidence).toBeGreaterThanOrEqual(0);
-    expect(result.confidence).toBeLessThanOrEqual(100);
+    expect(result.confidence).toBeLessThanOrEqual(1);
 
     // Verify items were extracted
     expect(Array.isArray(result.items)).toBe(true);
+    expect(result.items.length).toBeGreaterThan(0);
+
+    // Verify store name was extracted
+    expect(result.storeName).toBeTruthy();
 
     // Basic assertions - we don't know exact values but can verify structure
     expect(result.calculatedTotal).toBeGreaterThanOrEqual(0);
-  }, 60000); // 60 second timeout for OCR processing
+  }, 60000); // 60 second timeout for vision model processing
 
   it('should handle invalid image gracefully', async () => {
     const processor = new ReceiptProcessor();
     const invalidBuffer = Buffer.from('not-an-image');
 
-    // Should either throw or return empty result
-    await expect(processor.process(invalidBuffer)).rejects.toThrow();
+    // Vision model returns empty result for invalid images instead of throwing
+    const result = await processor.process(invalidBuffer);
+    expect(result.storeName).toBeNull();
+    expect(result.items).toHaveLength(0);
   });
 
   it('should handle empty image buffer', async () => {
     const processor = new ReceiptProcessor();
     const emptyBuffer = Buffer.alloc(0);
 
-    await expect(processor.process(emptyBuffer)).rejects.toThrow();
-  });
+    // Vision model returns empty result for empty buffer instead of throwing
+    const result = await processor.process(emptyBuffer);
+    expect(result.storeName).toBeNull();
+    expect(result.items).toHaveLength(0);
+  }, 10000); // 10 second timeout
 });

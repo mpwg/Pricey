@@ -36,7 +36,8 @@
     "docker:dev:down": "docker-compose down",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
     "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
-    "minio:setup": "bash scripts/setup-minio.sh"
+    "minio:setup": "bash scripts/setup-minio.sh",
+    "ollama:mac": "bash scripts/start-ollama-mac.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",

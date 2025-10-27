@@ -71,9 +71,10 @@ services:
     environment:
       # Allow access from other containers
       OLLAMA_HOST: 0.0.0.0:11434
-      # Model to auto-download on startup (change as needed)
-      # Options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      # Vision model to auto-download on startup (change as needed)
+      # Vision options: llava, llama3.2-vision:11b, llama3.2-vision:90b, moondream
+      # Text-only options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llava}
     entrypoint: ['/bin/bash', '/entrypoint.sh']
     healthcheck:
       test: ['CMD', 'ollama', 'list']

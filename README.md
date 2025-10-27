@@ -192,6 +192,8 @@ pnpm dev
 
 > 📖 **New to LLM-based parsing?** Check out the [LLM Quick Start Guide](docs/guides/LLM-QUICKSTART.md) for setup instructions and model selection tips.
 
+> ⚡ **Mac Users**: For **10-20x faster** receipt processing with GPU acceleration, see [Mac Ollama Acceleration Guide](docs/guides/mac-ollama-acceleration.md)
+
 ---
 
 ## How It Works

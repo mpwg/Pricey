@@ -1,5 +1,5 @@
 /**
- * Tests for LLM receipt parser
+ * Tests for LLM vision receipt parser
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { LlmReceiptParser } from './llm-receipt-parser.js';
 
-describe('LlmReceiptParser', () => {
+describe('LlmReceiptParser (Vision)', () => {
   let parser: LlmReceiptParser;
   let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -35,7 +35,7 @@ describe('LlmReceiptParser', () => {
   });
 
   describe('parse', () => {
-    it('should parse a valid receipt text', async () => {
+    it('should parse a valid receipt image', async () => {
       const mockResponse = {
         storeName: 'Walmart',
         date: '2025-10-27',
@@ -53,15 +53,10 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const ocrText = `
-        WALMART
-        Date: 10/27/2025
-        Milk           $3.99
-        Bread x2       $4.98
-        TOTAL          $8.97
-      `;
+      // Create a simple test image buffer
+      const imageBuffer = Buffer.from('fake-image-data');
 
-      const result = await parser.parse(ocrText);
+      const result = await parser.parse(imageBuffer);
 
       expect(result.storeName).toBe('Walmart');
       expect(result.date).toBe('2025-10-27');
@@ -73,6 +68,15 @@ describe('LlmReceiptParser', () => {
       });
       expect(result.total).toBe(8.97);
       expect(result.confidence).toBe(0.95);
+
+      // Verify fetch was called with images array
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"images"'),
+        })
+      );
     });
 
     it('should handle receipts with no items', async () => {
@@ -90,7 +94,8 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const result = await parser.parse('TARGET\n10/20/2025');
+      const imageBuffer = Buffer.from('fake-image-data');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.storeName).toBe('Target');
       expect(result.items).toHaveLength(0);
@@ -112,7 +117,8 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const result = await parser.parse('Unclear receipt text...');
+      const imageBuffer = Buffer.from('unclear-image-data');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.storeName).toBeNull();
       expect(result.date).toBeNull();
@@ -128,7 +134,8 @@ describe('LlmReceiptParser', () => {
         text: async () => 'Server error',
       });
 
-      const result = await parser.parse('Any text');
+      const imageBuffer = Buffer.from('test-image');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.storeName).toBeNull();
       expect(result.date).toBeNull();
@@ -148,7 +155,8 @@ describe('LlmReceiptParser', () => {
           })
       );
 
-      const result = await parser.parse('Any text');
+      const imageBuffer = Buffer.from('test-image');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.confidence).toBe(0);
     }, 65000); // Increase timeout to 65 seconds (longer than parser's 60s timeout)
@@ -168,7 +176,8 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const result = await parser.parse('Swiss receipt with CHF');
+      const imageBuffer = Buffer.from('swiss-receipt-image');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.currency).toBe('CHF');
     });
@@ -191,14 +200,15 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const result = await parser.parse('Receipt with quantities');
+      const imageBuffer = Buffer.from('receipt-with-quantities');
+      const result = await parser.parse(imageBuffer);
 
       expect(result.items).toHaveLength(2);
       expect(result.items[0]?.quantity).toBe(3);
       expect(result.items[1]?.quantity).toBe(1);
     });
 
-    it('should send correct request to Ollama API', async () => {
+    it('should send correct request to Ollama vision API', async () => {
       const mockResponse = {
         storeName: 'Test Store',
         date: '2025-10-27',
@@ -213,8 +223,8 @@ describe('LlmReceiptParser', () => {
         json: async () => ({ response: JSON.stringify(mockResponse) }),
       });
 
-      const ocrText = 'Test receipt';
-      await parser.parse(ocrText);
+      const imageBuffer = Buffer.from('test-receipt-image');
+      await parser.parse(imageBuffer);
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0] as [
@@ -226,9 +236,10 @@ describe('LlmReceiptParser', () => {
       expect(options.method).toBe('POST');
 
       const body = JSON.parse(options.body);
-      expect(body.model).toBe('llama3.2:3b');
+      expect(body.model).toBe('llava'); // Vision model
       expect(body.stream).toBe(false);
-      expect(body.prompt).toContain(ocrText);
+      expect(body.images).toBeDefined(); // Vision models use images array
+      expect(body.images).toHaveLength(1);
       expect(body.format).toBeDefined();
       expect(body.options.temperature).toBe(0.1);
     });

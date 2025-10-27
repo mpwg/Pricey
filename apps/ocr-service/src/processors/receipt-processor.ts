@@ -1,5 +1,5 @@
 /**
- * Receipt processor - orchestrates OCR and parsing
+ * Receipt processor - processes receipts using vision LLM
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
  */
 
 import pino from 'pino';
-import { TesseractOCR } from '../ocr/tesseract.js';
 import {
   LlmReceiptParser,
   type LlmReceiptItem,
@@ -37,37 +36,23 @@ export interface ProcessedReceipt {
 }
 
 export class ReceiptProcessor {
-  private ocr: TesseractOCR;
   private llmParser: LlmReceiptParser;
 
   constructor() {
-    this.ocr = new TesseractOCR();
     this.llmParser = new LlmReceiptParser();
   }
 
   /**
-   * Process a receipt image using OCR + LLM parsing
+   * Process a receipt image using vision LLM
    * @param imageBuffer - Receipt image buffer
    * @returns Processed receipt data
    */
   async process(imageBuffer: Buffer): Promise<ProcessedReceipt> {
-    logger.info('Starting receipt processing with LLM parser');
+    logger.info('Starting receipt processing with vision LLM');
 
-    // Step 1: Run OCR to extract text
-    logger.info('Running OCR');
-    const { text: rawText, confidence: ocrConfidence } =
-      await this.ocr.processReceipt(imageBuffer);
-    logger.info(
-      {
-        confidence: (ocrConfidence * 100).toFixed(1) + '%',
-        textLength: rawText.length,
-      },
-      'OCR complete'
-    );
-
-    // Step 2: Parse with LLM
-    logger.info('Parsing receipt with LLM');
-    const llmData = await this.llmParser.parse(rawText);
+    // Parse directly with vision LLM (no OCR needed)
+    logger.info('Parsing receipt image with vision LLM');
+    const llmData = await this.llmParser.parse(imageBuffer);
     logger.info(
       {
         storeName: llmData.storeName,
@@ -76,10 +61,10 @@ export class ReceiptProcessor {
         total: llmData.total,
         llmConfidence: llmData.confidence,
       },
-      'LLM parsing complete'
+      'Vision LLM parsing complete'
     );
 
-    // Step 3: Convert date string to Date object
+    // Convert date string to Date object
     let date: Date | null = null;
     if (llmData.date) {
       try {
@@ -97,7 +82,7 @@ export class ReceiptProcessor {
       }
     }
 
-    // Step 4: Calculate total from items for verification
+    // Calculate total from items for verification
     const calculatedTotal = calculateTotal(llmData.items);
     logger.info(
       {
@@ -110,17 +95,14 @@ export class ReceiptProcessor {
       'Total comparison'
     );
 
-    // Combine OCR and LLM confidence
-    const combinedConfidence = (ocrConfidence + llmData.confidence) / 2;
-
     return {
       storeName: llmData.storeName,
       date,
       items: llmData.items,
       total: llmData.total,
       calculatedTotal,
-      rawText,
-      confidence: combinedConfidence,
+      rawText: '', // No OCR text with vision model
+      confidence: llmData.confidence,
     };
   }
 }
