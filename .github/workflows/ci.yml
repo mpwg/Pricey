@@ -276,6 +276,8 @@ jobs:
         run: pnpm --filter @pricey/database db:generate
 
       - name: Run tests with coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: pnpm test:coverage
 
       - name: Upload coverage reports
