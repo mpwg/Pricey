@@ -16,12 +16,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import pino from 'pino';
 import * as chrono from 'chrono-node';
 import { isFuture, subYears } from 'date-fns';
 import { TesseractOCR } from '../ocr/tesseract.js';
 import { detectStore } from '../parsers/store-detector.js';
 import { extractItems, type ReceiptItem } from '../parsers/item-parser.js';
 import { extractTotal, calculateTotal } from '../parsers/total-parser.js';
+
+const logger = pino({ name: 'receipt-processor' });
 
 export interface ProcessedReceipt {
   storeName: string | null;
@@ -46,24 +49,62 @@ export class ReceiptProcessor {
    * @returns Processed receipt data
    */
   async process(imageBuffer: Buffer): Promise<ProcessedReceipt> {
+    logger.info('Starting receipt processing');
+
     // Run OCR
+    logger.info('Running OCR');
     const { text: rawText, confidence } =
       await this.ocr.processReceipt(imageBuffer);
+    logger.info(
+      {
+        confidence: (confidence * 100).toFixed(1) + '%',
+        textLength: rawText.length,
+      },
+      'OCR complete'
+    );
 
     // Extract store name
+    logger.info('Detecting store');
     const storeName = detectStore(rawText);
+    logger.info({ storeName: storeName || 'none' }, 'Store detection complete');
 
     // Extract date using chrono-node natural language parser
+    logger.info('Extracting date');
     const date = this.extractDate(rawText);
+    logger.info(
+      { date: date?.toISOString() || 'none' },
+      'Date extraction complete'
+    );
 
     // Extract items
+    logger.info('Extracting items');
     const items = extractItems(rawText);
+    logger.info(
+      {
+        itemCount: items.length,
+        sampleItems: items.slice(0, 3).map((item) => ({
+          name: item.name,
+          price: item.price.toFixed(2),
+          quantity: item.quantity,
+        })),
+      },
+      'Item extraction complete'
+    );
 
     // Extract total
+    logger.info('Extracting total');
     const total = extractTotal(rawText);
+    logger.info(
+      { total: total?.toFixed(2) || 'none' },
+      'Total extraction complete'
+    );
 
     // Calculate total from items
     const calculatedTotal = calculateTotal(items);
+    logger.info(
+      { calculatedTotal: calculatedTotal.toFixed(2) },
+      'Calculated total from items'
+    );
 
     return {
       storeName,

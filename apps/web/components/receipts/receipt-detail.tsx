@@ -21,15 +21,16 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Clock, Store, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, Store, Calendar, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient, type ReceiptWithItems } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 import { StatusBadge } from './status-badge';
 import { ItemsTable } from './items-table';
 import { RawOcrText } from './raw-ocr-text';
-import { useReceiptPolling } from '@/hooks/use-receipt-polling';
+import { useReceiptSSE } from '@/hooks/use-receipt-sse';
 import { formatDate, formatCurrency } from '@/lib/format';
 
 interface ReceiptDetailProps {
@@ -41,8 +42,13 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use polling hook for auto-updates
-  const { status } = useReceiptPolling(id, receipt?.status);
+  // Use SSE for real-time updates
+  const {
+    status: sseStatus,
+    connected,
+    error: sseError,
+    data: sseData,
+  } = useReceiptSSE(id, receipt?.status);
 
   useEffect(() => {
     async function loadReceipt() {
@@ -50,6 +56,11 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
         setLoading(true);
         setError(null);
         const data = await apiClient.getReceipt(id);
+        console.log('[ReceiptDetail] Loaded receipt:', {
+          id: data.id,
+          status: data.status,
+          itemCount: data.items?.length,
+        });
         setReceipt(data);
       } catch (err) {
         const message =
@@ -64,24 +75,45 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     loadReceipt();
   }, [id]);
 
-  // Reload receipt when status changes
+  // Reload receipt when status changes from SSE
   useEffect(() => {
-    if (status && receipt && status !== receipt.status) {
+    if (sseStatus && receipt && sseStatus !== receipt.status) {
+      // Status changed, reload full receipt data
       apiClient
         .getReceipt(id)
-        .then(setReceipt)
+        .then((data) => {
+          setReceipt(data);
+          // Show success toast when processing completes
+          if (
+            sseStatus === ReceiptStatus.COMPLETED &&
+            receipt.status !== ReceiptStatus.COMPLETED
+          ) {
+            toast.success('Receipt processed successfully!');
+          } else if (sseStatus === ReceiptStatus.FAILED) {
+            toast.error('Receipt processing failed');
+          }
+        })
         .catch((err) => {
-          const message =
-            err instanceof Error ? err.message : 'Failed to reload receipt';
-          setError(message);
-          toast.error(message);
+          console.error('Failed to reload receipt:', err);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, id]);
+  }, [sseStatus, id]);
+
+  // Show SSE errors
+  useEffect(() => {
+    if (sseError) {
+      toast.error(`Connection error: ${sseError}`);
+    }
+  }, [sseError]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading receipt...</p>
+      </div>
+    );
   }
 
   if (error || !receipt) {
@@ -95,8 +127,31 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     );
   }
 
+  // Show processing state - use SSE status if available, otherwise use receipt status
+  const currentStatus = sseStatus || receipt.status;
+  const isProcessing =
+    currentStatus === ReceiptStatus.PROCESSING ||
+    currentStatus === ReceiptStatus.PENDING;
+
   return (
     <div className="space-y-6">
+      {/* Processing Banner */}
+      {isProcessing && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div>
+              <p className="font-medium text-primary">Processing receipt...</p>
+              <p className="text-sm text-muted-foreground">
+                {connected
+                  ? 'Extracting data from your receipt. This usually takes 10-30 seconds.'
+                  : 'Your receipt is being processed.'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" asChild>
@@ -105,7 +160,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
             Back to Receipts
           </Link>
         </Button>
-        <StatusBadge status={status || receipt.status} />
+        <StatusBadge status={currentStatus} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -120,6 +175,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
                 className="object-contain"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
+                unoptimized={process.env.NODE_ENV === 'development'}
               />
             </div>
           </CardContent>
@@ -190,16 +246,42 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
           </Card>
 
           {/* Items Table */}
-          {receipt.items && receipt.items.length > 0 && (
+          {receipt.items && receipt.items.length > 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>Items</CardTitle>
+                <CardTitle>
+                  Items ({sseData?.itemCount ?? receipt.items.length})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ItemsTable items={receipt.items} />
               </CardContent>
             </Card>
-          )}
+          ) : isProcessing ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Items</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center py-8 text-muted-foreground">
+                <div className="text-center space-y-2">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  <p>Extracting items from receipt...</p>
+                  {connected && (
+                    <p className="text-xs text-primary">● Connected</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : currentStatus === ReceiptStatus.COMPLETED ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Items</CardTitle>
+              </CardHeader>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                <p>No items were extracted from this receipt.</p>
+              </CardContent>
+            </Card>
+          ) : null}
 
           {/* Raw OCR Text */}
           {receipt.rawOcrText && <RawOcrText text={receipt.rawOcrText} />}

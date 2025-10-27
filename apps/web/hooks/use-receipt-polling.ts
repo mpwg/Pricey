@@ -18,8 +18,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { apiClient, type Receipt } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 
 interface UseReceiptPollingResult {
   status: Receipt['status'] | null;
@@ -45,30 +46,37 @@ export function useReceiptPolling(
   const [status, setStatus] = useState<Receipt['status'] | null>(
     initialStatus || null
   );
-  const [polling, setPolling] = useState(
-    initialStatus === 'PROCESSING' || initialStatus === 'PENDING'
-  );
+
+  // Determine if we should be polling based on current status
+  const shouldPoll = useMemo(() => {
+    const currentStatus = status || initialStatus;
+    return (
+      currentStatus === ReceiptStatus.PROCESSING ||
+      currentStatus === ReceiptStatus.PENDING
+    );
+  }, [status, initialStatus]);
 
   useEffect(() => {
-    if (!polling) return;
+    if (!shouldPoll) return;
 
-    const interval = setInterval(async () => {
+    const pollStatus = async () => {
       try {
         const data = await apiClient.getReceiptStatus(receiptId);
         setStatus(data.status);
-
-        // Stop polling if status is no longer processing
-        if (data.status !== 'PROCESSING' && data.status !== 'PENDING') {
-          setPolling(false);
-        }
       } catch (error) {
         console.error('Failed to fetch receipt status:', error);
         // Continue polling even if there's an error
       }
-    }, pollingIntervalMs);
+    };
+
+    // Poll immediately
+    pollStatus();
+
+    // Then poll on interval
+    const interval = setInterval(pollStatus, pollingIntervalMs);
 
     return () => clearInterval(interval);
-  }, [receiptId, polling, pollingIntervalMs]);
+  }, [receiptId, shouldPoll, pollingIntervalMs]);
 
-  return { status, polling };
+  return { status: status || initialStatus || null, polling: shouldPoll };
 }

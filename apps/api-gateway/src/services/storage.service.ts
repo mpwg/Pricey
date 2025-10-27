@@ -46,6 +46,22 @@ export class StorageService {
       if (!exists) {
         await this.client.makeBucket(this.bucket, 'us-east-1');
       }
+
+      // Set public read policy for development (allows anonymous downloads)
+      if (env.NODE_ENV === 'development') {
+        const policy = {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: { AWS: ['*'] },
+              Action: ['s3:GetObject'],
+              Resource: [`arn:aws:s3:::${this.bucket}/*`],
+            },
+          ],
+        };
+        await this.client.setBucketPolicy(this.bucket, JSON.stringify(policy));
+      }
     } catch (error) {
       console.error('Error ensuring bucket exists:', error);
     }

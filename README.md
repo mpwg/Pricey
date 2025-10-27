@@ -349,6 +349,7 @@ pnpm db:studio            # Open Prisma Studio (localhost:5555)
 pnpm docker:dev           # Start infrastructure (PostgreSQL, Redis, MinIO)
 pnpm docker:down          # Stop all containers
 pnpm docker:clean         # Remove volumes
+pnpm minio:setup          # Configure MinIO bucket policy (if needed)
 
 # Monorepo
 pnpm --filter @Pricey/api-gateway dev

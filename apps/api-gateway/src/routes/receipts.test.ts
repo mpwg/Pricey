@@ -18,6 +18,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { ReceiptStatus } from '@pricey/types';
 
 // Mock environment first before any imports
 vi.mock('../config/env.js', () => ({
@@ -46,6 +47,7 @@ vi.mock('@pricey/database', () => ({
       create: vi.fn(),
       update: vi.fn(),
       findUnique: vi.fn(),
+      findMany: vi.fn(),
     },
   },
 }));
@@ -114,7 +116,7 @@ describe('Receipt Routes Integration Tests', () => {
       vi.mocked(db.receipt.create).mockResolvedValue({
         id: mockReceiptId,
         imageUrl: mockImageUrl,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         createdAt: mockCreatedAt,
         updatedAt: mockCreatedAt,
         storeName: null,
@@ -129,7 +131,7 @@ describe('Receipt Routes Integration Tests', () => {
       vi.mocked(queueService.queueOCRJob).mockResolvedValue(undefined);
       vi.mocked(db.receipt.update).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PROCESSING',
+        status: ReceiptStatus.PROCESSING,
       } as never);
 
       // Create a mock file
@@ -155,7 +157,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         uploadedAt: mockCreatedAt.toISOString(),
         processingStartedAt: expect.any(String),
         imageUrl: mockImageUrl,
@@ -167,7 +169,7 @@ describe('Receipt Routes Integration Tests', () => {
       expect(db.receipt.create).toHaveBeenCalledWith({
         data: {
           imageUrl: mockImageUrl,
-          status: 'PROCESSING',
+          status: ReceiptStatus.PROCESSING,
         },
       });
       expect(queueService.queueOCRJob).toHaveBeenCalledWith(
@@ -262,7 +264,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         items: [],
         storeName: null,
         purchaseDate: null,
@@ -279,7 +281,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'pending',
+        status: ReceiptStatus.PENDING,
         progress: 0,
       });
     });
@@ -288,7 +290,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PROCESSING',
+        status: ReceiptStatus.PROCESSING,
         items: [],
         storeName: null,
         purchaseDate: null,
@@ -305,7 +307,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         progress: 50,
       });
     });
@@ -316,7 +318,7 @@ describe('Receipt Routes Integration Tests', () => {
 
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         storeName: 'Walmart',
         purchaseDate: mockPurchaseDate,
         totalAmount: createDecimalMock(45.67) as never,
@@ -348,7 +350,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'completed',
+        status: ReceiptStatus.COMPLETED,
         progress: 100,
         ocrResult: {
           storeName: 'Walmart',
@@ -384,7 +386,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'failed',
+        status: ReceiptStatus.FAILED,
         progress: 0,
       });
     });
@@ -437,7 +439,7 @@ describe('Receipt Routes Integration Tests', () => {
         storeName: 'Target',
         purchaseDate: mockPurchaseDate,
         totalAmount: createDecimalMock(89.99) as never,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         ocrProvider: 'tesseract',
         ocrConfidence: 0.92,
         rawOcrText: 'TARGET\nReceipt text...',
@@ -489,7 +491,7 @@ describe('Receipt Routes Integration Tests', () => {
         },
         purchaseDate: mockPurchaseDate.toISOString(),
         totalAmount: 89.99,
-        status: 'completed',
+        status: ReceiptStatus.COMPLETED,
         ocrProvider: 'tesseract',
         ocrConfidence: 0.92,
         rawOcrText: 'TARGET\nReceipt text...',
@@ -529,7 +531,7 @@ describe('Receipt Routes Integration Tests', () => {
         store: null,
         purchaseDate: null,
         totalAmount: null,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         ocrProvider: 'tesseract',
         ocrConfidence: null,
         rawOcrText: null,
@@ -591,7 +593,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         items: [],
         storeName: 'Unknown Store',
         purchaseDate: new Date(),
@@ -616,7 +618,7 @@ describe('Receipt Routes Integration Tests', () => {
       // Test with Decimal-like object
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         totalAmount: createDecimalMock(123.45) as never,
         items: [
           {
@@ -650,6 +652,151 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body.totalAmount).toBe(123.45);
       expect(body.items[0].price).toBe(123.45);
+    });
+  });
+
+  describe('GET /api/v1/receipts', () => {
+    it('should return an empty list when no receipts exist', async () => {
+      vi.mocked(db.receipt.findMany).mockResolvedValue([]);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({ receipts: [] });
+    });
+
+    it('should return a list of receipts', async () => {
+      const mockReceipts = [
+        {
+          id: 'receipt-1',
+          imageUrl: 'https://example.com/receipt1.jpg',
+          storeName: 'Store A',
+          storeId: 'store-1',
+          purchaseDate: new Date('2025-10-25T10:00:00Z'),
+          totalAmount: createDecimalMock(99.99),
+          status: ReceiptStatus.COMPLETED,
+          createdAt: new Date('2025-10-25T10:00:00Z'),
+          updatedAt: new Date('2025-10-25T10:05:00Z'),
+          items: [
+            {
+              id: 'item-1',
+              name: 'Item 1',
+              price: createDecimalMock(49.99),
+              quantity: 1,
+            },
+            {
+              id: 'item-2',
+              name: 'Item 2',
+              price: createDecimalMock(50.0),
+              quantity: 1,
+            },
+          ],
+          store: {
+            id: 'store-1',
+            name: 'Store A',
+            logoUrl: 'https://example.com/logo.jpg',
+          },
+        },
+        {
+          id: 'receipt-2',
+          imageUrl: 'https://example.com/receipt2.jpg',
+          storeName: 'Store B',
+          storeId: null,
+          purchaseDate: new Date('2025-10-24T15:00:00Z'),
+          totalAmount: createDecimalMock(149.5),
+          status: ReceiptStatus.PROCESSING,
+          createdAt: new Date('2025-10-24T15:00:00Z'),
+          updatedAt: new Date('2025-10-24T15:01:00Z'),
+          items: [],
+          store: null,
+        },
+      ];
+
+      vi.mocked(db.receipt.findMany).mockResolvedValue(mockReceipts as never);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+
+      expect(body.receipts).toHaveLength(2);
+      expect(body.receipts[0]).toEqual({
+        id: 'receipt-1',
+        imageUrl: 'https://example.com/receipt1.jpg',
+        storeName: 'Store A',
+        store: {
+          id: 'store-1',
+          name: 'Store A',
+          logoUrl: 'https://example.com/logo.jpg',
+        },
+        purchaseDate: '2025-10-25T10:00:00.000Z',
+        totalAmount: 99.99,
+        status: ReceiptStatus.COMPLETED,
+        itemCount: 2,
+        createdAt: '2025-10-25T10:00:00.000Z',
+        updatedAt: '2025-10-25T10:05:00.000Z',
+      });
+
+      expect(body.receipts[1]).toEqual({
+        id: 'receipt-2',
+        imageUrl: 'https://example.com/receipt2.jpg',
+        storeName: 'Store B',
+        store: null,
+        purchaseDate: '2025-10-24T15:00:00.000Z',
+        totalAmount: 149.5,
+        status: ReceiptStatus.PROCESSING,
+        itemCount: 0,
+        createdAt: '2025-10-24T15:00:00.000Z',
+        updatedAt: '2025-10-24T15:01:00.000Z',
+      });
+
+      expect(db.receipt.findMany).toHaveBeenCalledWith({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              quantity: true,
+            },
+          },
+          store: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+            },
+          },
+        },
+      });
+    });
+
+    it('should handle database errors gracefully', async () => {
+      vi.mocked(db.receipt.findMany).mockRejectedValue(
+        new Error('Database connection failed')
+      );
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(500);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        error: 'Failed to fetch receipts',
+        code: 'FETCH_ERROR',
+      });
     });
   });
 });

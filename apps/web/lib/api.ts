@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { ReceiptStatus } from '@pricey/types';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface Receipt {
@@ -24,7 +26,7 @@ export interface Receipt {
   storeName?: string;
   purchaseDate?: string;
   totalAmount?: number;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  status: ReceiptStatus;
   ocrConfidence?: number;
   processingTime?: number;
   rawOcrText?: string;
@@ -117,7 +119,10 @@ class ApiClient {
   }
 
   async getReceipts(): Promise<Receipt[]> {
-    return this.request<Receipt[]>('/api/v1/receipts');
+    const response = await this.request<{ receipts: Receipt[] }>(
+      '/api/v1/receipts'
+    );
+    return response.receipts;
   }
 
   async getReceipt(id: string): Promise<ReceiptWithItems> {

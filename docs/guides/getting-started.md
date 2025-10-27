@@ -207,6 +207,8 @@ Navigate to MinIO Console:
 - Username: minioadmin
 - Password: minioadmin
 
+**Note**: In development mode, the API Gateway automatically sets the `pricey-receipts` bucket to allow public read access (anonymous downloads). This enables the web app to display receipt images directly. In production, you should use signed URLs or a proper CDN instead.
+
 ## Development Workflow
 
 ### Running Specific Services

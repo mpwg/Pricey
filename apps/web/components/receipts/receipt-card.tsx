@@ -40,6 +40,7 @@ export function ReceiptCard({ receipt }: ReceiptCardProps) {
             fill
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            unoptimized={process.env.NODE_ENV === 'development'}
           />
           <div className="absolute right-2 top-2">
             <StatusBadge status={receipt.status} />
