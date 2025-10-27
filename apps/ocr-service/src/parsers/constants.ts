@@ -17,36 +17,12 @@
  */
 
 /**
- * Validation constraints for Austrian space-separated price format
- * Example: "2 229" represents 2.29 EUR
- * The space acts as a decimal separator
- */
-export const AUSTRIAN_FORMAT = {
-  /** Minimum number of digits after space (cents) */
-  MIN_CENTS_DIGITS: 2,
-  /** Maximum number of digits after space (cents) */
-  MAX_CENTS_DIGITS: 3,
-} as const;
-
-/**
  * Validation constraints for total amount parsing
  */
 export const TOTAL_VALIDATION = {
   /** Use exact 2 digits for cents in space-separated format */
   CENTS_DIGITS: 2,
 } as const;
-
-/**
- * Checks if a value represents valid cents digits for Austrian format in items
- * @param value - The cents portion (match[2] from regex)
- * @returns true if valid (2-3 digits)
- */
-export function isValidAustrianItemCents(value: string): boolean {
-  return (
-    value.length >= AUSTRIAN_FORMAT.MIN_CENTS_DIGITS &&
-    value.length <= AUSTRIAN_FORMAT.MAX_CENTS_DIGITS
-  );
-}
 
 /**
  * Checks if a value represents valid cents digits for Austrian format in totals

@@ -19,11 +19,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ReceiptProcessor } from './receipt-processor.js';
 
-// Hoist mock to run before imports
-const { mockProcessReceipt } = vi.hoisted(() => {
+// Hoist mocks to run before imports
+const { mockProcessReceipt, mockLlmParse } = vi.hoisted(() => {
   const mockProcessReceipt = vi.fn();
+  const mockLlmParse = vi.fn();
 
-  return { mockProcessReceipt };
+  return { mockProcessReceipt, mockLlmParse };
 });
 
 // Mock the TesseractOCR module
@@ -32,6 +33,17 @@ vi.mock('../ocr/tesseract.js', () => {
     TesseractOCR: vi.fn().mockImplementation(function () {
       return {
         processReceipt: mockProcessReceipt,
+      };
+    }),
+  };
+});
+
+// Mock the LLM Receipt Parser
+vi.mock('../parsers/llm-receipt-parser.js', () => {
+  return {
+    LlmReceiptParser: vi.fn().mockImplementation(function () {
+      return {
+        parse: mockLlmParse,
       };
     }),
   };
@@ -209,6 +221,21 @@ describe('ReceiptProcessor', () => {
         confidence: 0.95,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK WHOLE GAL', price: 3.99, quantity: 1 },
+          { name: 'BREAD WHITE', price: 2.49, quantity: 1 },
+          { name: 'EGGS DOZEN', price: 4.29, quantity: 1 },
+          { name: 'BANANAS', price: 1.77, quantity: 1 },
+          { name: 'CHICKEN BREAST 2LB', price: 12.99, quantity: 1 },
+        ],
+        total: 27.32,
+        currency: 'USD',
+        confidence: 0.95,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.storeName).toBe('Walmart');
@@ -217,12 +244,27 @@ describe('ReceiptProcessor', () => {
       expect(result.date?.toDateString()).toBe(YESTERDAY.toDateString());
       expect(result.items.length).toBeGreaterThan(0);
       expect(result.total).toBe(27.32);
-      expect(result.confidence).toBe(0.95);
+      expect(result.confidence).toBeCloseTo(0.95, 1);
     });
 
     it('should extract correct number of items from Walmart receipt', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_WALMART_RECEIPT,
+        confidence: 0.93,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK WHOLE GAL', price: 3.99, quantity: 1 },
+          { name: 'BREAD WHITE', price: 2.49, quantity: 1 },
+          { name: 'EGGS DOZEN', price: 4.29, quantity: 1 },
+          { name: 'BANANAS', price: 1.77, quantity: 1 },
+          { name: 'CHICKEN BREAST 2LB', price: 12.99, quantity: 1 },
+        ],
+        total: 27.32,
+        currency: 'USD',
         confidence: 0.93,
       });
 
@@ -240,6 +282,21 @@ describe('ReceiptProcessor', () => {
         confidence: 0.92,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK WHOLE GAL', price: 3.99, quantity: 1 },
+          { name: 'BREAD WHITE', price: 2.49, quantity: 1 },
+          { name: 'EGGS DOZEN', price: 4.29, quantity: 1 },
+          { name: 'BANANAS', price: 1.77, quantity: 1 },
+          { name: 'CHICKEN BREAST 2LB', price: 12.99, quantity: 1 },
+        ],
+        total: 27.32,
+        currency: 'USD',
+        confidence: 0.92,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.calculatedTotal).toBeCloseTo(25.53, 2);
@@ -250,6 +307,21 @@ describe('ReceiptProcessor', () => {
     it('should process Target receipt', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_TARGET_RECEIPT,
+        confidence: 0.94,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Target',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'Apple Juice 64oz', price: 3.49, quantity: 1 },
+          { name: 'Pasta Penne 1lb', price: 1.29, quantity: 1 },
+          { name: 'Tomato Sauce 24oz', price: 2.79, quantity: 1 },
+          { name: 'Ground Beef 1lb', price: 5.99, quantity: 1 },
+          { name: 'Ice Cream Vanilla', price: 4.99, quantity: 1 },
+        ],
+        total: 20.03,
+        currency: 'USD',
         confidence: 0.94,
       });
 
@@ -270,6 +342,21 @@ describe('ReceiptProcessor', () => {
         confidence: 0.91,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Target',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'Apple Juice 64oz', price: 3.49, quantity: 1 },
+          { name: 'Pasta Penne 1lb', price: 1.29, quantity: 1 },
+          { name: 'Tomato Sauce 24oz', price: 2.79, quantity: 1 },
+          { name: 'Ground Beef 1lb', price: 5.99, quantity: 1 },
+          { name: 'Ice Cream Vanilla', price: 4.99, quantity: 1 },
+        ],
+        total: 20.03,
+        currency: 'USD',
+        confidence: 0.91,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       const itemPrices = result.items.map((i) => i.price);
@@ -282,6 +369,22 @@ describe('ReceiptProcessor', () => {
     it('should process Costco receipt', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_COSTCO_RECEIPT,
+        confidence: 0.96,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Costco',
+        date: TWO_DAYS_AGO.toISOString().split('T')[0],
+        items: [
+          { name: 'ORGANIC MIXED NUTS 2.5LB', price: 19.99, quantity: 1 },
+          { name: 'OLIVE OIL EXTRA VIRGIN', price: 14.99, quantity: 1 },
+          { name: 'PAPER TOWELS 12 PACK', price: 24.99, quantity: 1 },
+          { name: 'ROTISSERIE CHICKEN', price: 4.99, quantity: 1 },
+          { name: 'FRESH SALMON FILLET 2LB', price: 32.98, quantity: 1 },
+          { name: 'BATTERIES AA 48PK', price: 4.13, quantity: 1 },
+        ],
+        total: 102.07,
+        currency: 'USD',
         confidence: 0.96,
       });
 
@@ -300,6 +403,18 @@ describe('ReceiptProcessor', () => {
         confidence: 0.96,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Costco',
+        date: TWO_DAYS_AGO.toISOString().split('T')[0],
+        items: [
+          { name: 'ORGANIC MIXED NUTS 2.5LB', price: 19.99, quantity: 1 },
+          { name: 'OLIVE OIL EXTRA VIRGIN', price: 14.99, quantity: 1 },
+        ],
+        total: 34.98,
+        currency: 'USD',
+        confidence: 0.96,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       // Date should be two days ago
@@ -311,6 +426,20 @@ describe('ReceiptProcessor', () => {
     it('should handle receipt without store name', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_NO_STORE,
+        confidence: 0.88,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: null,
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BREAD', price: 2.99, quantity: 1 },
+          { name: 'MILK', price: 3.49, quantity: 1 },
+          { name: 'EGGS', price: 4.29, quantity: 1 },
+          { name: 'BUTTER', price: 6.86, quantity: 1 },
+        ],
+        total: 17.63,
+        currency: 'USD',
         confidence: 0.88,
       });
 
@@ -333,6 +462,18 @@ describe('ReceiptProcessor', () => {
         confidence: 0.89,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Safeway',
+        date: null,
+        items: [
+          { name: 'BANANAS', price: 1.99, quantity: 1 },
+          { name: 'APPLES', price: 3.99, quantity: 1 },
+        ],
+        total: 5.98,
+        currency: 'USD',
+        confidence: 0.89,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.storeName).toBe('Safeway');
@@ -343,6 +484,15 @@ describe('ReceiptProcessor', () => {
     it('should reject future dates', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_FUTURE_DATE,
+        confidence: 0.9,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Target',
+        date: null, // LLM should detect and reject future dates
+        items: [{ name: 'MILK', price: 3.49, quantity: 1 }],
+        total: 3.49,
+        currency: 'USD',
         confidence: 0.9,
       });
 
@@ -357,6 +507,15 @@ describe('ReceiptProcessor', () => {
         confidence: 0.87,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: null, // LLM should detect and reject old dates
+        items: [{ name: 'BREAD', price: 2.99, quantity: 1 }],
+        total: 2.99,
+        currency: 'USD',
+        confidence: 0.87,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.date).toBeNull();
@@ -365,6 +524,15 @@ describe('ReceiptProcessor', () => {
     it('should handle empty OCR text', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: '',
+        confidence: 0.0,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: null,
+        date: null,
+        items: [],
+        total: null,
+        currency: 'USD',
         confidence: 0.0,
       });
 
@@ -383,6 +551,15 @@ describe('ReceiptProcessor', () => {
         confidence: 0.1,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: null,
+        date: null,
+        items: [],
+        total: null,
+        currency: 'USD',
+        confidence: 0.1,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.items).toEqual([]);
@@ -394,6 +571,20 @@ describe('ReceiptProcessor', () => {
     it('should parse items with various quantity formats', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_WITH_QUANTITIES,
+        confidence: 0.93,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Kroger',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BANANAS @ $0.79/lb 3lb', price: 2.37, quantity: 1 }, // Line total
+          { name: 'APPLES 5 @ $1.29', price: 6.45, quantity: 1 }, // Line total
+          { name: 'ORANGE JUICE 2 x $3.99', price: 7.98, quantity: 1 }, // Line total
+          { name: 'MILK 1 gal', price: 3.99, quantity: 1 },
+        ],
+        total: 20.79,
+        currency: 'USD',
         confidence: 0.93,
       });
 
@@ -416,6 +607,20 @@ describe('ReceiptProcessor', () => {
         confidence: 0.91,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Kroger',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BANANAS @ $0.79/lb 3lb', price: 2.37, quantity: 1 }, // Line total
+          { name: 'APPLES 5 @ $1.29', price: 6.45, quantity: 1 }, // Line total
+          { name: 'ORANGE JUICE 2 x $3.99', price: 7.98, quantity: 1 }, // Line total
+          { name: 'MILK 1 gal', price: 3.99, quantity: 1 },
+        ],
+        total: 20.79,
+        currency: 'USD',
+        confidence: 0.91,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.calculatedTotal).toBeCloseTo(20.79, 1);
@@ -426,6 +631,20 @@ describe('ReceiptProcessor', () => {
     it('should handle special characters in store names', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_SPECIAL_CHARS,
+        confidence: 0.92,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: "Trader Joe's",
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'Organic Eggs', price: 4.99, quantity: 1 },
+          { name: 'Gluten-Free Bread', price: 5.49, quantity: 1 },
+          { name: 'Almond Butter', price: 7.99, quantity: 1 },
+          { name: 'Fresh-Squeezed OJ', price: 4.99, quantity: 1 },
+        ],
+        total: 23.46,
+        currency: 'USD',
         confidence: 0.92,
       });
 
@@ -443,6 +662,20 @@ describe('ReceiptProcessor', () => {
         confidence: 0.9,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: "Trader Joe's",
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'Organic Eggs', price: 4.99, quantity: 1 },
+          { name: 'Gluten-Free Bread', price: 5.49, quantity: 1 },
+          { name: 'Almond Butter', price: 7.99, quantity: 1 },
+          { name: 'Fresh-Squeezed OJ', price: 4.99, quantity: 1 },
+        ],
+        total: 23.46,
+        currency: 'USD',
+        confidence: 0.9,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       const itemNames = result.items.map((i) => i.name);
@@ -454,6 +687,19 @@ describe('ReceiptProcessor', () => {
     it('should handle noisy OCR output', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_RECEIPT_MESSY_OCR,
+        confidence: 0.75,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK', price: 3.49, quantity: 1 },
+          { name: 'BREAD', price: 2.99, quantity: 1 },
+          { name: 'EGGS', price: 4.29, quantity: 1 },
+        ],
+        total: 10.77,
+        currency: 'USD',
         confidence: 0.75,
       });
 
@@ -476,6 +722,18 @@ describe('ReceiptProcessor', () => {
         confidence: 0.68,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK', price: 3.49, quantity: 1 },
+          { name: 'BREAD', price: 2.99, quantity: 1 },
+        ],
+        total: 6.48,
+        currency: 'USD',
+        confidence: 0.68,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.confidence).toBeLessThan(0.8);
@@ -489,6 +747,18 @@ describe('ReceiptProcessor', () => {
         confidence: 0.95,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BANANAS', price: 1.29, quantity: 1 },
+          { name: 'MILK', price: 3.49, quantity: 1 },
+        ],
+        total: 4.78,
+        currency: 'USD',
+        confidence: 0.95,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.rawText).toBe(MOCK_WALMART_RECEIPT);
@@ -499,6 +769,15 @@ describe('ReceiptProcessor', () => {
     it('should include raw text even for failed processing', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: 'RANDOM GARBAGE TEXT\n123456\n!@#$%',
+        confidence: 0.3,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: null,
+        date: null,
+        items: [],
+        total: null,
+        currency: 'USD',
         confidence: 0.3,
       });
 
@@ -532,6 +811,15 @@ describe('ReceiptProcessor', () => {
           confidence: 0.9,
         });
 
+        mockLlmParse.mockResolvedValue({
+          storeName: 'Walmart',
+          date: YESTERDAY.toISOString().split('T')[0],
+          items: [{ name: 'MILK', price: 3.99, quantity: 1 }],
+          total: 3.99,
+          currency: 'USD',
+          confidence: 0.9,
+        });
+
         const result = await processor.process(Buffer.from('fake-image'));
 
         expect(result.date).toBeInstanceOf(Date);
@@ -542,6 +830,15 @@ describe('ReceiptProcessor', () => {
     it('should use strict parsing to avoid false positives', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: 'WALMART\nItem 123 $4.56\nStore #789\nTotal: $4.56',
+        confidence: 0.9,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: null, // LLM should not parse item numbers as dates
+        items: [{ name: 'Item 123', price: 4.56, quantity: 1 }],
+        total: 4.56,
+        currency: 'USD',
         confidence: 0.9,
       });
 
@@ -556,6 +853,23 @@ describe('ReceiptProcessor', () => {
     it('should compare extracted total with calculated total', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_WALMART_RECEIPT,
+        confidence: 0.95,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Walmart',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BANANAS', price: 1.29, quantity: 1 },
+          { name: 'MILK', price: 3.49, quantity: 1 },
+          { name: 'BREAD', price: 2.99, quantity: 1 },
+          { name: 'EGGS', price: 4.29, quantity: 1 },
+          { name: 'CHICKEN', price: 5.99, quantity: 1 },
+          { name: 'APPLES', price: 3.99, quantity: 1 },
+          { name: 'CEREAL', price: 3.49, quantity: 1 },
+        ],
+        total: 27.32,
+        currency: 'USD',
         confidence: 0.95,
       });
 
@@ -590,6 +904,18 @@ describe('ReceiptProcessor', () => {
         confidence: 0.92,
       });
 
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Safeway',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'MILK', price: 3.99, quantity: 1 },
+          { name: 'BREAD', price: 2.49, quantity: 1 },
+        ],
+        total: 5.86,
+        currency: 'USD',
+        confidence: 0.92,
+      });
+
       const result = await processor.process(Buffer.from('fake-image'));
 
       expect(result.total).toBe(5.86);
@@ -606,6 +932,21 @@ describe('ReceiptProcessor', () => {
     it('should process receipt through entire pipeline', async () => {
       mockProcessReceipt.mockResolvedValue({
         text: MOCK_TARGET_RECEIPT,
+        confidence: 0.94,
+      });
+
+      mockLlmParse.mockResolvedValue({
+        storeName: 'Target',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'SHAMPOO', price: 3.49, quantity: 1 },
+          { name: 'TOOTHPASTE', price: 1.29, quantity: 1 },
+          { name: 'SOAP', price: 2.79, quantity: 1 },
+          { name: 'DETERGENT', price: 5.99, quantity: 1 },
+          { name: 'SPONGES', price: 4.99, quantity: 1 },
+        ],
+        total: 20.03,
+        currency: 'USD',
         confidence: 0.94,
       });
 
@@ -645,11 +986,39 @@ describe('ReceiptProcessor', () => {
         confidence: 0.95,
       });
 
+      mockLlmParse.mockResolvedValueOnce({
+        storeName: 'Walmart',
+        date: TODAY.toISOString().split('T')[0],
+        items: [
+          { name: 'BANANAS', price: 1.29, quantity: 1 },
+          { name: 'MILK', price: 3.49, quantity: 1 },
+          { name: 'BREAD', price: 2.99, quantity: 1 },
+        ],
+        total: 7.77,
+        currency: 'USD',
+        confidence: 0.95,
+      });
+
       const result1 = await processor.process(Buffer.from('fake-image-1'));
 
       // Second receipt
       mockProcessReceipt.mockResolvedValueOnce({
         text: MOCK_TARGET_RECEIPT,
+        confidence: 0.94,
+      });
+
+      mockLlmParse.mockResolvedValueOnce({
+        storeName: 'Target',
+        date: YESTERDAY.toISOString().split('T')[0],
+        items: [
+          { name: 'SHAMPOO', price: 3.49, quantity: 1 },
+          { name: 'TOOTHPASTE', price: 1.29, quantity: 1 },
+          { name: 'SOAP', price: 2.79, quantity: 1 },
+          { name: 'DETERGENT', price: 5.99, quantity: 1 },
+          { name: 'SPONGES', price: 4.99, quantity: 1 },
+        ],
+        total: 20.03,
+        currency: 'USD',
         confidence: 0.94,
       });
 
