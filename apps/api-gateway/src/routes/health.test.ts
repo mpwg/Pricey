@@ -150,14 +150,21 @@ describe('Health Routes', () => {
       const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
-      await app.inject({
+      const response = await app.inject({
         method: 'GET',
         url: '/health/db',
       });
 
-      // Log function is called - we can't easily test the exact arguments without complex mocking
-      // But we can verify the error response is correct
       expect(db.$queryRaw).toHaveBeenCalled();
+      expect(response.statusCode).toBe(503);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        success: false,
+        error: {
+          message: 'Database connection failed',
+          code: 'DATABASE_ERROR',
+        },
+      });
     });
 
     it('should handle database network errors', async () => {
