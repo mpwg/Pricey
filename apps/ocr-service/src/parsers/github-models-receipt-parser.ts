@@ -28,8 +28,8 @@ import {
 const logger = pino({ name: 'github-models-receipt-parser' });
 
 /**
- * GitHub Models-based receipt parser using GPT-4o vision
- * Uses your GitHub Copilot subscription to access GPT-4o
+ * GitHub Models-based receipt parser with vision capabilities
+ * Uses your GitHub Copilot subscription to access vision models
  */
 export class GitHubModelsReceiptParser implements IReceiptParser {
   private readonly apiUrl =
@@ -39,7 +39,7 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
   private readonly timeout: number;
 
   constructor() {
-    this.model = env.GITHUB_MODEL ?? 'gpt-4o';
+    this.model = env.GITHUB_MODEL ?? 'gpt-5-mini';
     this.token = env.GITHUB_TOKEN ?? '';
     this.timeout = env.LLM_TIMEOUT;
 
@@ -52,22 +52,24 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
     logger.info(
       {
         model: this.model,
-        timeout: this.timeout,
+        configuredTimeout: this.timeout,
+        actualApiTimeout: this.timeout * 2,
         hasToken: !!this.token,
+        tokenPrefix: this.token.substring(0, 7) + '...',
       },
       'Initialized GitHub Models receipt parser'
     );
   }
 
   /**
-   * Parse receipt image using GPT-4o vision
+   * Parse receipt image using vision model
    * @param imageBuffer - Receipt image buffer
    * @returns Structured receipt data
    */
   async parse(imageBuffer: Buffer): Promise<ReceiptData> {
     logger.info(
-      { imageSize: imageBuffer.length },
-      'Starting GitHub Models (GPT-4o) vision parsing'
+      { imageSize: imageBuffer.length, model: this.model },
+      'Starting GitHub Models vision parsing'
     );
 
     const base64Image = imageBuffer.toString('base64');
@@ -86,12 +88,29 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
           itemCount: response.items.length,
           storeName: response.storeName,
         },
-        'GitHub Models (GPT-4o) parsing complete'
+        'GitHub Models parsing complete'
       );
 
       return response;
     } catch (error) {
-      logger.error({ error }, 'GitHub Models parsing failed');
+      // Enhanced error logging
+      if (error instanceof Error) {
+        logger.error(
+          {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            isAbortError: error.name === 'AbortError',
+          },
+          'GitHub Models parsing failed'
+        );
+      } else {
+        logger.error(
+          { error: String(error) },
+          'GitHub Models parsing failed with unknown error'
+        );
+      }
+
       // Return empty result on failure
       return {
         storeName: null,
@@ -115,7 +134,15 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
     base64Image: string
   ): Promise<ReceiptData> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    // Use 2x the configured timeout for GitHub Models (remote API is slower)
+    const apiTimeout = this.timeout * 2;
+    const timeoutId = setTimeout(() => {
+      logger.warn(
+        { timeout: apiTimeout },
+        'GitHub Models API timeout - aborting request'
+      );
+      controller.abort();
+    }, apiTimeout);
 
     try {
       const requestBody = {
@@ -137,8 +164,7 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
             ],
           },
         ],
-        temperature: 0.1,
-        max_tokens: 2000,
+        max_completion_tokens: 2000,
         response_format: { type: 'json_object' },
       };
 
@@ -148,6 +174,7 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
           model: this.model,
           imageSize: base64Image.length,
           promptLength: prompt.length,
+          timeout: apiTimeout,
         },
         'Sending request to GitHub Models API'
       );
@@ -161,6 +188,12 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
         },
         body: JSON.stringify(requestBody),
         signal: controller.signal,
+      }).catch((fetchError) => {
+        // Capture fetch errors (network, abort, etc.)
+        if (fetchError.name === 'AbortError') {
+          throw new Error(`Request timed out after ${apiTimeout}ms`);
+        }
+        throw new Error(`Network error: ${fetchError.message}`);
       });
 
       clearTimeout(timeoutId);
@@ -168,7 +201,11 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
       if (!response.ok) {
         const errorText = await response.text();
         logger.error(
-          { status: response.status, errorText },
+          {
+            status: response.status,
+            statusText: response.statusText,
+            errorText,
+          },
           'GitHub Models API returned error'
         );
         throw new Error(
@@ -184,23 +221,66 @@ export class GitHubModelsReceiptParser implements IReceiptParser {
         }>;
       };
 
+      if (!data.choices || data.choices.length === 0) {
+        logger.error(
+          { response: data },
+          'GitHub Models API returned no choices'
+        );
+        throw new Error('No choices in GitHub Models API response');
+      }
+
       const content = data.choices[0]?.message?.content;
       if (!content) {
+        logger.error(
+          { choice: data.choices[0] },
+          'GitHub Models API returned empty content'
+        );
         throw new Error('No content in GitHub Models API response');
       }
 
       logger.info(
-        { responseLength: content.length },
+        { responseLength: content.length, model: this.model },
         'Received response from GitHub Models'
       );
-      logger.debug({ response: content }, 'Raw GPT-4o response');
+      logger.debug(
+        { response: content, model: this.model },
+        'Raw model response'
+      );
 
-      const parsedJson = JSON.parse(content);
+      let parsedJson;
+      try {
+        parsedJson = JSON.parse(content);
+      } catch (parseError) {
+        logger.error(
+          {
+            content,
+            parseError:
+              parseError instanceof Error
+                ? parseError.message
+                : String(parseError),
+          },
+          'Failed to parse JSON from GitHub Models response'
+        );
+        throw new Error('Invalid JSON in GitHub Models response');
+      }
 
       // Validate with Zod
-      const validated = receiptDataSchema.parse(parsedJson);
-
-      return validated;
+      try {
+        const validated = receiptDataSchema.parse(parsedJson);
+        return validated;
+      } catch (validationError) {
+        logger.error(
+          {
+            parsedJson,
+            validationError:
+              validationError instanceof Error
+                ? validationError.message
+                : String(validationError),
+          },
+          'Failed to validate GitHub Models response'
+        );
+        throw new Error('Invalid receipt data structure from GitHub Models');
+      }
     } finally {
       clearTimeout(timeoutId);
     }
