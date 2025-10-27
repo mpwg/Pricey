@@ -22,7 +22,7 @@
 
 [![Fastify](https://img.shields.io/badge/Fastify-5%2B-202020.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-6%2B-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Tesseract.js](https://img.shields.io/badge/Tesseract.js-6%2B-0066CC.svg)](https://tesseract.projectnaptha.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-LLM-000000.svg)](https://ollama.ai/)
 
 <!-- Infrastructure -->
 
@@ -49,8 +49,8 @@ Pricey is a Progressive Web Application (PWA) that digitizes your shopping recei
 **✅ Implemented Features:**
 
 - 📸 Receipt image upload via REST API
-- 🔍 OCR text extraction using Tesseract.js
-- 🤖 **LLM-based parsing** with Ollama (Llama 3.2 / Mistral)
+- 🔍 OCR text extraction using Ollama LLMs (Llama 3.2 Vision / LLaVA)
+- 🤖 **LLM-based parsing** with structured JSON output
 - 📊 Automatic extraction of store, date, items, and prices
 - 💾 PostgreSQL storage with Prisma ORM
 - 🔄 Asynchronous processing with BullMQ
@@ -88,7 +88,7 @@ graph TB
     subgraph "Background Processing"
         Queue[BullMQ Queue<br/>receipt-processing]
         Worker[OCR Worker<br/>5 concurrent jobs]
-        Tesseract[Tesseract.js<br/>OCR Engine]
+        LLM[Ollama LLM<br/>Vision Models]
         Sharp[Sharp<br/>Image Preprocessing]
     end
 
@@ -111,8 +111,8 @@ graph TB
     Queue -->|Dequeue| Worker
     Worker -->|Download| S3
     Worker -->|Preprocess| Sharp
-    Sharp -->|Optimized Image| Tesseract
-    Tesseract -->|Parsed Data| Worker
+    Sharp -->|Optimized Image| LLM
+    LLM -->|Structured JSON| Worker
     Worker -->|Update| DB
 
     Get -->|Query| DB
@@ -129,17 +129,17 @@ graph TB
 
 **Technology Stack (Currently Implemented):**
 
-| Layer        | Technology   | Version | Purpose               |
-| ------------ | ------------ | ------- | --------------------- |
-| **API**      | Fastify      | 5+      | REST endpoints        |
-| **OCR**      | Tesseract.js | 6+      | Text extraction       |
-| **Database** | PostgreSQL   | 18+     | Data persistence      |
-| **ORM**      | Prisma       | 6+      | Database access       |
-| **Queue**    | BullMQ       | 5+      | Job processing        |
-| **Cache**    | Redis        | 8+      | Queue backing         |
-| **Storage**  | MinIO        | 8+      | S3-compatible storage |
-| **Images**   | Sharp        | 0+      | Preprocessing         |
-| **Parsing**  | chrono-node  | 2+      | Date extraction       |
+| Layer        | Technology  | Version | Purpose                          |
+| ------------ | ----------- | ------- | -------------------------------- |
+| **API**      | Fastify     | 5+      | REST endpoints                   |
+| **OCR**      | Ollama      | Latest  | LLM vision-based text extraction |
+| **Database** | PostgreSQL  | 18+     | Data persistence                 |
+| **ORM**      | Prisma      | 6+      | Database access                  |
+| **Queue**    | BullMQ      | 5+      | Job processing                   |
+| **Cache**    | Redis       | 8+      | Queue backing                    |
+| **Storage**  | MinIO       | 8+      | S3-compatible storage            |
+| **Images**   | Sharp       | 0+      | Preprocessing                    |
+| **Parsing**  | chrono-node | 2+      | Date extraction                  |
 
 ---
 
@@ -207,7 +207,7 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant Q as BullMQ Queue
     participant W as OCR Worker
-    participant OCR as Tesseract.js
+    participant OCR as Ollama LLM
 
     C->>API: POST /api/v1/receipts<br/>(upload image)
     API->>API: Validate (type, size, dimensions)
@@ -224,10 +224,10 @@ sequenceDiagram
     W->>DB: Update status: PROCESSING
     W->>S3: Download image
     S3-->>W: Image buffer
-    W->>W: Preprocess (Sharp)<br/>grayscale, normalize, sharpen
-    W->>OCR: Extract text
-    OCR-->>W: Raw text + confidence
-    W->>W: Parse store, date, items, total
+    W->>W: Preprocess (Sharp)<br/>optimize for LLM vision
+    W->>OCR: Extract structured data
+    OCR-->>W: JSON {store, date, items, total}
+    W->>W: Validate and parse JSON
     W->>DB: Update receipt + create items
     W->>DB: Update status: COMPLETED
 
@@ -241,13 +241,13 @@ sequenceDiagram
 
 1. **Upload** - Image validated and stored in MinIO/S3
 2. **Queue** - Job enqueued in Redis with BullMQ
-3. **Preprocess** - Sharp enhances image quality (grayscale, sharpen, normalize)
-4. **OCR** - Tesseract.js extracts text with ~85% confidence
-5. **Parse** - Custom parsers extract:
-   - Store name (fuzzy matching against 20+ stores)
-   - Purchase date (chrono-node natural language parsing)
-   - Line items with prices (regex patterns)
-   - Total amount (validated against item sum)
+3. **Preprocess** - Sharp optimizes image for LLM vision processing
+4. **OCR** - Ollama LLM (Llama 3.2 Vision / LLaVA) extracts structured data
+5. **Parse** - JSON response validated and parsed:
+   - Store name identified from receipt header/logo
+   - Purchase date extracted in ISO format
+   - Line items with names, quantities, and prices
+   - Total amount extracted and validated against item sum
 6. **Store** - Results saved to PostgreSQL with status tracking
 
 **Average Processing Time**: 1.2-2.5 seconds per receipt

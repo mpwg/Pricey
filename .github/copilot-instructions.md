@@ -14,7 +14,7 @@
 - **Cache**: Redis 8
 - **Storage**: MinIO (local) / S3 (cloud)
 - **Monorepo**: Turborepo + pnpm 10.19+
-- **OCR**: Tesseract.js (MVP), Google Cloud Vision API (future)
+- **OCR**: Ollama with Llama 3.2 Vision / LLaVA models (MVP), Google Cloud Vision API (future)
 
 ## Architecture Overview
 
@@ -144,11 +144,12 @@ export const env = envSchema.parse(process.env);
 
 ## Database Schema Patterns
 
+````prisma
 ```prisma
 // Receipt processing flow (see packages/database/prisma/schema.prisma)
 model Receipt {
   status         ReceiptStatus @default(PROCESSING)
-  ocrProvider    String        @default("tesseract")
+  ocrProvider    String        @default("llm")
   ocrConfidence  Float?
   rawOcrText     String?       @db.Text
   processingTime Int?          // milliseconds
@@ -156,16 +157,18 @@ model Receipt {
   // Always use proper indexes for query optimization
   @@index([userId, status, purchaseDate])
 }
+````
 
 // Product normalization (Phase 2+)
 model Product {
-  name         String   // Normalized product name
-  category     String?  // Product category
-  barcode      String?  @unique
-  receiptItems ReceiptItem[]
-  prices       ProductPrice[]
+name String // Normalized product name
+category String? // Product category
+barcode String? @unique
+receiptItems ReceiptItem[]
+prices ProductPrice[]
 }
-```
+
+````
 
 **Migration workflow**: Edit `schema.prisma` → `pnpm db:migrate --name description` → Generates migration in `packages/database/prisma/migrations/`
 
@@ -190,7 +193,7 @@ Before writing any code that uses external libraries or frameworks:
 **Examples of when this applies:**
 
 - Setting up Fastify routes, plugins, and middleware
-- Configuring Tesseract.js for OCR processing
+- Configuring Ollama for LLM-based OCR processing
 - Implementing BullMQ job queues and workers
 - Using Sharp for image preprocessing
 - Working with MinIO/S3 clients
@@ -209,8 +212,8 @@ Before writing any code that uses external libraries or frameworks:
 ### Receipt Processing Pipeline
 
 1. **Upload** → Image stored in MinIO/S3
-2. **OCR** → Tesseract.js extracts text
-3. **Parse** → Extract store, date, items, prices
+2. **OCR** → Ollama LLM extracts structured data as JSON
+3. **Parse** → Validate and extract store, date, items, prices from JSON
 4. **Normalize** → Map items to generic products (Phase 2+)
 5. **Save** → Store in PostgreSQL with status tracking
 
@@ -233,7 +236,7 @@ pnpm add -Dw vitest
 
 # Workspace dependencies
 # Use "workspace:*" in package.json for internal packages
-```
+````
 
 ## Testing & Quality
 
@@ -255,10 +258,10 @@ pnpm add -Dw vitest
 - ❌ No frontend yet (API-only)
 - ❌ No manual OCR correction UI
 - ❌ No pagination on receipt lists
-- ❌ Single OCR provider (Tesseract.js only)
+- ❌ Single OCR provider (Ollama LLM only)
 - ✅ Focus on API stability and OCR accuracy
 
-**Exit Criteria**: 50 users, 70% OCR accuracy, <5% error rate
+**Exit Criteria**: 50 users, 85% OCR accuracy, <5% error rate
 
 ## Common Pitfalls
 
