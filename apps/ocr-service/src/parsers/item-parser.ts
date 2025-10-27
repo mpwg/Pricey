@@ -104,6 +104,10 @@ const SKIP_PATTERNS = [
   /uid.*nummer/i, // Tax ID
   /firmenbuch/i, // Company registry
   /^\d{2}[-./]\d{2}[-./]\d{2,4}/i, // Date lines
+  /\b(billa|spar|hofer|lidl|penny|interspar|merkur|m-preis|mpreis|unimarkt|nah\s*&\s*frisch|walmart|target|costco|kroger|safeway|trader\s*joe'?s?|whole\s*foods)\b/i, // Store names (Austrian & US for tests)
+  /^\d+\s+[a-z]+\s+(st|street|ave|avenue|rd|road|blvd|boulevard|dr|drive|ln|lane|way|court|ct|place|pl|straße|strasse|gasse|platz|weg)/i, // Street addresses (US & Austrian)
+  /^[a-z]+,?\s+[a-z]{2}\s+\d{5}/i, // City, State ZIP (US format)
+  /^\d{4}\s+[a-z]/i, // Austrian postal code format (e.g., "1010 Wien")
 ];
 
 /**
