@@ -52,7 +52,7 @@ export function useReceiptSSE(
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<UseReceiptSSEResult['data']>(null);
-  
+
   // Track if we've received a completion message
   const completedRef = useRef(false);
 
@@ -102,7 +102,9 @@ export function useReceiptSSE(
     // Only connect if status is PROCESSING or PENDING
     if (!shouldConnect) {
       // Receipt is already completed or failed, no need to connect
-      console.log('[useReceiptSSE] Skipping SSE connection - receipt not processing');
+      console.log(
+        '[useReceiptSSE] Skipping SSE connection - receipt not processing'
+      );
       return;
     }
 
@@ -119,7 +121,9 @@ export function useReceiptSSE(
         console.error('[useReceiptSSE] SSE connection error:', err);
         setError('Connection lost');
       } else {
-        console.log('[useReceiptSSE] SSE connection closed (receipt completed)');
+        console.log(
+          '[useReceiptSSE] SSE connection closed (receipt completed)'
+        );
       }
       setConnected(false);
       eventSource.close();

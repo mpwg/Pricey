@@ -60,10 +60,7 @@ export class StorageService {
             },
           ],
         };
-        await this.client.setBucketPolicy(
-          this.bucket,
-          JSON.stringify(policy),
-        );
+        await this.client.setBucketPolicy(this.bucket, JSON.stringify(policy));
       }
     } catch (error) {
       console.error('Error ensuring bucket exists:', error);
