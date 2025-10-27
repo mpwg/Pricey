@@ -12,13 +12,13 @@ ollama serve &
 OLLAMA_PID=$!
 
 echo "⏳ Waiting for Ollama server to be ready..."
-# Wait for Ollama to be ready (max 60 seconds)
-for i in {1..60}; do
-  if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+# Wait for Ollama to be ready (max 120 seconds)
+for i in {1..120}; do
+  if ollama list > /dev/null 2>&1; then
     echo "✅ Ollama server is ready!"
     break
   fi
-  if [ $i -eq 60 ]; then
+  if [ $i -eq 120 ]; then
     echo "❌ Timeout waiting for Ollama server"
     exit 1
   fi
