@@ -21,8 +21,12 @@ import { db } from '@pricey/database';
 import { storageService } from '../services/storage.service.js';
 import { queueService } from '../services/queue.service.js';
 import { validateImage, ValidationError } from '../utils/file-validation.js';
+import { sseRoutes } from './sse.js';
 
 export async function receiptsRoutes(app: FastifyInstance) {
+  // Register SSE routes
+  await app.register(sseRoutes);
+
   /**
    * List all receipts
    * GET /api/v1/receipts
@@ -60,7 +64,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
           store: receipt.store,
           purchaseDate: receipt.purchaseDate,
           totalAmount: receipt.totalAmount ? Number(receipt.totalAmount) : null,
-          status: receipt.status.toLowerCase(),
+          status: receipt.status,
           itemCount: receipt.items.length,
           createdAt: receipt.createdAt,
           updatedAt: receipt.updatedAt,
@@ -112,7 +116,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
       return reply.code(201).send({
         id: receipt.id,
-        status: 'processing',
+        status: 'PROCESSING',
         uploadedAt: receipt.createdAt,
         processingStartedAt: new Date(),
         imageUrl,
@@ -174,7 +178,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
         const response: Record<string, unknown> = {
           id: receipt.id,
-          status: receipt.status.toLowerCase(),
+          status: receipt.status,
           progress,
         };
 
@@ -250,7 +254,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
         store: receipt.store,
         purchaseDate: receipt.purchaseDate,
         totalAmount: receipt.totalAmount ? Number(receipt.totalAmount) : null,
-        status: receipt.status.toLowerCase(),
+        status: receipt.status,
         ocrProvider: receipt.ocrProvider,
         ocrConfidence: receipt.ocrConfidence,
         rawOcrText: receipt.rawOcrText,

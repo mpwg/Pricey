@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // In development, bypass image optimization for localhost
+    ...(process.env.NODE_ENV === 'development' && {
+      unoptimized: true,
+    }),
   },
 };
 

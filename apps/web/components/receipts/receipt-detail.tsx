@@ -29,7 +29,7 @@ import { apiClient, type ReceiptWithItems } from '@/lib/api';
 import { StatusBadge } from './status-badge';
 import { ItemsTable } from './items-table';
 import { RawOcrText } from './raw-ocr-text';
-import { useReceiptPolling } from '@/hooks/use-receipt-polling';
+import { useReceiptSSE } from '@/hooks/use-receipt-sse';
 import { formatDate, formatCurrency } from '@/lib/format';
 
 interface ReceiptDetailProps {
@@ -41,8 +41,13 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use polling hook for auto-updates
-  const { status, polling } = useReceiptPolling(id, receipt?.status);
+  // Use SSE for real-time updates
+  const {
+    status: sseStatus,
+    connected,
+    error: sseError,
+    data: sseData,
+  } = useReceiptSSE(id, receipt?.status);
 
   useEffect(() => {
     async function loadReceipt() {
@@ -50,6 +55,11 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
         setLoading(true);
         setError(null);
         const data = await apiClient.getReceipt(id);
+        console.log('[ReceiptDetail] Loaded receipt:', {
+          id: data.id,
+          status: data.status,
+          itemCount: data.items?.length,
+        });
         setReceipt(data);
       } catch (err) {
         const message =
@@ -64,18 +74,18 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     loadReceipt();
   }, [id]);
 
-  // Reload receipt when status changes from polling
+  // Reload receipt when status changes from SSE
   useEffect(() => {
-    if (status && receipt && status !== receipt.status) {
+    if (sseStatus && receipt && sseStatus !== receipt.status) {
       // Status changed, reload full receipt data
       apiClient
         .getReceipt(id)
         .then((data) => {
           setReceipt(data);
           // Show success toast when processing completes
-          if (status === 'COMPLETED' && receipt.status !== 'COMPLETED') {
+          if (sseStatus === 'COMPLETED' && receipt.status !== 'COMPLETED') {
             toast.success('Receipt processed successfully!');
-          } else if (status === 'FAILED') {
+          } else if (sseStatus === 'FAILED') {
             toast.error('Receipt processing failed');
           }
         })
@@ -84,7 +94,14 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, id]);
+  }, [sseStatus, id]);
+
+  // Show SSE errors
+  useEffect(() => {
+    if (sseError) {
+      toast.error(`Connection error: ${sseError}`);
+    }
+  }, [sseError]);
 
   if (loading) {
     return (
@@ -106,10 +123,10 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     );
   }
 
-  // Show processing state
+  // Show processing state - use SSE status if available, otherwise use receipt status
+  const currentStatus = sseStatus || receipt.status;
   const isProcessing =
-    (status || receipt.status) === 'PROCESSING' ||
-    (status || receipt.status) === 'PENDING';
+    currentStatus === 'PROCESSING' || currentStatus === 'PENDING';
 
   return (
     <div className="space-y-6">
@@ -121,7 +138,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
             <div>
               <p className="font-medium text-primary">Processing receipt...</p>
               <p className="text-sm text-muted-foreground">
-                {polling
+                {connected
                   ? 'Extracting data from your receipt. This usually takes 10-30 seconds.'
                   : 'Your receipt is being processed.'}
               </p>
@@ -138,7 +155,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
             Back to Receipts
           </Link>
         </Button>
-        <StatusBadge status={status || receipt.status} />
+        <StatusBadge status={currentStatus} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -226,7 +243,9 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
           {receipt.items && receipt.items.length > 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>Items ({receipt.items.length})</CardTitle>
+                <CardTitle>
+                  Items ({sseData?.itemCount ?? receipt.items.length})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ItemsTable items={receipt.items} />
@@ -241,10 +260,13 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
                 <div className="text-center space-y-2">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                   <p>Extracting items from receipt...</p>
+                  {connected && (
+                    <p className="text-xs text-primary">● Connected</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
-          ) : receipt.status === 'COMPLETED' ? (
+          ) : currentStatus === 'COMPLETED' ? (
             <Card>
               <CardHeader>
                 <CardTitle>Items</CardTitle>

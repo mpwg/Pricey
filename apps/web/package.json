@@ -4,7 +4,7 @@
   "private": true,
   "description": "Pricey web frontend (Next.js PWA)",
   "scripts": {
-    "dev": "next dev --port 3000 --turbopack",
+    "dev": "NODE_OPTIONS='--inspect' next dev --port 3000 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
