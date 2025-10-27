@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pricy uses PostgreSQL 18 with Prisma 6.x as the ORM. The schema supports receipt storage, product normalization, price tracking, and user management with proper indexing for performance.
+Pricey uses PostgreSQL 18 with Prisma 6.x as the ORM. The schema supports receipt storage, product normalization, price tracking, and user management with proper indexing for performance.
 
 ## Technology Stack
 
@@ -392,7 +392,7 @@ END $$;
 ```json
 // filepath: packages/database/package.json
 {
-  "name": "@pricy/database",
+  "name": "@pricey/database",
   "version": "1.0.0",
   "scripts": {
     "migrate": "prisma migrate dev",
@@ -433,10 +433,10 @@ async function main() {
   // Create admin user
   const adminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@pricy.app' },
+    where: { email: 'admin@pricey.app' },
     update: {},
     create: {
-      email: 'admin@pricy.app',
+      email: 'admin@pricey.app',
       passwordHash: adminPassword,
       name: 'Admin User',
       role: 'ADMIN',
@@ -448,10 +448,10 @@ async function main() {
   // Create demo user
   const demoPassword = await bcrypt.hash('demo123', 10);
   const demo = await prisma.user.upsert({
-    where: { email: 'demo@pricy.app' },
+    where: { email: 'demo@pricey.app' },
     update: {},
     create: {
-      email: 'demo@pricy.app',
+      email: 'demo@pricey.app',
       passwordHash: demoPassword,
       name: 'Demo User',
       role: 'USER',

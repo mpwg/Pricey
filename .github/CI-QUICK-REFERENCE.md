@@ -88,7 +88,7 @@ If a job fails but works locally:
 
 1. Check if dependencies are up to date: `pnpm outdated -r`
 2. Clear Turborepo cache locally: `pnpm clean`
-3. Regenerate Prisma client: `pnpm --filter @pricy/database db:generate`
+3. Regenerate Prisma client: `pnpm --filter @pricey/database db:generate`
 4. Re-run the failed CI job (sometimes transient failures occur)
 
 ## Architecture Overview

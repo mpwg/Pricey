@@ -1,5 +1,5 @@
 /**
- * Receipt detail page for Pricy web app
+ * Receipt detail page for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ interface ReceiptPageProps {
 export async function generateMetadata({ params }: ReceiptPageProps) {
   const { id } = await params;
   return {
-    title: `Receipt ${id} - Pricy`,
+    title: `Receipt ${id} - Pricey`,
     description: 'View receipt details',
   };
 }

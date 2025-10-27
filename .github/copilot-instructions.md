@@ -1,10 +1,10 @@
-# Copilot Instructions for Pricy
+# Copilot Instructions for Pricey
 
 > Smart receipt scanning and price comparison PWA - AGPL-3.0 Licensed
 
 ## Project Context
 
-**Pricy** is a microservices-based PWA that scans receipts, extracts product data via OCR, and enables price tracking across stores. Currently in **Phase 0 (MVP)** targeting November 2025 launch with 50 early adopters.
+**Pricey** is a microservices-based PWA that scans receipts, extracts product data via OCR, and enables price tracking across stores. Currently in **Phase 0 (MVP)** targeting November 2025 launch with 50 early adopters.
 
 ### Tech Stack
 
@@ -48,7 +48,7 @@ pnpm docker:dev
 pnpm dev
 
 # Run specific workspace
-pnpm --filter @pricy/api-gateway dev
+pnpm --filter @pricey/api-gateway dev
 
 # Database operations
 pnpm db:migrate          # Run migrations
@@ -113,7 +113,7 @@ export const env = envSchema.parse(process.env);
 - **TypeScript Config**: Extends `tsconfig.base.json` (CommonJS, ES2022, strict mode)
 - **ESLint**: Flat config format (`eslint.config.js`) with typescript-eslint + prettier
 - **Naming**:
-  - Packages: `@pricy/api-gateway`, `@pricy/database`
+  - Packages: `@pricey/api-gateway`, `@pricey/database`
   - Directories: kebab-case (`receipt-processing/`)
   - Files: camelCase (`receiptProcessor.ts`), PascalCase for React (`ReceiptUpload.tsx`)
   - Unused variables: Prefix with `_` to avoid lint errors
@@ -219,14 +219,14 @@ Before writing any code that uses external libraries or frameworks:
 1. Create route in `apps/api-gateway/src/routes/`
 2. Register in `apps/api-gateway/src/routes/index.ts`
 3. Add validation schema with Zod
-4. Use Prisma client from `@pricy/database`
+4. Use Prisma client from `@pricey/database`
 5. Return consistent error responses via error-handler plugin
 
 ### Adding Dependencies
 
 ```bash
 # To workspace package
-pnpm --filter @pricy/api-gateway add fastify-plugin
+pnpm --filter @pricey/api-gateway add fastify-plugin
 
 # To root (dev tools)
 pnpm add -Dw vitest
@@ -263,7 +263,7 @@ pnpm add -Dw vitest
 ## Common Pitfalls
 
 1. **Environment Variables**: Always validate with Zod in `config/env.ts` - don't access `process.env` directly
-2. **Prisma Client**: Import from `@pricy/database`, not `@prisma/client` directly
+2. **Prisma Client**: Import from `@pricey/database`, not `@prisma/client` directly
 3. **Port Conflicts**: API Gateway uses 3001 (not 3000) to avoid Next.js conflicts
 4. **Turborepo Cache**: Run `pnpm clean` if builds seem stale
 5. **Database Changes**: Always create migrations, never edit existing migration files

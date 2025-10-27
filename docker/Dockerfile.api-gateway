@@ -1,4 +1,4 @@
-# Pricy - API Gateway
+# Pricey - API Gateway
 # Copyright (C) 2025 Matthias Wallner-Géhri
 # Licensed under AGPL-3.0
 
@@ -11,14 +11,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 COPY packages/database/package.json ./packages/database/
 COPY packages/types/package.json ./packages/types/
-RUN pnpm install --frozen-lockfile --filter @pricy/api-gateway...
+RUN pnpm install --frozen-lockfile --filter @pricey/api-gateway...
 
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm --filter @pricy/database db:generate
-RUN pnpm --filter @pricy/api-gateway build
+RUN pnpm --filter @pricey/database db:generate
+RUN pnpm --filter @pricey/api-gateway build
 
 FROM base AS runner
 WORKDIR /app
@@ -41,7 +41,7 @@ USER fastify
 EXPOSE 3001
 
 LABEL org.opencontainers.image.source="https://github.com/mpwg/Pricey"
-LABEL org.opencontainers.image.description="Pricy API Gateway - AGPL-3.0 Licensed"
+LABEL org.opencontainers.image.description="Pricey API Gateway - AGPL-3.0 Licensed"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
 CMD ["node", "apps/api-gateway/dist/index.js"]

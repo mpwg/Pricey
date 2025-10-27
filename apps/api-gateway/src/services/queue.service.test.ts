@@ -141,7 +141,7 @@ describe('QueueService', () => {
 
     it('should handle long URLs', async () => {
       const longUrl =
-        'http://localhost:9000/pricy-receipts/receipts/2024-01-15/550e8400-e29b-41d4-a716-446655440000.jpg';
+        'http://localhost:9000/pricey-receipts/receipts/2024-01-15/550e8400-e29b-41d4-a716-446655440000.jpg';
 
       await queueService.queueOCRJob('receipt-123', longUrl);
 

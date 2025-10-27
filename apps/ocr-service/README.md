@@ -31,7 +31,7 @@ OCR Service
 
 ```env
 NODE_ENV=development
-DATABASE_URL=postgresql://pricy:pricy@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey@localhost:5432/pricey
 REDIS_URL=redis://localhost:6379
 LOG_LEVEL=info
 
@@ -41,7 +41,7 @@ S3_PORT=9000
 S3_USE_SSL=false
 S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=minioadmin
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 
 # OCR Configuration
 OCR_CONCURRENCY=5

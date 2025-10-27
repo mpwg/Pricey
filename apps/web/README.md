@@ -1,4 +1,4 @@
-# Pricy Web App
+# Pricey Web App
 
 Smart receipt scanning and price comparison PWA built with Next.js 16.
 
@@ -36,7 +36,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 pnpm install
 
 # Start dev server
-pnpm --filter @pricy/web dev
+pnpm --filter @pricey/web dev
 
 # Or from this directory
 pnpm dev
@@ -144,13 +144,13 @@ Dark mode is supported via Tailwind's `dark:` variant. Theme switching will be a
 2. **Start API Gateway**:
 
    ```bash
-   pnpm --filter @pricy/api-gateway dev
+   pnpm --filter @pricey/api-gateway dev
    ```
 
 3. **Start web app**:
 
    ```bash
-   pnpm --filter @pricy/web dev
+   pnpm --filter @pricey/web dev
    ```
 
 4. **Make changes** and test locally

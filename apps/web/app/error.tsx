@@ -1,5 +1,5 @@
 /**
- * Error boundary page for Pricy web app
+ * Error boundary page for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

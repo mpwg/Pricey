@@ -1,6 +1,6 @@
 # Monitoring & Observability Guide
 
-> **Comprehensive monitoring strategy for Pricy application**  
+> **Comprehensive monitoring strategy for Pricey application**  
 > Last Updated: October 24, 2025
 
 ## Table of Contents
@@ -21,7 +21,7 @@
 
 ### The Three Pillars
 
-Pricy implements comprehensive observability using the **three pillars**:
+Pricey implements comprehensive observability using the **three pillars**:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -102,7 +102,7 @@ export default logger;
 
 ```typescript
 // filepath: apps/api/src/middleware/logger.middleware.ts
-import logger from '@pricy/logger';
+import logger from '@pricey/logger';
 import { randomUUID } from 'crypto';
 
 export function requestLogger(
@@ -325,7 +325,7 @@ import {
   httpRequestDuration,
   httpRequestTotal,
   activeConnections,
-} from '@pricy/metrics';
+} from '@pricey/metrics';
 
 export function metricsMiddleware(
   req: FastifyRequest,
@@ -407,7 +407,7 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 const sdk = new NodeSDK({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]:
-      process.env.SERVICE_NAME || 'pricy',
+      process.env.SERVICE_NAME || 'pricey',
     [SemanticResourceAttributes.SERVICE_VERSION]:
       process.env.APP_VERSION || '1.0.0',
   }),
@@ -493,7 +493,7 @@ import { ProfilingIntegration } from '@sentry/profiling-node';
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
-  release: `pricy@${process.env.APP_VERSION}`,
+  release: `pricey@${process.env.APP_VERSION}`,
 
   // Performance monitoring
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
@@ -617,7 +617,7 @@ export function performanceMonitoring(
 ```typescript
 // filepath: packages/database/src/monitoring.ts
 import { PrismaClient } from '@prisma/client';
-import { databaseQueryDuration } from '@pricy/metrics';
+import { databaseQueryDuration } from '@pricey/metrics';
 
 const prisma = new PrismaClient();
 
@@ -786,7 +786,7 @@ receivers:
 ```json
 {
   "dashboard": {
-    "title": "Pricy API Overview",
+    "title": "Pricey API Overview",
     "panels": [
       {
         "title": "Request Rate",
@@ -906,5 +906,5 @@ receivers:
 ---
 
 **Last Updated**: October 24, 2025  
-**Maintained by**: Pricy DevOps Team  
+**Maintained by**: Pricey DevOps Team  
 **Review Schedule**: Quarterly

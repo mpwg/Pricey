@@ -1,4 +1,4 @@
-# Pricy - Current System Architecture (M0.2)
+# Pricey - Current System Architecture (M0.2)
 
 **Status**: Phase 0 - MVP  
 **Last Updated**: October 26, 2025  
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Pricy is currently in Phase 0 (MVP) with M0.2 complete. The system implements receipt upload, OCR processing, and data extraction capabilities. This document reflects **only the currently implemented components**.
+Pricey is currently in Phase 0 (MVP) with M0.2 complete. The system implements receipt upload, OCR processing, and data extraction capabilities. This document reflects **only the currently implemented components**.
 
 ## System Overview
 
@@ -390,7 +390,7 @@ S3_ENDPOINT: localhost (dev) / s3.amazonaws.com (prod)
 S3_PORT: 9000
 S3_ACCESS_KEY: minioadmin (dev)
 S3_SECRET_KEY: minioadmin (dev)
-S3_BUCKET: pricy-receipts
+S3_BUCKET: pricey-receipts
 S3_USE_SSL: false (dev) / true (prod)
 S3_REGION: us-east-1 (default)
 ```
@@ -398,7 +398,7 @@ S3_REGION: us-east-1 (default)
 **Storage Structure**:
 
 ```
-pricy-receipts/
+pricey-receipts/
 ├── receipts/
 │   ├── 2025-01-15/
 │   │   ├── 550e8400-e29b-41d4-a716-446655440000.jpg
@@ -573,18 +573,18 @@ version: '3.9'
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: pricy-postgres
+    container_name: pricey-postgres
     ports: ['5432:5432']
     environment:
-      POSTGRES_DB: pricy
-      POSTGRES_USER: pricy
-      POSTGRES_PASSWORD: pricy_dev_password
+      POSTGRES_DB: pricey
+      POSTGRES_USER: pricey
+      POSTGRES_PASSWORD: pricey_dev_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:8-alpine
-    container_name: pricy-redis
+    container_name: pricey-redis
     ports: ['6379:6379']
     command: redis-server --appendonly yes
     volumes:
@@ -592,7 +592,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: pricy-minio
+    container_name: pricey-minio
     ports:
       - '9000:9000' # S3 API
       - '9001:9001' # Console UI
@@ -636,8 +636,8 @@ pnpm db:seed     # Seed stores data
 # 3. Applications
 pnpm dev         # Start all services (Turborepo)
 # OR individually:
-pnpm --filter @pricy/api-gateway dev
-pnpm --filter @pricy/ocr-service dev
+pnpm --filter @pricey/api-gateway dev
+pnpm --filter @pricey/ocr-service dev
 ```
 
 ## Security
@@ -828,7 +828,7 @@ Response: 201 Created
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "pending",
-  "imageUrl": "http://localhost:9000/pricy-receipts/receipts/2025-01-15/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "imageUrl": "http://localhost:9000/pricey-receipts/receipts/2025-01-15/550e8400-e29b-41d4-a716-446655440000.jpg",
   "createdAt": "2025-01-15T10:30:00.000Z"
 }
 ```
@@ -842,7 +842,7 @@ Response: 200 OK
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "status": "completed",
-  "imageUrl": "http://localhost:9000/pricy-receipts/receipts/2025-01-15/550e8400.jpg",
+  "imageUrl": "http://localhost:9000/pricey-receipts/receipts/2025-01-15/550e8400.jpg",
   "storeName": "Billa",
   "purchaseDate": "2025-01-14T00:00:00.000Z",
   "totalAmount": "45.67",
@@ -921,9 +921,9 @@ Response: 400 Bad Request
 
 ```bash
 # Current test results (as of M0.2)
-@pricy/api-gateway:     132 tests, 100% passing
-@pricy/ocr-service:     232 tests, 100% passing
-@pricy/database:         12 tests, 100% passing
+@pricey/api-gateway:     132 tests, 100% passing
+@pricey/ocr-service:     232 tests, 100% passing
+@pricey/database:         12 tests, 100% passing
 -------------------------------------------
 Total:                  376 tests, 100% passing
 ```
@@ -953,8 +953,8 @@ Total:                  376 tests, 100% passing
 pnpm test
 
 # Specific workspace
-pnpm --filter @pricy/api-gateway test
-pnpm --filter @pricy/ocr-service test
+pnpm --filter @pricey/api-gateway test
+pnpm --filter @pricey/ocr-service test
 
 # With coverage report
 pnpm test:coverage
@@ -963,7 +963,7 @@ pnpm test:coverage
 pnpm test:watch
 
 # Load testing (requires running services)
-pnpm --filter @pricy/api-gateway test:load
+pnpm --filter @pricey/api-gateway test:load
 ```
 
 ### Test Configuration
@@ -985,13 +985,13 @@ Parallel: true
 # API Gateway (.env.local)
 NODE_ENV=development
 PORT=3001
-DATABASE_URL=postgresql://pricy:pricy_dev_password@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey_dev_password@localhost:5432/pricey
 REDIS_URL=redis://localhost:6379
 S3_ENDPOINT=localhost
 S3_PORT=9000
 S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=minioadmin
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_USE_SSL=false
 S3_REGION=us-east-1
 CORS_ORIGIN=*
@@ -1001,13 +1001,13 @@ LOG_LEVEL=info
 
 # OCR Service (.env.local)
 NODE_ENV=development
-DATABASE_URL=postgresql://pricy:pricy_dev_password@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey_dev_password@localhost:5432/pricey
 REDIS_URL=redis://localhost:6379
 S3_ENDPOINT=localhost
 S3_PORT=9000
 S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=minioadmin
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_USE_SSL=false
 S3_REGION=us-east-1
 OCR_CONCURRENCY=5
@@ -1097,7 +1097,7 @@ The following features are planned but not part of the current M0.2 implementati
 
 ### Source Code
 
-- **Monorepo**: [GitHub Repository](https://github.com/yourusername/pricy)
+- **Monorepo**: [GitHub Repository](https://github.com/yourusername/pricey)
 - **API Gateway**: `apps/api-gateway/`
 - **OCR Service**: `apps/ocr-service/`
 - **Database Package**: `packages/database/`

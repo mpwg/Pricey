@@ -16,8 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Worker, type Job } from 'bullmq';
-import { db } from '@pricy/database';
+import { Worker, Job } from 'bullmq';
+import { db } from '@pricey/database';
 import { env } from '../config/env.js';
 import { storageService } from '../services/storage.service.js';
 import { ReceiptProcessor } from '../processors/receipt-processor.js';

@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document summarizes the improvements made to Pricy's documentation to align with current industry best practices for 2025. All recommendations are based on research into modern web development, authentication security, testing strategies, and API design standards.
+This document summarizes the improvements made to Pricey's documentation to align with current industry best practices for 2025. All recommendations are based on research into modern web development, authentication security, testing strategies, and API design standards.
 
 ---
 
@@ -246,7 +246,7 @@ Retry-After: 127                 // Seconds to wait (429 only)
 
 ```mermaid
 gantt
-    title Pricy Development Roadmap
+    title Pricey Development Roadmap
     section Phase 0: MVP
     MVP Launch                 :milestone, 2025-11-25
     section Phase 1: Beta
@@ -493,7 +493,7 @@ gantt
 
 ## Conclusion
 
-Pricy's documentation is now comprehensively aligned with 2025 industry best practices. The improvements focus on:
+Pricey's documentation is now comprehensively aligned with 2025 industry best practices. The improvements focus on:
 
 1. **Security**: PKCE, token lifespans, rate limiting
 2. **Performance**: React Server Components, optimization

@@ -17,7 +17,7 @@
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { db } from '@pricy/database';
+import { db } from '@pricey/database';
 import { storageService } from '../services/storage.service.js';
 import { queueService } from '../services/queue.service.js';
 import { validateImage, ValidationError } from '../utils/file-validation.js';

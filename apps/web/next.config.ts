@@ -1,5 +1,5 @@
 /**
- * Next.js configuration for Pricy web app
+ * Next.js configuration for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

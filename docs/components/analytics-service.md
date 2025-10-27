@@ -61,7 +61,7 @@ services/analytics/
 
 ```typescript
 // filepath: services/analytics/src/services/price-comparison/comparator.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { Redis } from 'ioredis';
 import { logger } from '../../utils/logger';
 
@@ -216,7 +216,7 @@ export class PriceComparator {
 
 ```typescript
 // filepath: services/analytics/src/services/recommendations/single-store-optimizer.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 interface ShoppingItem {
   productId: string;
@@ -476,7 +476,7 @@ export class MultiStoreOptimizer {
 
 ```typescript
 // filepath: services/analytics/src/services/price-comparison/trend-analyzer.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 interface PriceTrend {
   productId: string;

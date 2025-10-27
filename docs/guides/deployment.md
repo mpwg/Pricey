@@ -1,6 +1,6 @@
 # Deployment Guide
 
-> **Complete guide to deploying Pricy in various environments**
+> **Complete guide to deploying Pricey in various environments**
 
 ## Table of Contents
 
@@ -49,8 +49,8 @@
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/yourorg/pricy.git
-cd pricy
+git clone https://github.com/yourorg/pricey.git
+cd pricey
 ```
 
 ### Step 2: Configure Environment
@@ -66,7 +66,7 @@ Edit `.env.production`:
 NODE_ENV=production
 
 # Database
-DATABASE_URL="postgresql://pricy:SECURE_PASSWORD@postgres:5432/pricy"
+DATABASE_URL="postgresql://pricey:SECURE_PASSWORD@postgres:5432/pricey"
 
 # Redis
 REDIS_URL="redis://redis:6379"
@@ -75,7 +75,7 @@ REDIS_URL="redis://redis:6379"
 S3_ENDPOINT="http://minio:9000"
 S3_ACCESS_KEY_ID="your-access-key"
 S3_SECRET_ACCESS_KEY="your-secret-key"
-S3_BUCKET="pricy-receipts"
+S3_BUCKET="pricey-receipts"
 
 # OCR (use Tesseract for self-hosted)
 OCR_PROVIDER="tesseract"
@@ -109,7 +109,7 @@ docker-compose -f infrastructure/docker/docker-compose.prod.yml exec api pnpm db
 
 ### Step 6: Set Up Reverse Proxy (Nginx)
 
-Create `/etc/nginx/sites-available/pricy`:
+Create `/etc/nginx/sites-available/pricey`:
 
 ```nginx
 # API Gateway
@@ -133,7 +133,7 @@ server {
 # Frontend
 server {
     listen 80;
-    server_name pricy.yourdomain.com;
+    server_name pricey.yourdomain.com;
 
     location / {
         proxy_pass http://localhost:3001;
@@ -149,7 +149,7 @@ server {
 Enable and restart Nginx:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/pricy /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/pricey /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
@@ -158,7 +158,7 @@ sudo systemctl restart nginx
 
 ```bash
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d pricy.yourdomain.com -d api.yourdomain.com
+sudo certbot --nginx -d pricey.yourdomain.com -d api.yourdomain.com
 ```
 
 ## Cloud Deployment (AWS)
@@ -207,11 +207,11 @@ sudo certbot --nginx -d pricy.yourdomain.com -d api.yourdomain.com
 
 ```bash
 aws rds create-db-instance \
-  --db-instance-identifier pricy-db \
+  --db-instance-identifier pricey-db \
   --db-instance-class db.t3.micro \
   --engine postgres \
   --engine-version 16.1 \
-  --master-username pricy \
+  --master-username pricey \
   --master-user-password YOUR_PASSWORD \
   --allocated-storage 20 \
   --vpc-security-group-ids sg-xxxxx
@@ -221,7 +221,7 @@ aws rds create-db-instance \
 
 ```bash
 aws elasticache create-cache-cluster \
-  --cache-cluster-id pricy-cache \
+  --cache-cluster-id pricey-cache \
   --cache-node-type cache.t3.micro \
   --engine redis \
   --num-cache-nodes 1
@@ -230,19 +230,19 @@ aws elasticache create-cache-cluster \
 #### 3. Create S3 Bucket
 
 ```bash
-aws s3 mb s3://pricy-receipts
+aws s3 mb s3://pricey-receipts
 aws s3api put-bucket-versioning \
-  --bucket pricy-receipts \
+  --bucket pricey-receipts \
   --versioning-configuration Status=Enabled
 ```
 
 #### 4. Create ECR Repositories
 
 ```bash
-aws ecr create-repository --repository-name pricy/api
-aws ecr create-repository --repository-name pricy/ocr
-aws ecr create-repository --repository-name pricy/product
-aws ecr create-repository --repository-name pricy/analytics
+aws ecr create-repository --repository-name pricey/api
+aws ecr create-repository --repository-name pricey/ocr
+aws ecr create-repository --repository-name pricey/product
+aws ecr create-repository --repository-name pricey/analytics
 ```
 
 #### 5. Build and Push Images
@@ -252,9 +252,9 @@ aws ecr create-repository --repository-name pricy/analytics
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
 # Build and push
-docker build -t pricy/api -f apps/api/Dockerfile .
-docker tag pricy/api:latest ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricy/api:latest
-docker push ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricy/api:latest
+docker build -t pricey/api -f apps/api/Dockerfile .
+docker tag pricey/api:latest ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricey/api:latest
+docker push ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricey/api:latest
 
 # Repeat for other services...
 ```
@@ -262,7 +262,7 @@ docker push ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricy/api:latest
 #### 6. Create ECS Cluster
 
 ```bash
-aws ecs create-cluster --cluster-name pricy-cluster
+aws ecs create-cluster --cluster-name pricey-cluster
 ```
 
 #### 7. Create Task Definitions and Services
@@ -271,7 +271,7 @@ Create `task-definition.json`:
 
 ```json
 {
-  "family": "pricy-api",
+  "family": "pricey-api",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
@@ -279,7 +279,7 @@ Create `task-definition.json`:
   "containerDefinitions": [
     {
       "name": "api",
-      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricy/api:latest",
+      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/pricey/api:latest",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -299,7 +299,7 @@ Create `task-definition.json`:
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/pricy-api",
+          "awslogs-group": "/ecs/pricey-api",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -319,9 +319,9 @@ Create service:
 
 ```bash
 aws ecs create-service \
-  --cluster pricy-cluster \
-  --service-name pricy-api \
-  --task-definition pricy-api \
+  --cluster pricey-cluster \
+  --service-name pricey-api \
+  --task-definition pricey-api \
   --desired-count 2 \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxx],securityGroups=[sg-xxxxx],assignPublicIp=ENABLED}"
@@ -365,7 +365,7 @@ gcloud services enable \
 #### 2. Create Cloud SQL Instance
 
 ```bash
-gcloud sql instances create pricy-db \
+gcloud sql instances create pricey-db \
   --database-version=POSTGRES_16 \
   --tier=db-f1-micro \
   --region=us-central1
@@ -374,7 +374,7 @@ gcloud sql instances create pricy-db \
 #### 3. Create Redis Instance
 
 ```bash
-gcloud redis instances create pricy-cache \
+gcloud redis instances create pricey-cache \
   --size=1 \
   --region=us-central1 \
   --redis-version=redis_7_0
@@ -383,24 +383,24 @@ gcloud redis instances create pricy-cache \
 #### 4. Create Storage Bucket
 
 ```bash
-gsutil mb -l us-central1 gs://pricy-receipts
-gsutil uniformbucketlevelaccess set on gs://pricy-receipts
+gsutil mb -l us-central1 gs://pricey-receipts
+gsutil uniformbucketlevelaccess set on gs://pricey-receipts
 ```
 
 #### 5. Build and Deploy to Cloud Run
 
 ```bash
 # Build and push to Container Registry
-gcloud builds submit --tag gcr.io/PROJECT_ID/pricy-api apps/api
+gcloud builds submit --tag gcr.io/PROJECT_ID/pricey-api apps/api
 
 # Deploy to Cloud Run
-gcloud run deploy pricy-api \
-  --image gcr.io/PROJECT_ID/pricy-api \
+gcloud run deploy pricey-api \
+  --image gcr.io/PROJECT_ID/pricey-api \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
   --set-env-vars DATABASE_URL=postgresql://... \
-  --add-cloudsql-instances PROJECT_ID:us-central1:pricy-db
+  --add-cloudsql-instances PROJECT_ID:us-central1:pricey-db
 ```
 
 ## Docker Deployment
@@ -415,9 +415,9 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_USER: pricy
+      POSTGRES_USER: pricey
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: pricy
+      POSTGRES_DB: pricey
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -445,7 +445,7 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://pricy:${POSTGRES_PASSWORD}@postgres:5432/pricy
+      DATABASE_URL: postgresql://pricey:${POSTGRES_PASSWORD}@postgres:5432/pricey
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
     depends_on:
       - postgres
@@ -459,7 +459,7 @@ services:
       dockerfile: services/ocr/Dockerfile
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://pricy:${POSTGRES_PASSWORD}@postgres:5432/pricy
+      DATABASE_URL: postgresql://pricey:${POSTGRES_PASSWORD}@postgres:5432/pricey
       REDIS_HOST: redis
     depends_on:
       - postgres
@@ -508,8 +508,8 @@ volumes:
 
 ```bash
 cd infrastructure/kubernetes
-helm install pricy ./helm-chart \
-  --namespace pricy \
+helm install pricey ./helm-chart \
+  --namespace pricey \
   --create-namespace \
   --values values.production.yaml
 ```
@@ -531,7 +531,7 @@ NODE_ENV=production
 LOG_LEVEL=info
 
 # Database
-DATABASE_URL=postgresql://user:pass@host:5432/pricy
+DATABASE_URL=postgresql://user:pass@host:5432/pricey
 DATABASE_POOL_SIZE=10
 
 # Redis
@@ -539,7 +539,7 @@ REDIS_URL=redis://host:6379
 REDIS_PASSWORD=secure-password
 
 # Storage
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_REGION=us-east-1
 S3_ACCESS_KEY_ID=AKIA...
 S3_SECRET_ACCESS_KEY=...
@@ -555,9 +555,9 @@ JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 
 # URLs
-API_URL=https://api.pricy.app
-NEXT_PUBLIC_API_URL=https://api.pricy.app
-ALLOWED_ORIGINS=https://pricy.app,https://www.pricy.app
+API_URL=https://api.pricey.app
+NEXT_PUBLIC_API_URL=https://api.pricey.app
+ALLOWED_ORIGINS=https://pricey.app,https://www.pricey.app
 
 # Monitoring
 SENTRY_DSN=https://...@sentry.io/...
@@ -572,10 +572,10 @@ NEW_RELIC_LICENSE_KEY=...
 
 ```bash
 # Backup database
-pg_dump -h localhost -U pricy pricy > backup-$(date +%Y%m%d-%H%M%S).sql
+pg_dump -h localhost -U pricey pricey > backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Run migrations
-pnpm --filter @pricy/database migrate deploy
+pnpm --filter @pricey/database migrate deploy
 
 # Or in Docker
 docker-compose exec api pnpm db:migrate
@@ -609,7 +609,7 @@ All services expose health check endpoints:
 
 ```bash
 # API Gateway
-curl https://api.pricy.app/health
+curl https://api.pricey.app/health
 
 # Individual services
 curl http://ocr-service:3002/health
@@ -635,11 +635,11 @@ git checkout previous-release-tag
 docker-compose -f docker-compose.prod.yml up -d
 
 # Kubernetes
-kubectl rollout undo deployment/pricy-api -n pricy
+kubectl rollout undo deployment/pricey-api -n pricey
 
 # Cloud Run
-gcloud run services update-traffic pricy-api \
-  --to-revisions=pricy-api-00002-abc=100
+gcloud run services update-traffic pricey-api \
+  --to-revisions=pricey-api-00002-abc=100
 ```
 
 ## Post-Deployment Checklist
@@ -698,4 +698,4 @@ For deployment issues:
 ---
 
 **Last Updated**: October 2025  
-**Maintained by**: Pricy DevOps Team
+**Maintained by**: Pricey DevOps Team

@@ -1,5 +1,5 @@
 /**
- * Home page with upload form for Pricy web app
+ * Home page with upload form for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

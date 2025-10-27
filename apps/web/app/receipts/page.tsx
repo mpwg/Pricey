@@ -1,5 +1,5 @@
 /**
- * Receipts list page for Pricy web app
+ * Receipts list page for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import { ReceiptList } from '@/components/receipts/receipt-list';
 import { ReceiptListSkeleton } from '@/components/receipts/receipt-list-skeleton';
 
 export const metadata = {
-  title: 'Receipts - Pricy',
+  title: 'Receipts - Pricey',
   description: 'View all your uploaded receipts',
 };
 

@@ -40,7 +40,7 @@ vi.mock('../config/env.js', () => ({
 }));
 
 // Mock dependencies at module level
-vi.mock('@pricy/database', () => ({
+vi.mock('@pricey/database', () => ({
   db: {
     receipt: {
       create: vi.fn(),
@@ -75,7 +75,7 @@ vi.mock('../utils/file-validation.js', async () => {
   };
 });
 
-import { db } from '@pricy/database';
+import { db } from '@pricey/database';
 import { storageService } from '../services/storage.service.js';
 import { queueService } from '../services/queue.service.js';
 import { validateImage, ValidationError } from '../utils/file-validation.js';

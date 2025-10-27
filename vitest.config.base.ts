@@ -1,5 +1,5 @@
 /**
- * Base Vitest configuration for Pricy monorepo
+ * Base Vitest configuration for Pricey monorepo
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

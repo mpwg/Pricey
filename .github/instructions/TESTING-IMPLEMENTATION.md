@@ -94,7 +94,7 @@ pnpm test:coverage
 pnpm test:ui
 
 # Specific package
-pnpm --filter @pricy/api-gateway test
+pnpm --filter @pricey/api-gateway test
 ```
 
 ## Next Steps

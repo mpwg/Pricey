@@ -286,7 +286,7 @@ export class ReceiptParser {
 
 ```typescript
 // filepath: services/ocr/src/services/parser/store-detector.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 export class StoreDetector {
   private knownStores: Map<string, string> = new Map();
@@ -449,7 +449,7 @@ export class ItemExtractor {
 ```typescript
 // filepath: services/ocr/src/services/queue/processor.ts
 import { Queue, Worker } from 'bullmq';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { TesseractOCR } from '../ocr/tesseract';
 import { GoogleVisionOCR } from '../ocr/google-vision';
 import { ReceiptParser } from '../parser/receipt-parser';
@@ -680,7 +680,7 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 
 # Database
-DATABASE_URL=postgresql://pricy:pricy@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey@localhost:5432/pricey
 ```
 
 ## Performance Optimization

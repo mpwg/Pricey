@@ -1,5 +1,5 @@
 /**
- * Footer component for Pricy web app
+ * Footer component for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ export function Footer() {
       <div className="container flex flex-col items-center justify-between gap-4 py-6 md:h-16 md:flex-row md:py-0">
         <div className="text-center text-sm text-muted-foreground md:text-left">
           <p>
-            © {currentYear} Pricy. Licensed under{' '}
+            © {currentYear} Pricey. Licensed under{' '}
             <a
               href="https://www.gnu.org/licenses/agpl-3.0.en.html"
               target="_blank"
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
         <div className="flex gap-4 text-sm text-muted-foreground">
           <a
-            href="https://github.com/mpwg/Pricy"
+            href="https://github.com/mpwg/Pricey"
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-4 hover:text-foreground"

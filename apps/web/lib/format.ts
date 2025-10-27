@@ -1,5 +1,5 @@
 /**
- * Utility functions for Pricy web app
+ * Utility functions for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
