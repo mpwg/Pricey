@@ -59,10 +59,54 @@ services:
     networks:
       - pricey-network
 
+  # Ollama - Self-hosted LLM for receipt parsing (OPTIONAL)
+  # Enable with: docker-compose --profile ollama up -d
+  # Or set COMPOSE_PROFILES=ollama in .env.local
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pricey-ollama
+    profiles:
+      - ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./docker/ollama-entrypoint.sh:/entrypoint.sh:ro
+    environment:
+      # Allow access from other containers
+      OLLAMA_HOST: 0.0.0.0:11434
+      # Vision model to auto-download on startup (set to empty to skip)
+      # Vision options: llava, llama3.2-vision:11b, llama3.2-vision:90b, moondream
+      # Text-only options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini
+      # Set OLLAMA_MODEL="" to disable auto-download
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+    entrypoint: ['/bin/bash', '/entrypoint.sh']
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - pricey-network
+    deploy:
+      resources:
+        # Optional: Uncomment if you have NVIDIA GPU
+        # reservations:
+        #   devices:
+        #     - driver: nvidia
+        #       count: 1
+        #       capabilities: [gpu]
+        limits:
+          # Limit memory usage (adjust based on your system)
+          memory: 8G
+
 volumes:
   postgres_data:
     driver: local
   minio_data:
+    driver: local
+  ollama_data:
     driver: local
 
 networks:

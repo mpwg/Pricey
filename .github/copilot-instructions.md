@@ -14,7 +14,9 @@
 - **Cache**: Redis 8
 - **Storage**: MinIO (local) / S3 (cloud)
 - **Monorepo**: Turborepo + pnpm 10.19+
-- **OCR**: Tesseract.js (MVP), Google Cloud Vision API (future)
+- **LLM Parsing**: Multi-provider (Ollama local OR GitHub Models cloud)
+  - **Ollama**: LLaVA, Llama 3.2 Vision, Moondream (local, self-hosted)
+  - **GitHub Models**: GPT-5 mini, Claude Sonnet 4.5, Gemini 2.5 Pro (cloud, via Copilot)
 
 ## Architecture Overview
 
@@ -36,31 +38,32 @@ pnpm-workspace monorepo structure:
 
 **Service Communication**: API Gateway → Microservices (future) → PostgreSQL/Redis
 
-**Data Flow**: Image Upload → OCR → Text Parsing → Product Normalization → Database → Price Analysis
+**Data Flow**: Image Upload → Vision LLM (Ollama/GitHub) → Structured Data → Database → Price Analysis (Phase 1+)
 
 ## Development Commands
 
+````bash
+**Starting Services**:
+
 ```bash
-# Start infrastructure (PostgreSQL, Redis, MinIO)
+# 1. Infrastructure (PostgreSQL, Redis, MinIO)
 pnpm docker:dev
 
-# Run all dev servers
-pnpm dev
+# Optional: Start Docker Ollama (not recommended for Mac users)
+# pnpm docker:dev:ollama
 
-# Run specific workspace
+# 2. Database
+pnpm db:migrate  # Run Prisma migrations
+pnpm db:seed     # Seed stores data
+
+# 3. Applications
+pnpm dev         # Start all services (Turborepo)
+# OR individually:
 pnpm --filter @pricey/api-gateway dev
+pnpm --filter @pricey/ocr-service dev
+````
 
-# Database operations
-pnpm db:migrate          # Run migrations
-pnpm db:seed             # Seed sample data
-pnpm db:studio           # Open Prisma Studio (localhost:5555)
-
-# Build & test
-pnpm build               # Build all packages
-pnpm lint                # Lint with ESLint flat config
-pnpm format              # Format with Prettier
-pnpm typecheck           # TypeScript type checking
-```
+````
 
 **Port Allocation**:
 
@@ -106,7 +109,7 @@ export const env = envSchema.parse(process.env);
 // - Decimal type for prices: @db.Decimal(10, 2)
 // - Enum for status: ReceiptStatus (PENDING, PROCESSING, COMPLETED, FAILED)
 // - Indexes on userId, status, purchaseDate, storeId
-```
+````
 
 ### File Organization
 
@@ -144,11 +147,12 @@ export const env = envSchema.parse(process.env);
 
 ## Database Schema Patterns
 
+````prisma
 ```prisma
 // Receipt processing flow (see packages/database/prisma/schema.prisma)
 model Receipt {
   status         ReceiptStatus @default(PROCESSING)
-  ocrProvider    String        @default("tesseract")
+  ocrProvider    String        @default("llm")
   ocrConfidence  Float?
   rawOcrText     String?       @db.Text
   processingTime Int?          // milliseconds
@@ -156,16 +160,18 @@ model Receipt {
   // Always use proper indexes for query optimization
   @@index([userId, status, purchaseDate])
 }
+````
 
 // Product normalization (Phase 2+)
 model Product {
-  name         String   // Normalized product name
-  category     String?  // Product category
-  barcode      String?  @unique
-  receiptItems ReceiptItem[]
-  prices       ProductPrice[]
+name String // Normalized product name
+category String? // Product category
+barcode String? @unique
+receiptItems ReceiptItem[]
+prices ProductPrice[]
 }
-```
+
+````
 
 **Migration workflow**: Edit `schema.prisma` → `pnpm db:migrate --name description` → Generates migration in `packages/database/prisma/migrations/`
 
@@ -190,7 +196,7 @@ Before writing any code that uses external libraries or frameworks:
 **Examples of when this applies:**
 
 - Setting up Fastify routes, plugins, and middleware
-- Configuring Tesseract.js for OCR processing
+- Configuring Ollama or GitHub Models for vision-based parsing
 - Implementing BullMQ job queues and workers
 - Using Sharp for image preprocessing
 - Working with MinIO/S3 clients
@@ -209,10 +215,12 @@ Before writing any code that uses external libraries or frameworks:
 ### Receipt Processing Pipeline
 
 1. **Upload** → Image stored in MinIO/S3
-2. **OCR** → Tesseract.js extracts text
-3. **Parse** → Extract store, date, items, prices
+2. **Vision LLM** → Ollama (local) or GitHub Models (cloud) analyzes image directly
+3. **Parse** → Validate and extract store, date, items, prices from structured JSON
 4. **Normalize** → Map items to generic products (Phase 2+)
 5. **Save** → Store in PostgreSQL with status tracking
+
+**No OCR step needed** - Vision models analyze images directly.
 
 ### Adding a New API Endpoint
 
@@ -233,7 +241,7 @@ pnpm add -Dw vitest
 
 # Workspace dependencies
 # Use "workspace:*" in package.json for internal packages
-```
+````
 
 ## Testing & Quality
 
@@ -253,12 +261,12 @@ pnpm add -Dw vitest
 
 - ❌ No authentication (all receipts public)
 - ❌ No frontend yet (API-only)
-- ❌ No manual OCR correction UI
+- ❌ No manual correction UI
 - ❌ No pagination on receipt lists
-- ❌ Single OCR provider (Tesseract.js only)
-- ✅ Focus on API stability and OCR accuracy
+- ✅ Multi-provider LLM support (Ollama local + GitHub Models cloud)
+- ✅ Focus on API stability and parsing accuracy
 
-**Exit Criteria**: 50 users, 70% OCR accuracy, <5% error rate
+**Exit Criteria**: 50 users, 85% accuracy, <5% error rate
 
 ## Common Pitfalls
 

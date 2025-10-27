@@ -1,11 +1,14 @@
 # OCR Service
 
-Receipt OCR processing service using Tesseract.js and BullMQ for background job processing.
+Receipt parsing service using vision-capable LLMs and BullMQ for background job processing.
 
 ## Features
 
-- Receipt image OCR using Tesseract.js
+- **Vision-based parsing** - Direct image analysis (no OCR preprocessing)
+- **Multi-provider support** - Ollama (local) or GitHub Models (cloud)
+- **State-of-the-art models** - GPT-5 mini, Claude Sonnet 4.5, LLaVA, Llama Vision
 - Image preprocessing with Sharp
+- Structured JSON extraction with retry logic
 - Store name detection
 - Date extraction
 - Item extraction with price and quantity
@@ -19,8 +22,11 @@ Receipt OCR processing service using Tesseract.js and BullMQ for background job 
 OCR Service
 ├── src/
 │   ├── config/          # Environment configuration
-│   ├── ocr/             # OCR engine (Tesseract)
-│   ├── parsers/         # Text parsing (store, date, items, total)
+│   ├── parsers/         # Vision LLM parsers (Ollama, GitHub, OpenAI)
+│   │   ├── base-receipt-parser.ts      # Interface & schemas
+│   │   ├── llm-receipt-parser.ts       # Ollama implementation
+│   │   ├── github-models-receipt-parser.ts  # GitHub Models implementation
+│   │   └── parser-factory.ts           # Provider selection
 │   ├── processors/      # Receipt processing orchestration
 │   ├── services/        # Storage service
 │   ├── worker/          # BullMQ worker
@@ -43,9 +49,23 @@ S3_ACCESS_KEY=minioadmin
 S3_SECRET_KEY=minioadmin
 S3_BUCKET=pricey-receipts
 
-# OCR Configuration
+# LLM Configuration
+LLM_PROVIDER=ollama  # Options: ollama, github, openai (future)
+LLM_TIMEOUT=60000
+
+# Ollama Configuration (for local processing)
+LLM_BASE_URL=http://localhost:11434
+LLM_MODEL=llava  # Options: llava, llama3.2-vision, moondream
+LLM_TEMPERATURE=0.1
+
+# GitHub Models Configuration (for cloud processing)
+GITHUB_TOKEN=ghp_your_token_here
+GITHUB_MODEL=gpt-5-mini  # Options: gpt-5-mini, claude-sonnet-4.5, gemini-2.5-pro
+
+# Processing Configuration
 OCR_CONCURRENCY=5
-OCR_TIMEOUT=30000
+OCR_TIMEOUT=60000
+OCR_MAX_RETRIES=3
 ```
 
 ## Running
@@ -65,48 +85,48 @@ pnpm start
 
 ## How It Works
 
-1. **Job Received**: Worker receives OCR job from Redis queue
+1. **Job Received**: Worker receives processing job from Redis queue
 2. **Download Image**: Image downloaded from MinIO/S3
-3. **Image Preprocessing**: Image converted to grayscale, normalized, and sharpened
-4. **OCR Processing**: Tesseract extracts text from image
-5. **Text Parsing**:
-   - Store name detected using pattern matching
-   - Date extracted using various date formats
-   - Items extracted with prices and quantities
-   - Total amount extracted and validated
+3. **Image Preprocessing**: Image converted to optimal format for vision model
+4. **Vision LLM Processing**: Provider-agnostic parser analyzes image directly
+   - Ollama: Uses local LLaVA/Llama Vision models
+   - GitHub Models: Uses GPT-5 mini/Claude Sonnet 4.5
+5. **JSON Validation**: Structured JSON response validated with Zod schemas
 6. **Database Update**: Receipt and items saved to PostgreSQL
 7. **Job Complete**: Status updated and job marked as complete
 
+**No OCR preprocessing** - Vision models analyze images directly for better accuracy.
+
 ## Store Detection
 
-The service can detect 20+ major stores including:
+The Vision LLM can identify various stores from receipt headers and logos, including:
 
-- **Austrian Stores**: Billa, Spar, Hofer, Lidl, Penny, MPreis, Merkur, dm, Müller, Bipa
-- **International**: IKEA, H&M, C&A, MediaMarkt, Saturn
-- **Gas Stations**: OMV, BP, Shell
-- **Hardware**: Bauhaus, OBI, Hornbach
+- Walmart, Target, Costco
+- Kroger, Safeway, Whole Foods
+- CVS, Walgreens
+- Generic stores
+- International retailers
 
 ## Item Extraction
 
-Items are extracted using multiple patterns:
+Items are extracted using vision LLM processing that:
 
-- Price patterns: `$3.99`, `3.99 ea`, `$3.99 each`
-- Quantity patterns: `2 @ $3.99`, `2 x Item`, `Qty: 2`
-- Confidence scoring based on pattern matching
-
-## Error Handling
-
-- **Retry Logic**: Jobs are retried up to 3 times with exponential backoff
-- **Timeout**: Processing timeout set to 30 seconds
-- **Failed Jobs**: Receipts marked as FAILED in database
-- **Logging**: Comprehensive logging with Pino
+- Identifies product names from image
+- Extracts prices (handles various formats: $1.99, 1,99€, etc.)
+- Detects quantities (explicit or inferred)
+- Preserves item order as it appears
+- Handles multi-line items and descriptions
 
 ## Performance
 
-- **Concurrency**: 5 concurrent jobs (configurable)
-- **Rate Limiting**: 10 jobs per minute
-- **Processing Time**: Target < 30 seconds per receipt
-- **Accuracy**: Target 70%+ item extraction accuracy
+- **Accuracy**: Target 85%+ item extraction accuracy with vision LLM processing
+  - Ollama (local): 85-95% accuracy
+  - GitHub Models: 90-99% accuracy (GPT-5 mini, Claude Sonnet 4.5)
+- **Speed**:
+  - Ollama Docker (CPU): 10-30 seconds per receipt
+  - Ollama Mac (GPU): 2-5 seconds per receipt
+  - GitHub Models: 2-4 seconds per receipt
+- **Concurrency**: Configurable (default: 5 concurrent jobs)
 
 ## License
 

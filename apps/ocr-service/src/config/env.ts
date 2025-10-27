@@ -40,6 +40,16 @@ const envSchema = z.object({
   // OCR Configuration
   OCR_CONCURRENCY: z.string().default('5').transform(Number),
   OCR_TIMEOUT: z.string().default('30000').transform(Number), // 30 seconds
+  // LLM Parser Configuration
+  LLM_PROVIDER: z.enum(['ollama', 'openai', 'github']).default('ollama'),
+  // Use http://localhost:10000 for Mac's accelerated Ollama, http://localhost:11434 for Docker
+  LLM_BASE_URL: z.string().url().default('http://localhost:11434'),
+  LLM_MODEL: z.string().default('llava'), // Vision model for direct image parsing
+  LLM_TIMEOUT: z.string().default('60000').transform(Number), // 60 seconds
+  LLM_TEMPERATURE: z.string().default('0.1').transform(Number), // Low temperature for structured output
+  // GitHub Models Configuration (for GitHub Copilot users)
+  GITHUB_TOKEN: z.string().optional(),
+  GITHUB_MODEL: z.string().default('gpt-5-mini'), // gpt-5-mini, claude-sonnet-4.5, gemini-2.5-pro, etc.
 });
 
 export type Env = z.infer<typeof envSchema>;

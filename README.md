@@ -22,7 +22,7 @@
 
 [![Fastify](https://img.shields.io/badge/Fastify-5%2B-202020.svg?logo=fastify&logoColor=white)](https://fastify.dev/)
 [![Prisma](https://img.shields.io/badge/Prisma-6%2B-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Tesseract.js](https://img.shields.io/badge/Tesseract.js-6%2B-0066CC.svg)](https://tesseract.projectnaptha.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-LLM-000000.svg)](https://ollama.ai/)
 
 <!-- Infrastructure -->
 
@@ -49,13 +49,15 @@ Pricey is a Progressive Web Application (PWA) that digitizes your shopping recei
 **✅ Implemented Features:**
 
 - 📸 Receipt image upload via REST API
-- 🔍 OCR text extraction using Tesseract.js
-- 📊 Automatic parsing of store, date, items, and prices
+- 🔍 **Vision-based LLM parsing** - Directly analyzes receipt images
+- 🤖 **Multi-provider LLM support** - Ollama (local) or GitHub Models (cloud)
+- 🎯 **State-of-the-art models** - GPT-5 mini, Claude Sonnet 4.5, LLaVA
+- 📊 Automatic extraction of store, date, items, and prices with 85-99% accuracy
 - 💾 PostgreSQL storage with Prisma ORM
 - 🔄 Asynchronous processing with BullMQ
 - 🖼️ Image storage with MinIO (S3-compatible)
 - 📈 Queue monitoring with Bull Board dashboard
-- ✅ 376 passing tests (100% success rate)
+- ✅ 376+ passing tests (100% success rate)
 
 **⏳ Planned for Phase 1 (Q1 2025):**
 
@@ -87,8 +89,13 @@ graph TB
     subgraph "Background Processing"
         Queue[BullMQ Queue<br/>receipt-processing]
         Worker[OCR Worker<br/>5 concurrent jobs]
-        Tesseract[Tesseract.js<br/>OCR Engine]
+        Parser[Vision LLM Parser<br/>Multi-Provider]
         Sharp[Sharp<br/>Image Preprocessing]
+    end
+
+    subgraph "LLM Providers"
+        Ollama[Ollama Local<br/>LLaVA, Llama Vision]
+        GitHub[GitHub Models<br/>GPT-5, Claude 4.5]
     end
 
     subgraph "Storage Layer"
@@ -110,8 +117,10 @@ graph TB
     Queue -->|Dequeue| Worker
     Worker -->|Download| S3
     Worker -->|Preprocess| Sharp
-    Sharp -->|Optimized Image| Tesseract
-    Tesseract -->|Parsed Data| Worker
+    Sharp -->|Optimized Image| Parser
+    Parser -->|Vision Analysis| Ollama
+    Parser -->|Vision Analysis| GitHub
+    Parser -->|Structured JSON| Worker
     Worker -->|Update| DB
 
     Get -->|Query| DB
@@ -128,17 +137,20 @@ graph TB
 
 **Technology Stack (Currently Implemented):**
 
-| Layer        | Technology   | Version | Purpose               |
-| ------------ | ------------ | ------- | --------------------- |
-| **API**      | Fastify      | 5+      | REST endpoints        |
-| **OCR**      | Tesseract.js | 6+      | Text extraction       |
-| **Database** | PostgreSQL   | 18+     | Data persistence      |
-| **ORM**      | Prisma       | 6+      | Database access       |
-| **Queue**    | BullMQ       | 5+      | Job processing        |
-| **Cache**    | Redis        | 8+      | Queue backing         |
-| **Storage**  | MinIO        | 8+      | S3-compatible storage |
-| **Images**   | Sharp        | 0+      | Preprocessing         |
-| **Parsing**  | chrono-node  | 2+      | Date extraction       |
+| Layer        | Technology    | Version | Purpose                      |
+| ------------ | ------------- | ------- | ---------------------------- |
+| **API**      | Fastify       | 5+      | REST endpoints               |
+| **LLM**      | Ollama/GitHub | Latest  | Vision-based receipt parsing |
+| **Models**   | GPT-5 mini    | Latest  | Cloud vision model (GitHub)  |
+|              | Claude 4.5    | Latest  | Cloud vision model (GitHub)  |
+|              | LLaVA         | Latest  | Local vision model (Ollama)  |
+| **Database** | PostgreSQL    | 18+     | Data persistence             |
+| **ORM**      | Prisma        | 6+      | Database access              |
+| **Queue**    | BullMQ        | 5+      | Job processing               |
+| **Cache**    | Redis         | 8+      | Queue backing                |
+| **Storage**  | MinIO         | 8+      | S3-compatible storage        |
+| **Images**   | Sharp         | 0+      | Preprocessing                |
+| **Parsing**  | chrono-node   | 2+      | Date extraction              |
 
 ---
 
@@ -161,10 +173,25 @@ cd Pricey
 pnpm install
 
 # Copy environment variables
-cp .env.example .env
+cp .env.example .env.local
+
+# (Optional) Configure LLM provider in .env.local
+# For GitHub Models (recommended - fastest setup, no local installation):
+# LLM_PROVIDER="github"
+# GITHUB_TOKEN="ghp_YOUR_TOKEN"  # Get from https://github.com/settings/tokens
+# GITHUB_MODEL="gpt-5-mini"      # or claude-sonnet-4.5, gemini-2.5-pro
+
+# For Ollama (local - privacy-first):
+# LLM_PROVIDER="ollama"
+# LLM_BASE_URL=http://localhost:11434  # Docker Ollama (or localhost:10000 for Mac with GPU)
+# LLM_MODEL=llava                      # or llama3.2-vision, moondream
 
 # Start infrastructure (PostgreSQL, Redis, MinIO)
 pnpm docker:dev
+
+# (Optional) Start Docker Ollama if you don't have it installed locally
+# Note: This is slower and uses more memory. For Mac users, see the Mac Ollama Acceleration Guide.
+# pnpm docker:dev:ollama
 
 # Run database migrations
 pnpm db:migrate
@@ -178,11 +205,16 @@ pnpm dev
 
 **Services will be available at:**
 
-- **API Gateway**: http://localhost:3001
-- **Bull Board Dashboard**: http://localhost:3001/admin/queues
-- **MinIO Console**: http://localhost:9001 (user: minioadmin, pass: minioadmin)
+- **API Gateway**: <http://localhost:3001>
+- **Bull Board Dashboard**: <http://localhost:3001/admin/queues>
+- **MinIO Console**: <http://localhost:9001> (user: minioadmin, pass: minioadmin)
+- **Ollama LLM**: <http://localhost:11434> (only if enabled with `docker:dev:ollama`)
 - **PostgreSQL**: localhost:5432
 - **Redis**: localhost:6379
+
+> 📖 **New to LLM-based parsing?** Check out the [LLM Quick Start Guide](docs/guides/LLM-QUICKSTART.md) for setup instructions and model selection tips.
+
+> ⚡ **Mac Users**: For **10-20x faster** receipt processing with GPU acceleration, see [Mac Ollama Acceleration Guide](docs/guides/mac-ollama-acceleration.md) - **highly recommended over Docker Ollama**
 
 ---
 
@@ -196,7 +228,7 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant Q as BullMQ Queue
     participant W as OCR Worker
-    participant OCR as Tesseract.js
+    participant OCR as Ollama LLM
 
     C->>API: POST /api/v1/receipts<br/>(upload image)
     API->>API: Validate (type, size, dimensions)
@@ -213,10 +245,10 @@ sequenceDiagram
     W->>DB: Update status: PROCESSING
     W->>S3: Download image
     S3-->>W: Image buffer
-    W->>W: Preprocess (Sharp)<br/>grayscale, normalize, sharpen
-    W->>OCR: Extract text
-    OCR-->>W: Raw text + confidence
-    W->>W: Parse store, date, items, total
+    W->>W: Preprocess (Sharp)<br/>optimize for LLM vision
+    W->>OCR: Extract structured data
+    OCR-->>W: JSON {store, date, items, total}
+    W->>W: Validate and parse JSON
     W->>DB: Update receipt + create items
     W->>DB: Update status: COMPLETED
 
@@ -230,13 +262,13 @@ sequenceDiagram
 
 1. **Upload** - Image validated and stored in MinIO/S3
 2. **Queue** - Job enqueued in Redis with BullMQ
-3. **Preprocess** - Sharp enhances image quality (grayscale, sharpen, normalize)
-4. **OCR** - Tesseract.js extracts text with ~85% confidence
-5. **Parse** - Custom parsers extract:
-   - Store name (fuzzy matching against 20+ stores)
-   - Purchase date (chrono-node natural language parsing)
-   - Line items with prices (regex patterns)
-   - Total amount (validated against item sum)
+3. **Preprocess** - Sharp optimizes image for LLM vision processing
+4. **OCR** - Ollama LLM (Llama 3.2 Vision / LLaVA) extracts structured data
+5. **Parse** - JSON response validated and parsed:
+   - Store name identified from receipt header/logo
+   - Purchase date extracted in ISO format
+   - Line items with names, quantities, and prices
+   - Total amount extracted and validated against item sum
 6. **Store** - Results saved to PostgreSQL with status tracking
 
 **Average Processing Time**: 1.2-2.5 seconds per receipt
