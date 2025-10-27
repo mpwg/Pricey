@@ -18,9 +18,13 @@
 
 import pino from 'pino';
 import {
-  LlmReceiptParser,
-  type LlmReceiptItem,
-} from '../parsers/llm-receipt-parser.js';
+  type IReceiptParser,
+  type ReceiptItem,
+} from '../parsers/base-receipt-parser.js';
+import {
+  createReceiptParser,
+  getProviderName,
+} from '../parsers/parser-factory.js';
 import { calculateTotal } from '../parsers/total-parser.js';
 
 const logger = pino({ name: 'receipt-processor' });
@@ -28,7 +32,7 @@ const logger = pino({ name: 'receipt-processor' });
 export interface ProcessedReceipt {
   storeName: string | null;
   date: Date | null;
-  items: LlmReceiptItem[];
+  items: ReceiptItem[];
   total: number | null;
   calculatedTotal: number;
   rawText: string;
@@ -36,10 +40,14 @@ export interface ProcessedReceipt {
 }
 
 export class ReceiptProcessor {
-  private llmParser: LlmReceiptParser;
+  private parser: IReceiptParser;
 
   constructor() {
-    this.llmParser = new LlmReceiptParser();
+    this.parser = createReceiptParser();
+    logger.info(
+      { provider: getProviderName() },
+      'Initialized receipt processor'
+    );
   }
 
   /**
@@ -52,7 +60,7 @@ export class ReceiptProcessor {
 
     // Parse directly with vision LLM (no OCR needed)
     logger.info('Parsing receipt image with vision LLM');
-    const llmData = await this.llmParser.parse(imageBuffer);
+    const llmData = await this.parser.parse(imageBuffer);
     logger.info(
       {
         storeName: llmData.storeName,

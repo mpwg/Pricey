@@ -17,17 +17,17 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { LlmReceiptParser } from './llm-receipt-parser.js';
+import { OllamaReceiptParser } from './llm-receipt-parser.js';
 
-describe('LlmReceiptParser (Vision)', () => {
-  let parser: LlmReceiptParser;
+describe('OllamaReceiptParser (Vision)', () => {
+  let parser: OllamaReceiptParser;
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     // Mock fetch globally
     fetchMock = vi.fn();
     global.fetch = fetchMock;
-    parser = new LlmReceiptParser();
+    parser = new OllamaReceiptParser();
   });
 
   afterEach(() => {

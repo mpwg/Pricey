@@ -11,15 +11,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ReceiptProcessor } from './receipt-processor';
 
-// Mock LLM parser for vision model
-const mockLlmParse = vi.fn();
+// Mock parser factory to return a mock parser
+const mockParse = vi.fn();
+const mockHealthCheck = vi.fn();
 
-vi.mock('../parsers/llm-receipt-parser', () => ({
-  LlmReceiptParser: vi.fn(function () {
-    return {
-      parse: mockLlmParse,
-    };
-  }),
+vi.mock('../parsers/parser-factory', () => ({
+  createReceiptParser: vi.fn(() => ({
+    parse: mockParse,
+    healthCheck: mockHealthCheck,
+  })),
+  getProviderName: vi.fn(() => 'Ollama (llava)'),
 }));
 
 describe('ReceiptProcessor with Vision LLM', () => {
@@ -33,7 +34,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Basic Receipt Processing', () => {
     it('should process a complete receipt with vision model', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Grocery Store',
         date: '2025-01-20',
         total: 45.67,
@@ -47,7 +48,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
       const result = await processor.process(mockImageBuffer);
 
-      expect(mockLlmParse).toHaveBeenCalledWith(mockImageBuffer);
+      expect(mockParse).toHaveBeenCalledWith(mockImageBuffer);
       expect(result.storeName).toBe('Grocery Store');
       expect(result.items).toHaveLength(2);
       expect(result.total).toBe(45.67);
@@ -55,7 +56,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle receipt with no items', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Empty Store',
         date: '2025-01-20',
         total: 0,
@@ -72,7 +73,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle receipt with single item', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Quick Shop',
         date: '2025-01-20',
         total: 1.99,
@@ -91,7 +92,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Edge Cases and Error Handling', () => {
     it('should handle LLM parsing errors gracefully', async () => {
-      mockLlmParse.mockRejectedValue(new Error('Vision model unavailable'));
+      mockParse.mockRejectedValue(new Error('Vision model unavailable'));
 
       await expect(processor.process(mockImageBuffer)).rejects.toThrow(
         'Vision model unavailable'
@@ -99,7 +100,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle invalid date format', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: 'invalid-date',
         total: 10.0,
@@ -116,7 +117,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle null store name', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: null,
         date: '2025-01-20',
         total: 10.0,
@@ -132,7 +133,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle negative prices in items', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 8.0,
@@ -154,7 +155,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
     it('should handle empty image buffer', async () => {
       const emptyBuffer = Buffer.alloc(0);
-      mockLlmParse.mockRejectedValue(new Error('Empty image'));
+      mockParse.mockRejectedValue(new Error('Empty image'));
 
       await expect(processor.process(emptyBuffer)).rejects.toThrow(
         'Empty image'
@@ -162,7 +163,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle low confidence scores', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 10.0,
@@ -179,7 +180,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Quantity and Price Handling', () => {
     it('should handle items with fractional quantities', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Deli',
         date: '2025-01-20',
         total: 12.45,
@@ -195,7 +196,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle items with large quantities', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Wholesale',
         date: '2025-01-20',
         total: 100.0,
@@ -212,7 +213,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Total Validation', () => {
     it('should calculate total from items', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 15.0,
@@ -231,7 +232,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle total mismatch (e.g., due to tax)', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 15.75, // Includes tax
@@ -257,7 +258,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Special Receipt Types', () => {
     it('should handle receipts with discounts', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Discount Store',
         date: '2025-01-20',
         total: 8.0,
@@ -276,7 +277,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle receipts with taxes', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 10.5,
@@ -297,7 +298,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Integration Scenarios', () => {
     it('should process complex multi-item receipt', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'SuperMart',
         date: '2025-01-20',
         total: 27.43,
@@ -320,7 +321,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle receipt with multiple currencies', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Airport Shop',
         date: '2025-01-20',
         total: 25.0,
@@ -337,7 +338,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should process receipt with null date', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Grocery',
         date: null,
         total: 8.47,
@@ -359,7 +360,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
 
   describe('Date Handling', () => {
     it('should parse valid ISO date', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: '2025-01-20',
         total: 10.0,
@@ -375,7 +376,7 @@ describe('ReceiptProcessor with Vision LLM', () => {
     });
 
     it('should handle null date from LLM', async () => {
-      mockLlmParse.mockResolvedValue({
+      mockParse.mockResolvedValue({
         storeName: 'Store',
         date: null,
         total: 10.0,
