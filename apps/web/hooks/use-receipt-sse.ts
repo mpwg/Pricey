@@ -20,6 +20,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { type Receipt } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 
 interface UseReceiptSSEResult {
   status: Receipt['status'] | null;
@@ -59,7 +60,8 @@ export function useReceiptSSE(
   // Determine if we should connect to SSE
   // Only connect if status is explicitly PROCESSING or PENDING
   const shouldConnect =
-    initialStatus === 'PROCESSING' || initialStatus === 'PENDING';
+    initialStatus === ReceiptStatus.PROCESSING ||
+    initialStatus === ReceiptStatus.PENDING;
 
   console.log('[useReceiptSSE] Hook called:', {
     receiptId,

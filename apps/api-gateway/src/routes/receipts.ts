@@ -18,6 +18,7 @@
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { db } from '@pricey/database';
+import { ReceiptStatus } from '@pricey/types';
 import { storageService } from '../services/storage.service.js';
 import { queueService } from '../services/queue.service.js';
 import { validateImage, ValidationError } from '../utils/file-validation.js';
@@ -107,7 +108,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
       const receipt = await db.receipt.create({
         data: {
           imageUrl,
-          status: 'PROCESSING',
+          status: ReceiptStatus.PROCESSING,
         },
       });
 
@@ -116,7 +117,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
       return reply.code(201).send({
         id: receipt.id,
-        status: 'PROCESSING',
+        status: ReceiptStatus.PROCESSING,
         uploadedAt: receipt.createdAt,
         processingStartedAt: new Date(),
         imageUrl,
@@ -171,10 +172,10 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
         // Calculate progress based on status
         let progress = 0;
-        if (receipt.status === 'PENDING') progress = 0;
-        else if (receipt.status === 'PROCESSING') progress = 50;
-        else if (receipt.status === 'COMPLETED') progress = 100;
-        else if (receipt.status === 'FAILED') progress = 0;
+        if (receipt.status === ReceiptStatus.PENDING) progress = 0;
+        else if (receipt.status === ReceiptStatus.PROCESSING) progress = 50;
+        else if (receipt.status === ReceiptStatus.COMPLETED) progress = 100;
+        else if (receipt.status === ReceiptStatus.FAILED) progress = 0;
 
         const response: Record<string, unknown> = {
           id: receipt.id,
@@ -182,7 +183,10 @@ export async function receiptsRoutes(app: FastifyInstance) {
           progress,
         };
 
-        if (receipt.status === 'COMPLETED' && receipt.items.length > 0) {
+        if (
+          receipt.status === ReceiptStatus.COMPLETED &&
+          receipt.items.length > 0
+        ) {
           response.ocrResult = {
             storeName: receipt.storeName,
             date: receipt.purchaseDate,

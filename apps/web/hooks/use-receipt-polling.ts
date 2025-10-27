@@ -20,6 +20,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { apiClient, type Receipt } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 
 interface UseReceiptPollingResult {
   status: Receipt['status'] | null;
@@ -49,7 +50,10 @@ export function useReceiptPolling(
   // Determine if we should be polling based on current status
   const shouldPoll = useMemo(() => {
     const currentStatus = status || initialStatus;
-    return currentStatus === 'PROCESSING' || currentStatus === 'PENDING';
+    return (
+      currentStatus === ReceiptStatus.PROCESSING ||
+      currentStatus === ReceiptStatus.PENDING
+    );
   }, [status, initialStatus]);
 
   useEffect(() => {

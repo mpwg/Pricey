@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { isValidAustrianTotalCents } from './constants.js';
+
 const TOTAL_INDICATORS = [
   /total/i,
   /amount\s*due/i,
@@ -62,7 +64,7 @@ export function extractTotal(text: string): number | null {
           let total: number;
 
           // Handle space-separated format (Austrian): "50 28" = 50.28
-          if (match[1] && match[2]) {
+          if (match[1] && match[2] && isValidAustrianTotalCents(match[2])) {
             total = parseFloat(`${match[1]}.${match[2]}`);
           }
           // Handle comma or dot as decimal separator

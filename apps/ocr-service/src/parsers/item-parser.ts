@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { isValidAustrianItemCents } from './constants.js';
+
 export interface ReceiptItem {
   name: string;
   price: number;
@@ -162,7 +164,7 @@ function extractItemFromLine(
       let parsedPrice: number;
 
       // Handle space-separated format (Austrian): "2 229" = 2.29
-      if (match[1] && match[2]) {
+      if (match[1] && match[2] && isValidAustrianItemCents(match[2])) {
         parsedPrice = parseFloat(`${match[1]}.${match[2]}`);
       }
       // Handle comma or dot as decimal separator

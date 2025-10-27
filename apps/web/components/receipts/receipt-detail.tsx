@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient, type ReceiptWithItems } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 import { StatusBadge } from './status-badge';
 import { ItemsTable } from './items-table';
 import { RawOcrText } from './raw-ocr-text';
@@ -83,9 +84,12 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
         .then((data) => {
           setReceipt(data);
           // Show success toast when processing completes
-          if (sseStatus === 'COMPLETED' && receipt.status !== 'COMPLETED') {
+          if (
+            sseStatus === ReceiptStatus.COMPLETED &&
+            receipt.status !== ReceiptStatus.COMPLETED
+          ) {
             toast.success('Receipt processed successfully!');
-          } else if (sseStatus === 'FAILED') {
+          } else if (sseStatus === ReceiptStatus.FAILED) {
             toast.error('Receipt processing failed');
           }
         })
@@ -126,7 +130,8 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
   // Show processing state - use SSE status if available, otherwise use receipt status
   const currentStatus = sseStatus || receipt.status;
   const isProcessing =
-    currentStatus === 'PROCESSING' || currentStatus === 'PENDING';
+    currentStatus === ReceiptStatus.PROCESSING ||
+    currentStatus === ReceiptStatus.PENDING;
 
   return (
     <div className="space-y-6">
@@ -267,7 +272,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
                 </div>
               </CardContent>
             </Card>
-          ) : currentStatus === 'COMPLETED' ? (
+          ) : currentStatus === ReceiptStatus.COMPLETED ? (
             <Card>
               <CardHeader>
                 <CardTitle>Items</CardTitle>

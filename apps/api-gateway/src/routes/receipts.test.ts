@@ -18,6 +18,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { ReceiptStatus } from '@pricey/types';
 
 // Mock environment first before any imports
 vi.mock('../config/env.js', () => ({
@@ -115,7 +116,7 @@ describe('Receipt Routes Integration Tests', () => {
       vi.mocked(db.receipt.create).mockResolvedValue({
         id: mockReceiptId,
         imageUrl: mockImageUrl,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         createdAt: mockCreatedAt,
         updatedAt: mockCreatedAt,
         storeName: null,
@@ -130,7 +131,7 @@ describe('Receipt Routes Integration Tests', () => {
       vi.mocked(queueService.queueOCRJob).mockResolvedValue(undefined);
       vi.mocked(db.receipt.update).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PROCESSING',
+        status: ReceiptStatus.PROCESSING,
       } as never);
 
       // Create a mock file
@@ -156,7 +157,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         uploadedAt: mockCreatedAt.toISOString(),
         processingStartedAt: expect.any(String),
         imageUrl: mockImageUrl,
@@ -168,7 +169,7 @@ describe('Receipt Routes Integration Tests', () => {
       expect(db.receipt.create).toHaveBeenCalledWith({
         data: {
           imageUrl: mockImageUrl,
-          status: 'PROCESSING',
+          status: ReceiptStatus.PROCESSING,
         },
       });
       expect(queueService.queueOCRJob).toHaveBeenCalledWith(
@@ -263,7 +264,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         items: [],
         storeName: null,
         purchaseDate: null,
@@ -280,7 +281,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'pending',
+        status: ReceiptStatus.PENDING,
         progress: 0,
       });
     });
@@ -289,7 +290,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'PROCESSING',
+        status: ReceiptStatus.PROCESSING,
         items: [],
         storeName: null,
         purchaseDate: null,
@@ -306,7 +307,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         progress: 50,
       });
     });
@@ -317,7 +318,7 @@ describe('Receipt Routes Integration Tests', () => {
 
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         storeName: 'Walmart',
         purchaseDate: mockPurchaseDate,
         totalAmount: createDecimalMock(45.67) as never,
@@ -349,7 +350,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'completed',
+        status: ReceiptStatus.COMPLETED,
         progress: 100,
         ocrResult: {
           storeName: 'Walmart',
@@ -385,7 +386,7 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         id: mockReceiptId,
-        status: 'failed',
+        status: ReceiptStatus.FAILED,
         progress: 0,
       });
     });
@@ -438,7 +439,7 @@ describe('Receipt Routes Integration Tests', () => {
         storeName: 'Target',
         purchaseDate: mockPurchaseDate,
         totalAmount: createDecimalMock(89.99) as never,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         ocrProvider: 'tesseract',
         ocrConfidence: 0.92,
         rawOcrText: 'TARGET\nReceipt text...',
@@ -490,7 +491,7 @@ describe('Receipt Routes Integration Tests', () => {
         },
         purchaseDate: mockPurchaseDate.toISOString(),
         totalAmount: 89.99,
-        status: 'completed',
+        status: ReceiptStatus.COMPLETED,
         ocrProvider: 'tesseract',
         ocrConfidence: 0.92,
         rawOcrText: 'TARGET\nReceipt text...',
@@ -530,7 +531,7 @@ describe('Receipt Routes Integration Tests', () => {
         store: null,
         purchaseDate: null,
         totalAmount: null,
-        status: 'PENDING',
+        status: ReceiptStatus.PENDING,
         ocrProvider: 'tesseract',
         ocrConfidence: null,
         rawOcrText: null,
@@ -592,7 +593,7 @@ describe('Receipt Routes Integration Tests', () => {
       const mockReceiptId = 'receipt-123';
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         items: [],
         storeName: 'Unknown Store',
         purchaseDate: new Date(),
@@ -617,7 +618,7 @@ describe('Receipt Routes Integration Tests', () => {
       // Test with Decimal-like object
       vi.mocked(db.receipt.findUnique).mockResolvedValue({
         id: mockReceiptId,
-        status: 'COMPLETED',
+        status: ReceiptStatus.COMPLETED,
         totalAmount: createDecimalMock(123.45) as never,
         items: [
           {
@@ -677,7 +678,7 @@ describe('Receipt Routes Integration Tests', () => {
           storeId: 'store-1',
           purchaseDate: new Date('2025-10-25T10:00:00Z'),
           totalAmount: createDecimalMock(99.99),
-          status: 'COMPLETED',
+          status: ReceiptStatus.COMPLETED,
           createdAt: new Date('2025-10-25T10:00:00Z'),
           updatedAt: new Date('2025-10-25T10:05:00Z'),
           items: [
@@ -707,7 +708,7 @@ describe('Receipt Routes Integration Tests', () => {
           storeId: null,
           purchaseDate: new Date('2025-10-24T15:00:00Z'),
           totalAmount: createDecimalMock(149.5),
-          status: 'PROCESSING',
+          status: ReceiptStatus.PROCESSING,
           createdAt: new Date('2025-10-24T15:00:00Z'),
           updatedAt: new Date('2025-10-24T15:01:00Z'),
           items: [],
@@ -737,7 +738,7 @@ describe('Receipt Routes Integration Tests', () => {
         },
         purchaseDate: '2025-10-25T10:00:00.000Z',
         totalAmount: 99.99,
-        status: 'completed',
+        status: ReceiptStatus.COMPLETED,
         itemCount: 2,
         createdAt: '2025-10-25T10:00:00.000Z',
         updatedAt: '2025-10-25T10:05:00.000Z',
@@ -750,7 +751,7 @@ describe('Receipt Routes Integration Tests', () => {
         store: null,
         purchaseDate: '2025-10-24T15:00:00.000Z',
         totalAmount: 149.5,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         itemCount: 0,
         createdAt: '2025-10-24T15:00:00.000Z',
         updatedAt: '2025-10-24T15:01:00.000Z',

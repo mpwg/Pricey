@@ -21,6 +21,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UploadForm } from '../upload-form';
 import * as apiClient from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 
 // Mock the API client
 vi.mock('@/lib/api', () => ({
@@ -43,7 +44,7 @@ describe('UploadForm', () => {
     vi.mocked(apiClient.apiClient.uploadReceipt).mockResolvedValue({
       id: 'receipt-123',
       imageUrl: 'https://example.com/receipt.jpg',
-      status: 'PROCESSING',
+      status: ReceiptStatus.PROCESSING,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

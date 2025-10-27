@@ -18,6 +18,7 @@
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { db } from '@pricey/database';
+import { ReceiptStatus } from '@pricey/types';
 
 export async function sseRoutes(app: FastifyInstance) {
   /**
@@ -79,7 +80,10 @@ export async function sseRoutes(app: FastifyInstance) {
           );
 
           // If completed or failed, send final data and close connection
-          if (receipt.status === 'COMPLETED' || receipt.status === 'FAILED') {
+          if (
+            receipt.status === ReceiptStatus.COMPLETED ||
+            receipt.status === ReceiptStatus.FAILED
+          ) {
             reply.raw.write(
               `data: ${JSON.stringify({
                 type: 'complete',

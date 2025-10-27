@@ -20,12 +20,13 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ReceiptCard } from '../receipt-card';
 import type { Receipt } from '@/lib/api';
+import { ReceiptStatus } from '@pricey/types';
 
 describe('ReceiptCard', () => {
   const mockReceipt: Receipt = {
     id: 'receipt-123',
     imageUrl: 'https://example.com/receipt.jpg',
-    status: 'COMPLETED',
+    status: ReceiptStatus.COMPLETED,
     storeName: 'Walmart',
     purchaseDate: '2025-10-25T10:00:00Z',
     totalAmount: 50.99,
@@ -47,7 +48,7 @@ describe('ReceiptCard', () => {
   it('renders processing state correctly', () => {
     const processingReceipt: Receipt = {
       ...mockReceipt,
-      status: 'PROCESSING',
+      status: ReceiptStatus.PROCESSING,
       storeName: undefined,
       purchaseDate: undefined,
       totalAmount: undefined,
@@ -63,7 +64,7 @@ describe('ReceiptCard', () => {
   it('renders failed state correctly', () => {
     const failedReceipt: Receipt = {
       ...mockReceipt,
-      status: 'FAILED',
+      status: ReceiptStatus.FAILED,
     };
 
     render(<ReceiptCard receipt={failedReceipt} />);
