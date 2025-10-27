@@ -27,13 +27,13 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '9000',
-        pathname: '/**',
+        pathname: '/pricey-receipts/**',
       },
     ],
-    // In development, bypass image optimization for localhost
-    ...(process.env.NODE_ENV === 'development' && {
-      unoptimized: true,
-    }),
+    // Allow optimization of images from MinIO
+    dangerouslyAllowSVG: false,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

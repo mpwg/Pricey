@@ -170,6 +170,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
                 className="object-contain"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
+                unoptimized={process.env.NODE_ENV === 'development'}
               />
             </div>
           </CardContent>
