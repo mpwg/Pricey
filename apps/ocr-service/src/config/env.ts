@@ -40,6 +40,12 @@ const envSchema = z.object({
   // OCR Configuration
   OCR_CONCURRENCY: z.string().default('5').transform(Number),
   OCR_TIMEOUT: z.string().default('30000').transform(Number), // 30 seconds
+  // LLM Parser Configuration
+  LLM_PROVIDER: z.enum(['ollama', 'openai']).default('ollama'),
+  LLM_BASE_URL: z.string().url().default('http://localhost:11434'),
+  LLM_MODEL: z.string().default('llama3.2:3b'),
+  LLM_TIMEOUT: z.string().default('60000').transform(Number), // 60 seconds
+  LLM_TEMPERATURE: z.string().default('0.1').transform(Number), // Low temperature for structured output
 });
 
 export type Env = z.infer<typeof envSchema>;

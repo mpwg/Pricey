@@ -59,10 +59,48 @@ services:
     networks:
       - pricey-network
 
+  # Ollama - Self-hosted LLM for receipt parsing
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pricey-ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./docker/ollama-entrypoint.sh:/entrypoint.sh:ro
+    environment:
+      # Allow access from other containers
+      OLLAMA_HOST: 0.0.0.0:11434
+      # Model to auto-download on startup (change as needed)
+      # Options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+    entrypoint: ['/bin/bash', '/entrypoint.sh']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11434/api/tags']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - pricey-network
+    deploy:
+      resources:
+        # Optional: Uncomment if you have NVIDIA GPU
+        # reservations:
+        #   devices:
+        #     - driver: nvidia
+        #       count: 1
+        #       capabilities: [gpu]
+        limits:
+          # Limit memory usage (adjust based on your system)
+          memory: 8G
+
 volumes:
   postgres_data:
     driver: local
   minio_data:
+    driver: local
+  ollama_data:
     driver: local
 
 networks:

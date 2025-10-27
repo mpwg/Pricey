@@ -17,19 +17,19 @@
  */
 
 import pino from 'pino';
-import * as chrono from 'chrono-node';
-import { isFuture, subYears } from 'date-fns';
 import { TesseractOCR } from '../ocr/tesseract.js';
-import { detectStore } from '../parsers/store-detector.js';
-import { extractItems, type ReceiptItem } from '../parsers/item-parser.js';
-import { extractTotal, calculateTotal } from '../parsers/total-parser.js';
+import {
+  LlmReceiptParser,
+  type LlmReceiptItem,
+} from '../parsers/llm-receipt-parser.js';
+import { calculateTotal } from '../parsers/total-parser.js';
 
 const logger = pino({ name: 'receipt-processor' });
 
 export interface ProcessedReceipt {
   storeName: string | null;
   date: Date | null;
-  items: ReceiptItem[];
+  items: LlmReceiptItem[];
   total: number | null;
   calculatedTotal: number;
   rawText: string;
@@ -38,112 +38,89 @@ export interface ProcessedReceipt {
 
 export class ReceiptProcessor {
   private ocr: TesseractOCR;
+  private llmParser: LlmReceiptParser;
 
   constructor() {
     this.ocr = new TesseractOCR();
+    this.llmParser = new LlmReceiptParser();
   }
 
   /**
-   * Process a receipt image
+   * Process a receipt image using OCR + LLM parsing
    * @param imageBuffer - Receipt image buffer
    * @returns Processed receipt data
    */
   async process(imageBuffer: Buffer): Promise<ProcessedReceipt> {
-    logger.info('Starting receipt processing');
+    logger.info('Starting receipt processing with LLM parser');
 
-    // Run OCR
+    // Step 1: Run OCR to extract text
     logger.info('Running OCR');
-    const { text: rawText, confidence } =
+    const { text: rawText, confidence: ocrConfidence } =
       await this.ocr.processReceipt(imageBuffer);
     logger.info(
       {
-        confidence: (confidence * 100).toFixed(1) + '%',
+        confidence: (ocrConfidence * 100).toFixed(1) + '%',
         textLength: rawText.length,
       },
       'OCR complete'
     );
 
-    // Extract store name
-    logger.info('Detecting store');
-    const storeName = detectStore(rawText);
-    logger.info({ storeName: storeName || 'none' }, 'Store detection complete');
-
-    // Extract date using chrono-node natural language parser
-    logger.info('Extracting date');
-    const date = this.extractDate(rawText);
-    logger.info(
-      { date: date?.toISOString() || 'none' },
-      'Date extraction complete'
-    );
-
-    // Extract items
-    logger.info('Extracting items');
-    const items = extractItems(rawText);
+    // Step 2: Parse with LLM
+    logger.info('Parsing receipt with LLM');
+    const llmData = await this.llmParser.parse(rawText);
     logger.info(
       {
-        itemCount: items.length,
-        sampleItems: items.slice(0, 3).map((item) => ({
-          name: item.name,
-          price: item.price.toFixed(2),
-          quantity: item.quantity,
-        })),
+        storeName: llmData.storeName,
+        date: llmData.date,
+        itemCount: llmData.items.length,
+        total: llmData.total,
+        llmConfidence: llmData.confidence,
       },
-      'Item extraction complete'
+      'LLM parsing complete'
     );
 
-    // Extract total
-    logger.info('Extracting total');
-    const total = extractTotal(rawText);
-    logger.info(
-      { total: total?.toFixed(2) || 'none' },
-      'Total extraction complete'
-    );
-
-    // Calculate total from items
-    const calculatedTotal = calculateTotal(items);
-    logger.info(
-      { calculatedTotal: calculatedTotal.toFixed(2) },
-      'Calculated total from items'
-    );
-
-    return {
-      storeName,
-      date,
-      items,
-      total,
-      calculatedTotal,
-      rawText,
-      confidence,
-    };
-  }
-
-  /**
-   * Extract date from receipt text using chrono-node
-   * @param text - OCR extracted text
-   * @returns Date or null if not found
-   */
-  private extractDate(text: string): Date | null {
-    // Use chrono's strict mode to avoid false positives
-    const results = chrono.strict.parse(text, new Date());
-
-    // Find the first valid receipt date
-    for (const result of results) {
-      const date = result.start.date();
-
-      // Date must not be in the future
-      if (isFuture(date)) {
-        continue;
-      }
-
-      // Date must not be more than 1 year old (with 1 day buffer)
-      const oneYearOneDayAgo = subYears(new Date(), 1);
-      oneYearOneDayAgo.setDate(oneYearOneDayAgo.getDate() - 1);
-
-      if (date >= oneYearOneDayAgo) {
-        return date;
+    // Step 3: Convert date string to Date object
+    let date: Date | null = null;
+    if (llmData.date) {
+      try {
+        date = new Date(llmData.date);
+        // Validate date is reasonable
+        if (isNaN(date.getTime())) {
+          logger.warn({ dateString: llmData.date }, 'Invalid date from LLM');
+          date = null;
+        }
+      } catch (error) {
+        logger.warn(
+          { error, dateString: llmData.date },
+          'Failed to parse date'
+        );
       }
     }
 
-    return null;
+    // Step 4: Calculate total from items for verification
+    const calculatedTotal = calculateTotal(llmData.items);
+    logger.info(
+      {
+        extractedTotal: llmData.total?.toFixed(2) || 'none',
+        calculatedTotal: calculatedTotal.toFixed(2),
+        difference: llmData.total
+          ? Math.abs(llmData.total - calculatedTotal).toFixed(2)
+          : 'N/A',
+      },
+      'Total comparison'
+    );
+
+    // Combine OCR and LLM confidence
+    const combinedConfidence = (ocrConfidence + llmData.confidence) / 2;
+
+    return {
+      storeName: llmData.storeName,
+      date,
+      items: llmData.items,
+      total: llmData.total,
+      calculatedTotal,
+      rawText,
+      confidence: combinedConfidence,
+    };
   }
 }

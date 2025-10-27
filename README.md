@@ -50,12 +50,13 @@ Pricey is a Progressive Web Application (PWA) that digitizes your shopping recei
 
 - 📸 Receipt image upload via REST API
 - 🔍 OCR text extraction using Tesseract.js
-- 📊 Automatic parsing of store, date, items, and prices
+- 🤖 **LLM-based parsing** with Ollama (Llama 3.2 / Mistral)
+- 📊 Automatic extraction of store, date, items, and prices
 - 💾 PostgreSQL storage with Prisma ORM
 - 🔄 Asynchronous processing with BullMQ
 - 🖼️ Image storage with MinIO (S3-compatible)
 - 📈 Queue monitoring with Bull Board dashboard
-- ✅ 376 passing tests (100% success rate)
+- ✅ 376+ passing tests (100% success rate)
 
 **⏳ Planned for Phase 1 (Q1 2025):**
 
@@ -163,7 +164,11 @@ pnpm install
 # Copy environment variables
 cp .env.example .env
 
-# Start infrastructure (PostgreSQL, Redis, MinIO)
+# (Optional) Configure LLM model in .env
+# OLLAMA_MODEL=llama3.2:3b  # Default, or use mistral:7b, llama3.2:1b, phi3:mini
+
+# Start infrastructure (PostgreSQL, Redis, MinIO, Ollama)
+# The LLM model will be automatically downloaded on first start
 pnpm docker:dev
 
 # Run database migrations
@@ -178,11 +183,14 @@ pnpm dev
 
 **Services will be available at:**
 
-- **API Gateway**: http://localhost:3001
-- **Bull Board Dashboard**: http://localhost:3001/admin/queues
-- **MinIO Console**: http://localhost:9001 (user: minioadmin, pass: minioadmin)
+- **API Gateway**: <http://localhost:3001>
+- **Bull Board Dashboard**: <http://localhost:3001/admin/queues>
+- **MinIO Console**: <http://localhost:9001> (user: minioadmin, pass: minioadmin)
+- **Ollama LLM**: <http://localhost:11434>
 - **PostgreSQL**: localhost:5432
 - **Redis**: localhost:6379
+
+> 📖 **New to LLM-based parsing?** Check out the [LLM Quick Start Guide](docs/guides/LLM-QUICKSTART.md) for setup instructions and model selection tips.
 
 ---
 
