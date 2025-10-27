@@ -98,14 +98,20 @@ S3_USE_SSL="false"
 S3_BUCKET="pricey-receipts"
 
 # LLM Configuration
-# Option 1: Use Docker Ollama (slower, easier setup)
-LLM_BASE_URL="http://localhost:11434"
+# Option 1: Use GitHub Models (cloud-based, fastest setup)
+# LLM_PROVIDER="github"
+# GITHUB_TOKEN="ghp_your_token_here"
+# GITHUB_MODEL="gpt-5-mini"
 
-# Option 2: Use Mac's local Ollama with GPU acceleration (10-20x faster!)
+# Option 2: Use Docker Ollama (local, slower, optional)
+# Enable with: pnpm docker:dev:ollama
+LLM_PROVIDER="ollama"
+LLM_BASE_URL="http://localhost:11434"
+LLM_MODEL="llava"
+
+# Option 3: Use Mac's local Ollama with GPU acceleration (10-20x faster!)
 # brew install ollama && ollama serve --host 0.0.0.0:10000
 # LLM_BASE_URL="http://localhost:10000"
-
-LLM_MODEL="llava"  # Vision model for receipt parsing
 ```
 
 **Note:** The defaults in `.env.example` work out-of-the-box with the included `docker-compose.yml`.
@@ -124,7 +130,7 @@ Start PostgreSQL, Redis, and MinIO using Docker Compose:
 
 ```bash
 pnpm docker:dev
-````
+```
 
 This will start:
 
@@ -133,10 +139,20 @@ This will start:
 - MinIO on port 9000
 - MinIO Console on port 9001
 
+**Optional: Enable Docker Ollama**
+
+If you want to use Docker Ollama (not recommended for Mac users due to slow CPU-only processing):
+
+```bash
+pnpm docker:dev:ollama
+```
+
+> ⚡ **Mac Users**: Instead of Docker Ollama, use the local Ollama installation for 10-20x faster processing with GPU acceleration. See [Mac Ollama Acceleration Guide](mac-ollama-acceleration.md).
+
 Verify services are running:
 
 ```bash
-docker-compose -f infrastructure/docker/docker-compose.dev.yml ps
+docker-compose ps
 ```
 
 ### 5. Run Database Migrations
@@ -433,3 +449,4 @@ If you encounter issues:
    - What you've already tried
 
 Happy coding! 🚀
+````

@@ -49,7 +49,7 @@ const envSchema = z.object({
   LLM_TEMPERATURE: z.string().default('0.1').transform(Number), // Low temperature for structured output
   // GitHub Models Configuration (for GitHub Copilot users)
   GITHUB_TOKEN: z.string().optional(),
-  GITHUB_MODEL: z.string().default('gpt-4o'),
+  GITHUB_MODEL: z.string().default('gpt-5-mini'), // gpt-5-mini, claude-sonnet-4.5, gemini-2.5-pro, etc.
 });
 
 export type Env = z.infer<typeof envSchema>;

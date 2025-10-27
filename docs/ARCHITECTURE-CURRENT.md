@@ -90,21 +90,23 @@ graph TB
 
 ### Currently Implemented
 
-| Component            | Technology   | Version  | Purpose                 |
-| -------------------- | ------------ | -------- | ----------------------- |
-| **API Gateway**      | Fastify      | ^5.2.1   | REST API server         |
-| **OCR Service**      | Tesseract.js | ^6.0.1   | Text extraction         |
-| **Database**         | PostgreSQL   | 18       | Data persistence        |
-| **ORM**              | Prisma       | ^6.2.1   | Database access         |
-| **Cache**            | Redis        | 8        | Job queue backing       |
-| **Job Queue**        | BullMQ       | ^5.36.3  | Background processing   |
-| **Storage**          | MinIO Client | ^8.0.6   | Receipt image storage   |
-| **Image Processing** | Sharp        | ^0.34.4  | Image preprocessing     |
-| **Date Parsing**     | chrono-node  | ^2.9.0   | Natural date extraction |
-| **Monitoring**       | Bull Board   | ^6.14.0  | Queue dashboard         |
-| **Logger**           | Pino         | ^10.1.0  | Structured logging      |
-| **Validation**       | Zod          | ^3.24.1  | Schema validation       |
-| **Runtime**          | Node.js      | 24.10.0+ | JavaScript runtime      |
+| Component            | Technology    | Version  | Purpose                      |
+| -------------------- | ------------- | -------- | ---------------------------- |
+| **API Gateway**      | Fastify       | ^5.2.1   | REST API server              |
+| **OCR Service**      | Vision LLM    | Latest   | Receipt parsing & extraction |
+| **LLM (Local)**      | Ollama        | Latest   | Self-hosted vision models    |
+| **LLM (Cloud)**      | GitHub Models | Latest   | Cloud-based vision models    |
+| **Database**         | PostgreSQL    | 18       | Data persistence             |
+| **ORM**              | Prisma        | ^6.2.1   | Database access              |
+| **Cache**            | Redis         | 8        | Job queue backing            |
+| **Job Queue**        | BullMQ        | ^5.36.3  | Background processing        |
+| **Storage**          | MinIO Client  | ^8.0.6   | Receipt image storage        |
+| **Image Processing** | Sharp         | ^0.34.4  | Image preprocessing          |
+| **Date Parsing**     | chrono-node   | ^2.9.0   | Natural date extraction      |
+| **Monitoring**       | Bull Board    | ^6.14.0  | Queue dashboard              |
+| **Logger**           | Pino          | ^10.1.0  | Structured logging           |
+| **Validation**       | Zod           | ^3.24.1  | Schema validation            |
+| **Runtime**          | Node.js       | 24.10.0+ | JavaScript runtime           |
 
 ### Not Yet Implemented
 
@@ -603,11 +605,45 @@ services:
     volumes:
       - minio_data:/data
 
+  # Ollama (OPTIONAL - disabled by default)
+  # Enable with: docker-compose --profile ollama up -d
+  # or: pnpm docker:dev:ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pricey-ollama
+    profiles: [ollama] # Not started by default
+    ports: ['11434:11434']
+    volumes:
+      - ollama_data:/root/.ollama
+
 volumes:
   postgres_data:
   redis_data:
   minio_data:
+  ollama_data: # Only used if Ollama is enabled
 ```
+
+**LLM Provider Options**:
+
+Pricey supports multiple LLM providers for receipt parsing:
+
+1. **GitHub Models** (Recommended for getting started)
+   - Cloud-based, no local installation required
+   - Fast processing (~2-5 seconds per receipt)
+   - Requires GitHub token with Copilot access
+   - Free during beta period
+
+2. **Mac Local Ollama** (Recommended for Mac users)
+   - GPU acceleration (10-20x faster than Docker)
+   - Install: `brew install ollama && ollama serve --host 0.0.0.0:10000`
+   - Processing: ~2-5 seconds per receipt
+   - Fully local and private
+
+3. **Docker Ollama** (Optional, fallback)
+   - Self-hosted, CPU-only (slower)
+   - Enable with: `pnpm docker:dev:ollama`
+   - Processing: ~10-30 seconds per receipt
+   - Use when GitHub Models unavailable and not on Mac
 
 ### Application Services
 
@@ -618,16 +654,20 @@ NODE_ENV: development
 DEPENDENCIES: PostgreSQL, Redis, MinIO
 
 # OCR Worker Service
-DEPENDENCIES: Redis (queue), MinIO (storage), PostgreSQL (database)
+DEPENDENCIES: Redis (queue), MinIO (storage), PostgreSQL (database), LLM Provider
 CONCURRENCY: 5 workers
 PROCESS: Long-running Node.js process
+LLM_PROVIDER: ollama (local) or github (cloud)
 ```
 
 **Starting Services**:
 
 ```bash
-# 1. Infrastructure
-pnpm docker:dev  # Start PostgreSQL, Redis, MinIO
+# 1. Infrastructure (PostgreSQL, Redis, MinIO)
+pnpm docker:dev
+
+# Optional: Enable Docker Ollama (not recommended for Mac users)
+# pnpm docker:dev:ollama
 
 # 2. Database
 pnpm db:migrate  # Run Prisma migrations
@@ -639,6 +679,10 @@ pnpm dev         # Start all services (Turborepo)
 pnpm --filter @pricey/api-gateway dev
 pnpm --filter @pricey/ocr-service dev
 ```
+
+> 📖 **LLM Provider Guide**: See [LLM Providers Guide](./guides/llm-providers.md) for detailed setup instructions for each provider.
+
+> ⚡ **Mac Users**: For 10-20x faster processing, use local Ollama with GPU acceleration instead of Docker Ollama. See [Mac Ollama Acceleration Guide](./guides/mac-ollama-acceleration.md).
 
 ## Security
 
@@ -1012,6 +1056,22 @@ S3_USE_SSL=false
 S3_REGION=us-east-1
 OCR_CONCURRENCY=5
 LOG_LEVEL=info
+
+# LLM Configuration (choose one provider)
+# Option 1: GitHub Models (cloud-based, recommended for getting started)
+LLM_PROVIDER=github
+GITHUB_TOKEN=ghp_your_token_here
+GITHUB_MODEL=gpt-5-mini
+
+# Option 2: Ollama (local, privacy-first)
+# LLM_PROVIDER=ollama
+# LLM_BASE_URL=http://localhost:11434  # Docker Ollama
+# LLM_BASE_URL=http://localhost:10000  # Mac local Ollama (GPU, 10-20x faster)
+# LLM_MODEL=llava
+
+# Docker Ollama Configuration (optional, only if using Docker Ollama)
+# Leave empty to disable auto-download
+OLLAMA_MODEL=  # Set to "llava" to enable auto-download
 ```
 
 ### Production Considerations (Not Yet Implemented)

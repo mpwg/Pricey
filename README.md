@@ -49,9 +49,10 @@ Pricey is a Progressive Web Application (PWA) that digitizes your shopping recei
 **✅ Implemented Features:**
 
 - 📸 Receipt image upload via REST API
-- 🔍 OCR text extraction using Ollama LLMs (Llama 3.2 Vision / LLaVA)
-- 🤖 **LLM-based parsing** with structured JSON output
-- 📊 Automatic extraction of store, date, items, and prices
+- 🔍 **Vision-based LLM parsing** - Directly analyzes receipt images
+- 🤖 **Multi-provider LLM support** - Ollama (local) or GitHub Models (cloud)
+- 🎯 **State-of-the-art models** - GPT-5 mini, Claude Sonnet 4.5, LLaVA
+- 📊 Automatic extraction of store, date, items, and prices with 85-99% accuracy
 - 💾 PostgreSQL storage with Prisma ORM
 - 🔄 Asynchronous processing with BullMQ
 - 🖼️ Image storage with MinIO (S3-compatible)
@@ -88,8 +89,13 @@ graph TB
     subgraph "Background Processing"
         Queue[BullMQ Queue<br/>receipt-processing]
         Worker[OCR Worker<br/>5 concurrent jobs]
-        LLM[Ollama LLM<br/>Vision Models]
+        Parser[Vision LLM Parser<br/>Multi-Provider]
         Sharp[Sharp<br/>Image Preprocessing]
+    end
+
+    subgraph "LLM Providers"
+        Ollama[Ollama Local<br/>LLaVA, Llama Vision]
+        GitHub[GitHub Models<br/>GPT-5, Claude 4.5]
     end
 
     subgraph "Storage Layer"
@@ -111,8 +117,10 @@ graph TB
     Queue -->|Dequeue| Worker
     Worker -->|Download| S3
     Worker -->|Preprocess| Sharp
-    Sharp -->|Optimized Image| LLM
-    LLM -->|Structured JSON| Worker
+    Sharp -->|Optimized Image| Parser
+    Parser -->|Vision Analysis| Ollama
+    Parser -->|Vision Analysis| GitHub
+    Parser -->|Structured JSON| Worker
     Worker -->|Update| DB
 
     Get -->|Query| DB
@@ -129,17 +137,20 @@ graph TB
 
 **Technology Stack (Currently Implemented):**
 
-| Layer        | Technology  | Version | Purpose                          |
-| ------------ | ----------- | ------- | -------------------------------- |
-| **API**      | Fastify     | 5+      | REST endpoints                   |
-| **OCR**      | Ollama      | Latest  | LLM vision-based text extraction |
-| **Database** | PostgreSQL  | 18+     | Data persistence                 |
-| **ORM**      | Prisma      | 6+      | Database access                  |
-| **Queue**    | BullMQ      | 5+      | Job processing                   |
-| **Cache**    | Redis       | 8+      | Queue backing                    |
-| **Storage**  | MinIO       | 8+      | S3-compatible storage            |
-| **Images**   | Sharp       | 0+      | Preprocessing                    |
-| **Parsing**  | chrono-node | 2+      | Date extraction                  |
+| Layer        | Technology    | Version | Purpose                      |
+| ------------ | ------------- | ------- | ---------------------------- |
+| **API**      | Fastify       | 5+      | REST endpoints               |
+| **LLM**      | Ollama/GitHub | Latest  | Vision-based receipt parsing |
+| **Models**   | GPT-5 mini    | Latest  | Cloud vision model (GitHub)  |
+|              | Claude 4.5    | Latest  | Cloud vision model (GitHub)  |
+|              | LLaVA         | Latest  | Local vision model (Ollama)  |
+| **Database** | PostgreSQL    | 18+     | Data persistence             |
+| **ORM**      | Prisma        | 6+      | Database access              |
+| **Queue**    | BullMQ        | 5+      | Job processing               |
+| **Cache**    | Redis         | 8+      | Queue backing                |
+| **Storage**  | MinIO         | 8+      | S3-compatible storage        |
+| **Images**   | Sharp         | 0+      | Preprocessing                |
+| **Parsing**  | chrono-node   | 2+      | Date extraction              |
 
 ---
 
@@ -164,13 +175,23 @@ pnpm install
 # Copy environment variables
 cp .env.example .env.local
 
-# (Optional) Configure LLM settings in .env.local
-# LLM_BASE_URL=http://localhost:10000  # Use Mac's local Ollama for 10-20x speedup
-# LLM_MODEL=llama3.2-vision:11b        # Or try different vision models
+# (Optional) Configure LLM provider in .env.local
+# For GitHub Models (recommended - fastest setup, no local installation):
+# LLM_PROVIDER="github"
+# GITHUB_TOKEN="ghp_YOUR_TOKEN"  # Get from https://github.com/settings/tokens
+# GITHUB_MODEL="gpt-5-mini"      # or claude-sonnet-4.5, gemini-2.5-pro
 
-# Start infrastructure (PostgreSQL, Redis, MinIO, Ollama)
-# The LLM model will be automatically downloaded on first start
+# For Ollama (local - privacy-first):
+# LLM_PROVIDER="ollama"
+# LLM_BASE_URL=http://localhost:11434  # Docker Ollama (or localhost:10000 for Mac with GPU)
+# LLM_MODEL=llava                      # or llama3.2-vision, moondream
+
+# Start infrastructure (PostgreSQL, Redis, MinIO)
 pnpm docker:dev
+
+# (Optional) Start Docker Ollama if you don't have it installed locally
+# Note: This is slower and uses more memory. For Mac users, see the Mac Ollama Acceleration Guide.
+# pnpm docker:dev:ollama
 
 # Run database migrations
 pnpm db:migrate
@@ -187,13 +208,13 @@ pnpm dev
 - **API Gateway**: <http://localhost:3001>
 - **Bull Board Dashboard**: <http://localhost:3001/admin/queues>
 - **MinIO Console**: <http://localhost:9001> (user: minioadmin, pass: minioadmin)
-- **Ollama LLM**: <http://localhost:11434>
+- **Ollama LLM**: <http://localhost:11434> (only if enabled with `docker:dev:ollama`)
 - **PostgreSQL**: localhost:5432
 - **Redis**: localhost:6379
 
 > 📖 **New to LLM-based parsing?** Check out the [LLM Quick Start Guide](docs/guides/LLM-QUICKSTART.md) for setup instructions and model selection tips.
 
-> ⚡ **Mac Users**: For **10-20x faster** receipt processing with GPU acceleration, see [Mac Ollama Acceleration Guide](docs/guides/mac-ollama-acceleration.md)
+> ⚡ **Mac Users**: For **10-20x faster** receipt processing with GPU acceleration, see [Mac Ollama Acceleration Guide](docs/guides/mac-ollama-acceleration.md) - **highly recommended over Docker Ollama**
 
 ---
 

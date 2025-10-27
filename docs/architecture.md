@@ -62,7 +62,10 @@ Pricey is a web-based Progressive Web Application (PWA) that enables users to sc
 #### Local Deployment
 
 - **All Services**: Docker Compose
-- **OCR**: Tesseract OCR (open-source)
+- **LLM/OCR**: Multi-provider support
+  - **Ollama** (local, self-hosted) - Optional via `docker-compose --profile ollama up -d`
+  - **GitHub Models** (cloud) - Recommended for getting started
+  - **Mac Local Ollama** (GPU-accelerated) - Recommended for Mac users
 - **Storage**: MinIO (S3-compatible local storage)
 - **Database**: PostgreSQL in Docker
 - **Frontend**: Served via nginx or Node.js with HTTPS (required for PWA)
@@ -90,14 +93,20 @@ Pricey is a web-based Progressive Web Application (PWA) that enables users to sc
 - **Validation**: Zod or Joi
 - **ORM**: Prisma (v5+) or TypeORM
 
-### 3.3 OCR & NLP Pipeline
+### 3.3 LLM & Vision Processing Pipeline
 
-- **Local OCR**: Tesseract.js
-- **Cloud OCR**: Google Cloud Vision API / AWS Textract
-- **NLP Processing**:
-  - spaCy or NLTK for entity extraction
-  - Custom regex patterns for price/unit detection
-  - Fuzzy matching (Levenshtein distance) for product normalization
+- **Local LLM**: Ollama (self-hosted, optional)
+  - Vision models: LLaVA, Llama 3.2 Vision, Moondream
+  - GPU acceleration available on Mac and Linux (NVIDIA)
+  - Fully private and GDPR-compliant
+- **Cloud LLM**: GitHub Models (recommended for getting started)
+  - Models: GPT-5 Mini, Claude Sonnet 4.5, Gemini 2.5 Pro
+  - Fast processing, no local installation
+  - Free during beta period
+- **Receipt Parsing**: Vision-based direct image analysis
+  - Structured JSON output with store, date, items, prices
+  - No traditional OCR preprocessing needed
+  - Multi-provider support for flexibility
 
 ### 3.4 Data Storage
 
@@ -111,17 +120,18 @@ Pricey is a web-based Progressive Web Application (PWA) that enables users to sc
 ### 4.1 Receipt Processing Pipeline
 
 ```typescript
-// Pipeline stages
+// Pipeline stages (Vision LLM-based)
 interface ReceiptPipeline {
   1. ImageUpload → Compression & Storage
-  2. OCRExtraction → Text extraction from image
-  3. TextParsing → Structure raw text into sections
-  4. EntityExtraction → Extract store, date, items, prices
-  5. ProductNormalization → Map to generic products
-  6. DataPersistence → Save to database
-  7. PriceAnalysis → Update price history
+  2. VisionLLMAnalysis → Direct image-to-structured-data extraction
+  3. DataValidation → Validate extracted fields
+  4. ProductNormalization → Map to generic products (Phase 2)
+  5. DataPersistence → Save to database
+  6. PriceAnalysis → Update price history (Phase 2)
 }
 ```
+
+**Key Change**: Vision LLM models analyze receipt images directly, eliminating the need for traditional OCR + text parsing. The LLM outputs structured JSON with store, date, items, and prices in a single step.
 
 ### 4.2 Product Normalization Engine
 
@@ -490,9 +500,27 @@ GET / health / metrics; // Prometheus metrics
 ```bash
 # Docker Compose setup
 docker-compose up -d postgres redis minio
+
+# Optional: Enable Docker Ollama (if not using GitHub Models or Mac local Ollama)
+docker-compose --profile ollama up -d
+
 npm run dev:frontend
 npm run dev:backend
 ```
+
+**LLM Provider Selection**:
+
+Choose one of the following based on your needs:
+
+1. **GitHub Models** (recommended for development):
+   - Set `LLM_PROVIDER=github` and `GITHUB_TOKEN=your_token`
+   - Fast, cloud-based, no local setup
+2. **Mac Local Ollama** (recommended for Mac users):
+   - Install: `brew install ollama && ollama serve --host 0.0.0.0:10000`
+   - Set `LLM_PROVIDER=ollama` and `LLM_BASE_URL=http://localhost:10000`
+3. **Docker Ollama** (fallback):
+   - Enable with `docker-compose --profile ollama up -d`
+   - Set `LLM_PROVIDER=ollama` and `LLM_BASE_URL=http://localhost:11434`
 
 ### 9.2 CI/CD Pipeline
 
@@ -513,25 +541,27 @@ npm run dev:backend
 
 ### 10.2 Vertical Scaling
 
-- OCR processing queue with workers
+- LLM processing queue with workers
 - Batch processing for analytics
 - Async job processing (Bull/BullMQ)
+- GPU acceleration for local Ollama deployments
 
 ## 11. Cost Optimization
 
 ### 11.1 Cloud Services
 
-- Use spot instances for OCR workers
+- Use spot instances for LLM processing workers
 - S3 lifecycle policies for old receipts
 - Reserved instances for databases
 - CloudFront for static asset delivery
+- GitHub Models (free during beta) for cloud LLM processing
 
 ### 11.2 Local Deployment
 
 - Single Docker host for small deployments
 - K3s for lightweight Kubernetes
 - PostgreSQL with minimal resources
-- Tesseract for free OCR
+- Ollama for free local LLM processing (optional GPU acceleration)
 
 ## 12. Future Enhancements
 

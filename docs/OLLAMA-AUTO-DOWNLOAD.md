@@ -1,43 +1,93 @@
-# Automatic LLM Model Download in Docker
+# Automatic LLM Model Download in Docker (Optional)
 
-**Date:** October 27, 2025
-**Status:** ✅ Implemented
+**Date:** January 2025
+**Status:** ✅ Implemented (Optional Feature)
+
+## ⚠️ Important Update: Docker Ollama is Now Optional
+
+As of January 2025, the Docker Ollama container is **optional** and **disabled by default**. This change improves the developer experience by:
+
+- ✅ Faster initial setup (no large model downloads)
+- ✅ Lower resource usage (Ollama uses 8GB+ memory)
+- ✅ Flexibility to choose your preferred LLM provider
+
+**Recommended alternatives:**
+
+- **GitHub Models** (cloud, fastest setup, free during beta)
+- **Mac Local Ollama** (10-20x faster with GPU, see [Mac Ollama Acceleration Guide](guides/mac-ollama-acceleration.md))
+
+**Still want Docker Ollama?** Continue reading to learn how to enable it.
+
+---
 
 ## Summary
 
-The Ollama Docker container now **automatically downloads the LLM model** on startup. No manual setup script needed!
+When enabled, the Ollama Docker container **automatically downloads the LLM model** on startup. No manual setup script needed!
+
+## Enabling Docker Ollama
+
+### Quick Start
+
+```bash
+# Enable Docker Ollama
+pnpm docker:dev:ollama
+
+# Or using Docker Compose directly
+docker-compose --profile ollama up -d
+```
+
+For detailed instructions, see the [Docker Ollama Configuration Guide](guides/docker-ollama-optional.md).
 
 ## What Changed
 
-### 1. Automatic Model Download
+### 1. Optional Service (NEW)
+
+- Docker Ollama is now controlled via Docker Compose profiles
+- Disabled by default to reduce resource usage
+- Enable with `--profile ollama` flag or `COMPOSE_PROFILES` environment variable
+
+### 2. Automatic Model Download
 
 - Created `docker/ollama-entrypoint.sh` script
 - Modified `docker-compose.yml` to use custom entrypoint
 - Model is configured via `OLLAMA_MODEL` environment variable
+- **Default**: No model (empty string) - set explicitly to enable auto-download
 
-### 2. Configuration
+### 3. Configuration
 
-Set your preferred model in `.env`:
+Set your preferred model in `.env.local`:
 
 ```bash
-# Model to auto-download (options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini)
-OLLAMA_MODEL=llama3.2:3b
+# Enable auto-download by setting a model name
+# Leave empty (default) to skip model download
+OLLAMA_MODEL="llava"  # Vision model for receipt parsing
+
+# Options:
+# - llava (general-purpose vision, ~4.5GB)
+# - llama3.2-vision:11b (higher accuracy, 11GB)
+# - moondream (lightweight vision, ~2GB)
+# - Set to "" to disable auto-download
 ```
 
-### 3. Updated Setup Process
+### 4. Updated Setup Process
 
-**Before:**
+**Before (Always Enabled):**
 
 ```bash
-pnpm docker:dev
-./scripts/setup-ollama.sh  # Manual step
+pnpm docker:dev       # Started Ollama automatically
+./scripts/setup-ollama.sh  # Manual model setup
 pnpm dev
 ```
 
-**After:**
+**After (Optional):**
 
 ```bash
-pnpm docker:dev  # Model downloads automatically!
+# Option 1: Use GitHub Models (no Docker Ollama needed)
+pnpm docker:dev       # Starts only PostgreSQL, Redis, MinIO
+pnpm dev
+
+# Option 2: Use Docker Ollama
+pnpm docker:dev:ollama  # Starts all services including Ollama
 pnpm dev
 ```
 
@@ -68,31 +118,31 @@ pnpm dev
 
 ## Configuration Options
 
-### Available Models
+### Available Vision Models
 
-Set `OLLAMA_MODEL` to any of these:
+Set `OLLAMA_MODEL` to any of these vision models for receipt parsing:
 
-| Model         | Size | Speed     | Best For                       |
-| ------------- | ---- | --------- | ------------------------------ |
-| `llama3.2:1b` | 1GB  | Very Fast | Low-resource systems           |
-| `llama3.2:3b` | 2GB  | Fast      | **Development (default)**      |
-| `mistral:7b`  | 4GB  | Moderate  | **Production (best accuracy)** |
-| `phi3:mini`   | 2GB  | Fast      | Compact deployments            |
+| Model                 | Size  | Speed     | Best For                             |
+| --------------------- | ----- | --------- | ------------------------------------ |
+| `llava`               | 4.5GB | Moderate  | **Development (recommended)**        |
+| `llama3.2-vision:11b` | 11GB  | Slower    | **Production (best accuracy)**       |
+| `llama3.2-vision:90b` | 90GB  | Very Slow | Maximum accuracy (requires 64GB RAM) |
+| `moondream`           | 2GB   | Fast      | Lightweight, good for testing        |
 
 ### Switching Models
 
-1. Update `.env`:
+1. Update `.env.local`:
 
    ```bash
-   OLLAMA_MODEL=mistral:7b
-   LLM_MODEL=mistral:7b  # Keep in sync for app config
+   OLLAMA_MODEL="llama3.2-vision:11b"
+   LLM_MODEL="llama3.2-vision:11b"  # Keep in sync for app config
    ```
 
 2. Restart Docker:
 
    ```bash
-   pnpm docker:dev:down
-   pnpm docker:dev
+   pnpm docker:dev:ollama:down
+   pnpm docker:dev:ollama
    ```
 
 New model downloads automatically!

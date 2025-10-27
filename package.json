@@ -34,6 +34,8 @@
     "db:reset": "pnpm --filter @pricey/database db:reset",
     "docker:dev": "docker-compose up -d",
     "docker:dev:down": "docker-compose down",
+    "docker:dev:ollama": "docker-compose --profile ollama up -d",
+    "docker:dev:ollama:down": "docker-compose --profile ollama down",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
     "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
     "minio:setup": "bash scripts/setup-minio.sh",

@@ -44,20 +44,21 @@ LLM_MODEL="llava"  # or llama3.2-vision:11b, moondream
 
 ### 2. GitHub Models (Cloud, via Copilot)
 
-**Best for:** GitHub Copilot users, high accuracy, low latency
+**Best for:** GitHub Copilot users, state-of-the-art accuracy, fast inference
 
 **Pros:**
 
-- Uses GPT-4o (state-of-the-art vision model)
-- Fast inference
+- Uses latest models (GPT-5 mini, Claude Sonnet 4.5, Gemini 2.5 Pro)
+- Vision support for direct image analysis (GPT-5 mini, Claude models, Gemini)
+- Fast inference with cloud infrastructure
 - Included with GitHub Copilot subscription
-- No additional cost
+- No additional cost beyond Copilot subscription
 
 **Cons:**
 
 - Requires GitHub Copilot subscription
 - Requires internet connection
-- Data sent to GitHub/OpenAI
+- Data sent to GitHub/OpenAI/Anthropic/Google
 
 **Setup:**
 
@@ -70,7 +71,9 @@ LLM_MODEL="llava"  # or llama3.2-vision:11b, moondream
 ```bash
 LLM_PROVIDER="github"
 GITHUB_TOKEN="ghp_your_token_here"
-GITHUB_MODEL="gpt-4o"  # or gpt-4o-mini for faster/cheaper
+GITHUB_MODEL="gpt-5-mini"  # Options: gpt-5-mini, gpt-5-codex, gpt-5,
+                            #          claude-sonnet-4.5, claude-sonnet-4,
+                            #          claude-opus-4.1, gemini-2.5-pro
 ```
 
 ---
@@ -108,7 +111,7 @@ GITHUB_MODEL="gpt-4o"  # or gpt-4o-mini for faster/cheaper
 # 2. Configure
 echo 'LLM_PROVIDER="github"' >> .env.local
 echo 'GITHUB_TOKEN="ghp_YOUR_TOKEN"' >> .env.local
-echo 'GITHUB_MODEL="gpt-4o"' >> .env.local
+echo 'GITHUB_MODEL="gpt-5-mini"' >> .env.local
 
 # 3. Start services
 pnpm dev
@@ -139,12 +142,16 @@ pnpm dev
 
 ## Model Comparison
 
-| Provider   | Model            | Speed                  | Accuracy           | Cost              | Privacy  |
-| ---------- | ---------------- | ---------------------- | ------------------ | ----------------- | -------- |
-| **GitHub** | GPT-4o           | ⚡️⚡️⚡️ Fast         | 🎯🎯🎯🎯 Excellent | Free with Copilot | ⚠️ Cloud |
-| **GitHub** | GPT-4o-mini      | ⚡️⚡️⚡️⚡️ Very Fast | 🎯🎯🎯 Good        | Free with Copilot | ⚠️ Cloud |
-| **Ollama** | LLaVA            | ⚡️⚡️ Medium          | 🎯🎯 Fair          | Free              | ✅ Local |
-| **Ollama** | Llama 3.2 Vision | ⚡️ Slow               | 🎯🎯🎯 Good        | Free              | ✅ Local |
+| Provider   | Model             | Speed          | Accuracy           | Vision | Cost              | Privacy  |
+| ---------- | ----------------- | -------------- | ------------------ | ------ | ----------------- | -------- |
+| **GitHub** | GPT-5 mini        | ⚡️⚡️⚡️ Fast | 🎯🎯🎯🎯 Excellent | ✅ Yes | Free with Copilot | ⚠️ Cloud |
+| **GitHub** | Claude Sonnet 4.5 | ⚡️⚡️⚡️ Fast | 🎯🎯🎯🎯🎯 Best    | ✅ Yes | Free with Copilot | ⚠️ Cloud |
+| **GitHub** | Claude Opus 4.1   | ⚡️⚡️ Medium  | 🎯🎯🎯🎯🎯 Best    | ✅ Yes | Free with Copilot | ⚠️ Cloud |
+| **GitHub** | Gemini 2.5 Pro    | ⚡️⚡️⚡️ Fast | 🎯🎯🎯🎯 Excellent | ✅ Yes | Free with Copilot | ⚠️ Cloud |
+| **Ollama** | LLaVA             | ⚡️⚡️ Medium  | 🎯🎯 Fair          | ✅ Yes | Free              | ✅ Local |
+| **Ollama** | Llama 3.2 Vision  | ⚡️ Slow       | 🎯🎯🎯 Good        | ✅ Yes | Free              | ✅ Local |
+
+**Note:** GPT-4o was retired on October 23, 2025.
 
 ---
 
@@ -206,8 +213,15 @@ LLM_PROVIDER: z.enum(['ollama', 'github', 'myprovider']).default('ollama'),
 
 **Error: "Rate limit exceeded"**
 
-- GitHub Models has rate limits
+- GitHub Copilot has usage limits based on your plan
 - Try switching to Ollama temporarily
+- Consider using a different model (e.g., gpt-5-codex instead of claude-opus-4.1)
+
+**Error: "Model not available"**
+
+- Ensure you have an active GitHub Copilot subscription
+- Some models require specific subscription tiers
+- Check supported models: <https://docs.github.com/en/copilot/reference/ai-models/supported-models>
 
 ### Ollama
 

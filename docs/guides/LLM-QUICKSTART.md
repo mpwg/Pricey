@@ -1,32 +1,55 @@
 # LLM-Based Receipt Parsing - Quick Start
 
-This guide helps you get started with the new LLM-based receipt parser in Pricey.
+This guide helps you get started with vision-based LLM receipt parsing in Pricey.
 
 ## What Changed?
 
-Pricey now uses **LLMs (Large Language Models)** instead of regex patterns to parse receipt text. This provides:
+Pricey now uses **vision-capable LLMs** to directly analyze receipt images. This provides:
 
-✅ **Better accuracy** (85-95% vs. 60-70%)
+✅ **Better accuracy** (85-99% vs. 60-70%)
+✅ **Vision-based** - Analyzes images directly (no OCR)
+✅ **Multi-provider** - Switch between Ollama (local) and GitHub Models (cloud)
 ✅ **Handles any receipt layout**
 ✅ **No manual template maintenance**
 ✅ **Multilingual support**
-✅ **Self-hosted (privacy-first)**
 
-## Quick Setup (3 minutes)
+## Quick Setup (2 options)
 
-### 1. Configure Model (Optional)
+### Option A: GitHub Models (Fastest - 1 minute)
 
-The default model is `llama3.2:3b`. To use a different model, set it in your `.env`:
+Best for GitHub Copilot users. Uses state-of-the-art models like GPT-5 mini or Claude Sonnet 4.5.
+
+```bash
+# 1. Get GitHub token from https://github.com/settings/tokens
+# 2. Configure
+echo 'LLM_PROVIDER="github"' >> .env.local
+echo 'GITHUB_TOKEN="ghp_YOUR_TOKEN"' >> .env.local
+echo 'GITHUB_MODEL="gpt-5-mini"' >> .env.local
+
+# 3. Start services (no Docker needed for LLM)
+pnpm dev
+```
+
+**Done!** No model downloads, ready in seconds.
+
+### Option B: Ollama Local (Self-Hosted - 3 minutes)
+
+Best for privacy and offline use.
+
+#### 1. Configure Model (Optional)
+
+The default model is `llava` (vision-capable). To use a different model, set it in your `.env`:
 
 ```bash
 # Copy example file
 cp .env.example .env
 
 # Edit .env and set your preferred model
-OLLAMA_MODEL=llama3.2:3b  # or mistral:7b, llama3.2:1b, phi3:mini
+OLLAMA_MODEL=llava  # Default (recommended)
+# Options: llava, llama3.2-vision, moondream
 ```
 
-### 2. Start Infrastructure
+#### 2. Start Infrastructure
 
 ```bash
 # Start Docker services (PostgreSQL, Redis, MinIO, Ollama)
@@ -37,12 +60,12 @@ pnpm docker:dev
 The Ollama container will automatically:
 
 - ✅ Start the Ollama server
-- ✅ Download the model specified in `OLLAMA_MODEL`
-- ✅ Be ready to parse receipts
+- ✅ Download the vision model specified in `OLLAMA_MODEL`
+- ✅ Be ready to parse receipt images
 
-**First start** may take 2-5 minutes to download the model (1-4GB).
+**First start** may take 2-5 minutes to download the model (1.7-7.9GB).
 
-### 3. Start Services
+#### 3. Start Services
 
 ```bash
 # Start OCR service
@@ -78,11 +101,23 @@ The response will include parsed data:
 
 ## Switch Models
 
-Want better accuracy? Use Mistral 7B:
+### GitHub Models
+
+```bash
+# Update .env.local
+GITHUB_MODEL=claude-sonnet-4.5  # or gpt-5-mini, gemini-2.5-pro, claude-opus-4.1
+
+# Restart service
+pnpm --filter @pricey/ocr-service dev
+```
+
+### Ollama Models
+
+Want better accuracy? Switch to a larger vision model:
 
 ```bash
 # 1. Update .env
-OLLAMA_MODEL=mistral:7b
+OLLAMA_MODEL=llama3.2-vision  # Or moondream for faster processing
 
 # 2. Restart Docker services
 pnpm docker:dev:down
@@ -106,16 +141,44 @@ docker exec pricey-ollama ollama rm llama3.2:1b
 
 ## Available Models
 
-| Model         | Size | Speed     | Best For                           |
-| ------------- | ---- | --------- | ---------------------------------- |
-| `llama3.2:1b` | 1GB  | Very Fast | Low-resource systems               |
-| `llama3.2:3b` | 2GB  | Fast      | **Recommended for development**    |
-| `mistral:7b`  | 4GB  | Moderate  | **Production use (best accuracy)** |
-| `phi3:mini`   | 2GB  | Fast      | Compact deployments                |
+### Ollama (Local)
+
+| Model             | Size  | Speed     | Best For                |
+| ----------------- | ----- | --------- | ----------------------- |
+| `llava` (default) | 4.5GB | Fast      | Recommended for all use |
+| `llama3.2-vision` | 7.9GB | Moderate  | Highest accuracy        |
+| `moondream`       | 1.7GB | Very Fast | Low-resource systems    |
+
+### GitHub Models (Cloud)
+
+| Model               | Speed     | Best For                     |
+| ------------------- | --------- | ---------------------------- |
+| `gpt-5-mini`        | Very Fast | Recommended (balanced)       |
+| `claude-sonnet-4.5` | Very Fast | Best coding model (Oct 2025) |
+| `claude-opus-4.1`   | Moderate  | Highest accuracy             |
+| `gemini-2.5-pro`    | Fast      | Scientific analysis          |
+
+**Note:** GPT-4o was retired on October 23, 2025.
 
 ## Troubleshooting
 
-### Ollama not responding
+### GitHub Models Issues
+
+**Error: "Unauthorized"**
+
+- Check your GitHub token is valid
+- Ensure you have an active Copilot subscription
+- Token should start with `ghp_`
+
+**Error: "Rate limit exceeded"**
+
+- GitHub Copilot has usage limits based on your plan
+- Try switching to Ollama temporarily
+- Consider using a different model
+
+### Ollama Issues
+
+**Ollama not responding**
 
 ```bash
 # Check if Ollama is running
@@ -128,20 +191,21 @@ docker restart pricey-ollama
 docker logs pricey-ollama
 ```
 
-### Model not found
+**Model not found**
 
 ```bash
 # List available models
 docker exec pricey-ollama ollama list
 
-# Pull if missing
-docker exec pricey-ollama ollama pull llama3.2:3b
+# Pull if missing (for vision models)
+docker exec pricey-ollama ollama pull llava
 ```
 
-### Parsing too slow
+**Parsing too slow**
 
-- Switch to `llama3.2:1b` for faster (but less accurate) parsing
-- Enable GPU acceleration (requires NVIDIA GPU + Docker GPU support)
+- Switch to `moondream` for faster (but less accurate) parsing
+- Use GitHub Models for cloud-based speed (2-4 seconds)
+- Enable GPU acceleration (Mac: see [Mac Ollama Acceleration Guide](./mac-ollama-acceleration.md))
 - Increase `LLM_TIMEOUT` if getting timeouts
 
 ## Full Documentation

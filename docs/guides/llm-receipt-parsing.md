@@ -4,34 +4,47 @@
 
 ## Overview
 
-Pricey now uses **Large Language Models (LLMs)** instead of regex-based parsing to extract structured data from receipt text. This approach provides:
+Pricey uses **vision-capable Large Language Models (LLMs)** to directly analyze receipt images and extract structured data. This approach provides:
 
 - **Higher accuracy** - Context-aware understanding of receipt formats
+- **Vision-based** - Analyzes actual images, not just text
+- **Multi-provider** - Switch between local (Ollama) and cloud (GitHub Models)
 - **Flexibility** - Handles varying layouts without templates
 - **Multilingual support** - Works with receipts in different languages
 - **Structured output** - Guaranteed JSON schema compliance
-- **Self-hosted** - No cloud APIs or data privacy concerns
 
 ## Architecture
 
 ```text
-Receipt Image → Tesseract OCR → Raw Text → LLM Parser → Structured Data
-                                              ↓
-                                         Ollama (Docker)
-                                              ↓
-                                    Llama 3.2 / Mistral / etc.
+Receipt Image → Vision LLM → Structured Data
+                    ↓
+         Ollama (local) OR GitHub Models (cloud)
+                    ↓
+         LLaVA / Llama Vision / GPT-5 mini / Claude 4.5
 ```
 
-## Supported LLM Models
+**No OCR step needed** - Vision models analyze images directly.
 
-| Model           | Size  | Speed     | Accuracy  | Best For             |
-| --------------- | ----- | --------- | --------- | -------------------- |
-| **llama3.2:3b** | 1.9GB | Fast      | Good      | Development, testing |
-| **llama3.2:1b** | 1.0GB | Very Fast | Fair      | Low-resource systems |
-| **mistral:7b**  | 4.1GB | Moderate  | Excellent | Production use       |
-| **phi3:mini**   | 2.3GB | Fast      | Good      | Compact deployments  |
+## Supported Providers & Models
 
-## Configuration
+### Ollama (Local, Self-Hosted)
+
+| Model               | Size  | Speed     | Accuracy  | Vision | Best For                   |
+| ------------------- | ----- | --------- | --------- | ------ | -------------------------- |
+| **llava** (default) | 4.5GB | Fast      | Excellent | ✅ Yes | Recommended for all use    |
+| **llama3.2-vision** | 7.9GB | Moderate  | Excellent | ✅ Yes | High-accuracy requirements |
+| **moondream**       | 1.7GB | Very Fast | Good      | ✅ Yes | Low-resource systems       |
+
+### GitHub Models (Cloud, Copilot)
+
+| Model                 | Speed     | Accuracy  | Vision | Best For                      |
+| --------------------- | --------- | --------- | ------ | ----------------------------- |
+| **gpt-5-mini**        | Very Fast | Excellent | ✅ Yes | Recommended (balanced)        |
+| **claude-sonnet-4.5** | Very Fast | Excellent | ✅ Yes | Best coding model (Oct 2025)  |
+| **claude-opus-4.1**   | Moderate  | Excellent | ✅ Yes | Highest accuracy              |
+| **gemini-2.5-pro**    | Fast      | Excellent | ✅ Yes | Scientific/technical analysis |
+
+**Note:** GPT-4o was retired on October 23, 2025.
 
 ## Configuration
 
@@ -39,21 +52,32 @@ Receipt Image → Tesseract OCR → Raw Text → LLM Parser → Structured Data
 
 Add these to your `.env` file:
 
+**For Ollama (Local):**
+
 ```bash
 # Docker - Model to auto-download on startup
-OLLAMA_MODEL=llama3.2:3b                     # Options: llama3.2:1b, llama3.2:3b, mistral:7b, phi3:mini
+OLLAMA_MODEL=llava                           # Options: llava, llama3.2-vision, moondream
 
 # Application - LLM Parser Configuration
-LLM_PROVIDER=ollama                          # Provider: 'ollama' or 'openai' (future)
+LLM_PROVIDER=ollama                          # Provider: 'ollama', 'github', or 'openai' (future)
 LLM_BASE_URL=http://localhost:11434         # Ollama API endpoint
-LLM_MODEL=llama3.2:3b                        # Model to use (should match OLLAMA_MODEL)
+LLM_MODEL=llava                              # Model to use (should match OLLAMA_MODEL)
 LLM_TIMEOUT=60000                            # Timeout in milliseconds
 LLM_TEMPERATURE=0.1                          # Temperature (0.0-1.0, lower = more deterministic)
 ```
 
+**For GitHub Models (Cloud):**
+
+```bash
+# Application - GitHub Models Configuration
+LLM_PROVIDER=github
+GITHUB_TOKEN=ghp_your_token_here             # Get from https://github.com/settings/tokens
+GITHUB_MODEL=gpt-5-mini                      # Options: gpt-5-mini, claude-sonnet-4.5, gemini-2.5-pro
+```
+
 ### Docker Services
 
-The LLM service is defined in `docker-compose.yml` with automatic model downloading:
+The Ollama service is defined in `docker-compose.yml` with automatic model downloading:
 
 ```yaml
 ollama:
@@ -66,7 +90,7 @@ ollama:
     - ./docker/ollama-entrypoint.sh:/entrypoint.sh:ro
   environment:
     OLLAMA_HOST: 0.0.0.0:11434
-    OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b} # Auto-pulls on startup
+    OLLAMA_MODEL: ${OLLAMA_MODEL:-llava} # Auto-pulls vision model on startup
   entrypoint: ['/bin/bash', '/entrypoint.sh']
   deploy:
     resources:
@@ -76,18 +100,33 @@ ollama:
 
 ## Setup Instructions
 
-### 1. Configure Model (Optional)
+### Option A: GitHub Models (Fastest Setup)
+
+```bash
+# 1. Get GitHub token from https://github.com/settings/tokens
+# 2. Configure
+echo 'LLM_PROVIDER="github"' >> .env.local
+echo 'GITHUB_TOKEN="ghp_YOUR_TOKEN"' >> .env.local
+echo 'GITHUB_MODEL="gpt-5-mini"' >> .env.local
+
+# 3. Start services (no Docker needed for LLM)
+pnpm dev
+```
+
+### Option B: Ollama Local Setup
+
+#### 1. Configure Model (Optional)
 
 ```bash
 # Copy example environment file
 cp .env.example .env
 
 # Edit .env to set your preferred model
-OLLAMA_MODEL=llama3.2:3b  # Default (recommended)
-# Or: mistral:7b, llama3.2:1b, phi3:mini
+OLLAMA_MODEL=llava  # Default (recommended)
+# Or: llama3.2-vision, moondream
 ```
 
-### 2. Start Docker Services
+#### 2. Start Docker Services
 
 ```bash
 # Start all infrastructure (PostgreSQL, Redis, MinIO, Ollama)
@@ -95,27 +134,28 @@ OLLAMA_MODEL=llama3.2:3b  # Default (recommended)
 pnpm docker:dev
 ```
 
-**First startup** downloads the model automatically (1-4GB, takes 2-5 minutes).
+**First startup** downloads the model automatically (1.7-7.9GB, takes 2-5 minutes).
 Subsequent starts are instant (model is cached).
 
-### 3. Verify Setup
+#### 3. Verify Setup
 
 ```bash
-# Check available models
+# Check available models (Ollama)
 docker exec pricey-ollama ollama list
 
-# Test the API
+# Test the Ollama API
 curl http://localhost:11434/api/tags
 
-# Test parsing (example)
+# Test vision parsing with an image
 curl http://localhost:11434/api/generate -d '{
-  "model": "llama3.2:3b",
-  "prompt": "Parse this receipt: Store: Walmart, Date: 2025-10-27, Total: $25.99",
+  "model": "llava",
+  "prompt": "Describe this receipt image",
+  "images": ["base64_encoded_image_here"],
   "stream": false
 }'
 ```
 
-### 4. Start the OCR Service
+#### 4. Start the OCR Service
 
 ```bash
 # Start the OCR service
@@ -124,14 +164,16 @@ pnpm --filter @pricey/ocr-service dev
 
 ## Switching Models
 
-To use a different model, simply update your `.env` and restart:
+### Ollama Models
+
+To use a different Ollama model, update your `.env` and restart:
 
 1. **Update environment variable:**
 
    ```bash
    # In .env file
-   OLLAMA_MODEL=mistral:7b
-   LLM_MODEL=mistral:7b  # Keep in sync
+   OLLAMA_MODEL=llama3.2-vision
+   LLM_MODEL=llama3.2-vision  # Keep in sync
    ```
 
 2. **Restart Docker services:**
@@ -143,17 +185,27 @@ To use a different model, simply update your `.env` and restart:
 
    The new model will be automatically downloaded on startup.
 
-### Manual Model Management
+### GitHub Models
+
+```bash
+# Update .env
+GITHUB_MODEL=claude-sonnet-4.5  # or gpt-5-mini, gemini-2.5-pro
+
+# Restart service
+pnpm --filter @pricey/ocr-service dev
+```
+
+### Manual Model Management (Ollama)
 
 ```bash
 # List available models
 docker exec pricey-ollama ollama list
 
 # Pull a model manually (if needed)
-docker exec pricey-ollama ollama pull phi3:mini
+docker exec pricey-ollama ollama pull moondream
 
 # Remove unused models to save space
-docker exec pricey-ollama ollama rm llama3.2:1b
+docker exec pricey-ollama ollama rm llama3.2-vision
 ```
 
 ## Structured Output Schema
@@ -180,24 +232,26 @@ The LLM parser extracts the following fields:
 ### Health Check
 
 ```typescript
-import { LlmReceiptParser } from './parsers/llm-receipt-parser';
+import { createReceiptParser } from './parsers/parser-factory';
 
-const parser = new LlmReceiptParser();
+const parser = createReceiptParser();
 const isHealthy = await parser.healthCheck();
 ```
 
-### Parse Receipt Text
+### Parse Receipt Image
 
 ```typescript
-const ocrText = `
-  WALMART
-  Date: 10/27/2025
-  Milk           $3.99
-  Bread x2       $4.98
-  TOTAL          $8.97
-`;
+import { createReceiptParser } from './parsers/parser-factory';
+import fs from 'fs';
 
-const result = await parser.parse(ocrText);
+const parser = createReceiptParser();
+
+// Read receipt image
+const imageBuffer = fs.readFileSync('receipt.jpg');
+
+// Parse directly from image (no OCR needed)
+const result = await parser.parse(imageBuffer);
+
 console.log(result);
 // {
 //   storeName: "Walmart",
@@ -212,32 +266,54 @@ console.log(result);
 // }
 ```
 
+console.log(result);
+// {
+// storeName: "Walmart",
+// date: "2025-10-27",
+// items: [
+// { name: "Milk", price: 3.99, quantity: 1 },
+// { name: "Bread", price: 2.49, quantity: 2 }
+// ],
+// total: 8.97,
+// currency: "USD",
+// confidence: 0.95
+// }
+
+````
+
 ## Performance Considerations
 
-### Memory Requirements
+### Memory Requirements (Ollama)
 
-| Model       | RAM Required | GPU Required |
-| ----------- | ------------ | ------------ |
-| llama3.2:1b | 2-4GB        | No           |
-| llama3.2:3b | 4-6GB        | No           |
-| mistral:7b  | 8-12GB       | No           |
+| Model            | RAM Required | GPU Required | Vision |
+| ---------------- | ------------ | ------------ | ------ |
+| moondream        | 3-4GB        | No           | ✅ Yes |
+| llava            | 6-8GB        | No           | ✅ Yes |
+| llama3.2-vision  | 10-12GB      | No           | ✅ Yes |
 
 **Note:** GPU acceleration is optional but provides 5-10x speed improvement.
 
 ### Response Times
 
-Average processing times (CPU-only):
+**Ollama (CPU-only):**
 
-- **llama3.2:1b**: 2-5 seconds
-- **llama3.2:3b**: 5-10 seconds
-- **mistral:7b**: 10-20 seconds
+- **moondream**: 5-10 seconds
+- **llava**: 10-20 seconds
+- **llama3.2-vision**: 15-30 seconds
 
-With GPU acceleration:
+**Ollama (with GPU):**
 
-- **llama3.2:3b**: 1-2 seconds
-- **mistral:7b**: 2-4 seconds
+- **moondream**: 2-3 seconds
+- **llava**: 3-5 seconds
+- **llama3.2-vision**: 4-8 seconds
 
-### Enabling GPU Support (Optional)
+**GitHub Models:**
+
+- **gpt-5-mini**: 2-4 seconds (cloud)
+- **claude-sonnet-4.5**: 2-4 seconds (cloud)
+- **claude-opus-4.1**: 3-6 seconds (cloud)
+
+### Enabling GPU Support (Optional, Ollama only)
 
 If you have an NVIDIA GPU:
 
@@ -255,7 +331,7 @@ If you have an NVIDIA GPU:
              - driver: nvidia
                count: 1
                capabilities: [gpu]
-   ```
+````
 
 3. Restart services:
 
@@ -263,6 +339,8 @@ If you have an NVIDIA GPU:
    pnpm docker:dev:down
    pnpm docker:dev
    ```
+
+For Mac users, see [Mac Ollama Acceleration Guide](./mac-ollama-acceleration.md) for 10-20x speedup using Metal GPU.
 
 ## Troubleshooting
 
