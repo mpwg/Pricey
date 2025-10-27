@@ -162,10 +162,11 @@ cd Pricey
 pnpm install
 
 # Copy environment variables
-cp .env.example .env
+cp .env.example .env.local
 
-# (Optional) Configure LLM model in .env
-# OLLAMA_MODEL=llama3.2:3b  # Default, or use mistral:7b, llama3.2:1b, phi3:mini
+# (Optional) Configure LLM settings in .env.local
+# LLM_BASE_URL=http://localhost:10000  # Use Mac's local Ollama for 10-20x speedup
+# LLM_MODEL=llama3.2-vision:11b        # Or try different vision models
 
 # Start infrastructure (PostgreSQL, Redis, MinIO, Ollama)
 # The LLM model will be automatically downloaded on first start
