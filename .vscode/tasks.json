@@ -257,6 +257,13 @@
       "options": {
         "cwd": "${workspaceFolder}"
       }
+    },
+    {
+      "label": "pnpm: test (all)",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test"],
+      "group": "test"
     }
   ]
 }
