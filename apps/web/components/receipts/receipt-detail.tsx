@@ -21,7 +21,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Clock, Store, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, Store, Calendar, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,7 +42,7 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Use polling hook for auto-updates
-  const { status } = useReceiptPolling(id, receipt?.status);
+  const { status, polling } = useReceiptPolling(id, receipt?.status);
 
   useEffect(() => {
     async function loadReceipt() {
@@ -64,24 +64,35 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     loadReceipt();
   }, [id]);
 
-  // Reload receipt when status changes
+  // Reload receipt when status changes from polling
   useEffect(() => {
     if (status && receipt && status !== receipt.status) {
+      // Status changed, reload full receipt data
       apiClient
         .getReceipt(id)
-        .then(setReceipt)
+        .then((data) => {
+          setReceipt(data);
+          // Show success toast when processing completes
+          if (status === 'COMPLETED' && receipt.status !== 'COMPLETED') {
+            toast.success('Receipt processed successfully!');
+          } else if (status === 'FAILED') {
+            toast.error('Receipt processing failed');
+          }
+        })
         .catch((err) => {
-          const message =
-            err instanceof Error ? err.message : 'Failed to reload receipt';
-          setError(message);
-          toast.error(message);
+          console.error('Failed to reload receipt:', err);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading receipt...</p>
+      </div>
+    );
   }
 
   if (error || !receipt) {
@@ -95,8 +106,30 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
     );
   }
 
+  // Show processing state
+  const isProcessing =
+    (status || receipt.status) === 'PROCESSING' ||
+    (status || receipt.status) === 'PENDING';
+
   return (
     <div className="space-y-6">
+      {/* Processing Banner */}
+      {isProcessing && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div>
+              <p className="font-medium text-primary">Processing receipt...</p>
+              <p className="text-sm text-muted-foreground">
+                {polling
+                  ? 'Extracting data from your receipt. This usually takes 10-30 seconds.'
+                  : 'Your receipt is being processed.'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" asChild>
@@ -190,16 +223,37 @@ export function ReceiptDetail({ id }: ReceiptDetailProps) {
           </Card>
 
           {/* Items Table */}
-          {receipt.items && receipt.items.length > 0 && (
+          {receipt.items && receipt.items.length > 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>Items</CardTitle>
+                <CardTitle>Items ({receipt.items.length})</CardTitle>
               </CardHeader>
               <CardContent>
                 <ItemsTable items={receipt.items} />
               </CardContent>
             </Card>
-          )}
+          ) : isProcessing ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Items</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center py-8 text-muted-foreground">
+                <div className="text-center space-y-2">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  <p>Extracting items from receipt...</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : receipt.status === 'COMPLETED' ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Items</CardTitle>
+              </CardHeader>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                <p>No items were extracted from this receipt.</p>
+              </CardContent>
+            </Card>
+          ) : null}
 
           {/* Raw OCR Text */}
           {receipt.rawOcrText && <RawOcrText text={receipt.rawOcrText} />}

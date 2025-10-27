@@ -24,6 +24,58 @@ import { validateImage, ValidationError } from '../utils/file-validation.js';
 
 export async function receiptsRoutes(app: FastifyInstance) {
   /**
+   * List all receipts
+   * GET /api/v1/receipts
+   */
+  app.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const receipts = await db.receipt.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              quantity: true,
+            },
+          },
+          store: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+            },
+          },
+        },
+      });
+
+      return reply.send({
+        receipts: receipts.map((receipt) => ({
+          id: receipt.id,
+          imageUrl: receipt.imageUrl,
+          storeName: receipt.storeName,
+          store: receipt.store,
+          purchaseDate: receipt.purchaseDate,
+          totalAmount: receipt.totalAmount ? Number(receipt.totalAmount) : null,
+          status: receipt.status.toLowerCase(),
+          itemCount: receipt.items.length,
+          createdAt: receipt.createdAt,
+          updatedAt: receipt.updatedAt,
+        })),
+      });
+    } catch (error) {
+      request.log.error(error, 'Error fetching receipts');
+      return reply.code(500).send({
+        error: 'Failed to fetch receipts',
+        code: 'FETCH_ERROR',
+      });
+    }
+  });
+
+  /**
    * Upload a receipt for OCR processing
    * POST /api/v1/receipts/upload
    */

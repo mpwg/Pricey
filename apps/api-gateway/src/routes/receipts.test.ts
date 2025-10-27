@@ -46,6 +46,7 @@ vi.mock('@pricey/database', () => ({
       create: vi.fn(),
       update: vi.fn(),
       findUnique: vi.fn(),
+      findMany: vi.fn(),
     },
   },
 }));
@@ -650,6 +651,151 @@ describe('Receipt Routes Integration Tests', () => {
       const body = JSON.parse(response.body);
       expect(body.totalAmount).toBe(123.45);
       expect(body.items[0].price).toBe(123.45);
+    });
+  });
+
+  describe('GET /api/v1/receipts', () => {
+    it('should return an empty list when no receipts exist', async () => {
+      vi.mocked(db.receipt.findMany).mockResolvedValue([]);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({ receipts: [] });
+    });
+
+    it('should return a list of receipts', async () => {
+      const mockReceipts = [
+        {
+          id: 'receipt-1',
+          imageUrl: 'https://example.com/receipt1.jpg',
+          storeName: 'Store A',
+          storeId: 'store-1',
+          purchaseDate: new Date('2025-10-25T10:00:00Z'),
+          totalAmount: createDecimalMock(99.99),
+          status: 'COMPLETED',
+          createdAt: new Date('2025-10-25T10:00:00Z'),
+          updatedAt: new Date('2025-10-25T10:05:00Z'),
+          items: [
+            {
+              id: 'item-1',
+              name: 'Item 1',
+              price: createDecimalMock(49.99),
+              quantity: 1,
+            },
+            {
+              id: 'item-2',
+              name: 'Item 2',
+              price: createDecimalMock(50.0),
+              quantity: 1,
+            },
+          ],
+          store: {
+            id: 'store-1',
+            name: 'Store A',
+            logoUrl: 'https://example.com/logo.jpg',
+          },
+        },
+        {
+          id: 'receipt-2',
+          imageUrl: 'https://example.com/receipt2.jpg',
+          storeName: 'Store B',
+          storeId: null,
+          purchaseDate: new Date('2025-10-24T15:00:00Z'),
+          totalAmount: createDecimalMock(149.5),
+          status: 'PROCESSING',
+          createdAt: new Date('2025-10-24T15:00:00Z'),
+          updatedAt: new Date('2025-10-24T15:01:00Z'),
+          items: [],
+          store: null,
+        },
+      ];
+
+      vi.mocked(db.receipt.findMany).mockResolvedValue(mockReceipts as never);
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+
+      expect(body.receipts).toHaveLength(2);
+      expect(body.receipts[0]).toEqual({
+        id: 'receipt-1',
+        imageUrl: 'https://example.com/receipt1.jpg',
+        storeName: 'Store A',
+        store: {
+          id: 'store-1',
+          name: 'Store A',
+          logoUrl: 'https://example.com/logo.jpg',
+        },
+        purchaseDate: '2025-10-25T10:00:00.000Z',
+        totalAmount: 99.99,
+        status: 'completed',
+        itemCount: 2,
+        createdAt: '2025-10-25T10:00:00.000Z',
+        updatedAt: '2025-10-25T10:05:00.000Z',
+      });
+
+      expect(body.receipts[1]).toEqual({
+        id: 'receipt-2',
+        imageUrl: 'https://example.com/receipt2.jpg',
+        storeName: 'Store B',
+        store: null,
+        purchaseDate: '2025-10-24T15:00:00.000Z',
+        totalAmount: 149.5,
+        status: 'processing',
+        itemCount: 0,
+        createdAt: '2025-10-24T15:00:00.000Z',
+        updatedAt: '2025-10-24T15:01:00.000Z',
+      });
+
+      expect(db.receipt.findMany).toHaveBeenCalledWith({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              quantity: true,
+            },
+          },
+          store: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+            },
+          },
+        },
+      });
+    });
+
+    it('should handle database errors gracefully', async () => {
+      vi.mocked(db.receipt.findMany).mockRejectedValue(
+        new Error('Database connection failed')
+      );
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/receipts',
+      });
+
+      expect(response.statusCode).toBe(500);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        error: 'Failed to fetch receipts',
+        code: 'FETCH_ERROR',
+      });
     });
   });
 });

@@ -117,7 +117,10 @@ class ApiClient {
   }
 
   async getReceipts(): Promise<Receipt[]> {
-    return this.request<Receipt[]>('/api/v1/receipts');
+    const response = await this.request<{ receipts: Receipt[] }>(
+      '/api/v1/receipts'
+    );
+    return response.receipts;
   }
 
   async getReceipt(id: string): Promise<ReceiptWithItems> {

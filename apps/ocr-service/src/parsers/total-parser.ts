@@ -22,9 +22,21 @@ const TOTAL_INDICATORS = [
   /balance\s*due/i,
   /grand\s*total/i,
   /total\s*amount/i,
+  /summe/i, // German
+  /endsumme/i, // German
+  /gesamtsumme/i, // German
+  /gesamtwert/i, // German
+  /gesamt.*brutto/i, // German gross total
+  /zu\s*zahlen/i, // German "to pay"
 ];
 
-const PRICE_PATTERN = /\$?\s*(\d+\.\d{2})/;
+const PRICE_PATTERNS = [
+  /\$?\s*(\d+\.\d{2})/, // US format
+  /€?\s*(\d+[,.]?\d{2})/, // European format with €
+  /(\d+[,.]?\d{2})\s*€/, // Euro after number
+  /(\d{2,3})[,.](\d{2})/, // European decimal format
+  /(\d+)\s+(\d{2})/, // Space-separated (Austrian format)
+];
 
 /**
  * Extract total amount from receipt text
@@ -43,12 +55,27 @@ export function extractTotal(text: string): number | null {
     const hasIndicator = TOTAL_INDICATORS.some((pattern) => pattern.test(line));
 
     if (hasIndicator) {
-      // Extract price from this line
-      const match = line.match(PRICE_PATTERN);
-      if (match?.[1]) {
-        const total = parseFloat(match[1]);
-        if (!isNaN(total) && total > 0 && total < 10000) {
-          return total;
+      // Try each price pattern
+      for (const pattern of PRICE_PATTERNS) {
+        const match = line.match(pattern);
+        if (match) {
+          let total: number;
+
+          // Handle space-separated format (Austrian): "50 28" = 50.28
+          if (match[1] && match[2]) {
+            total = parseFloat(`${match[1]}.${match[2]}`);
+          }
+          // Handle comma or dot as decimal separator
+          else if (match[1]) {
+            const priceStr = match[1].replace(',', '.');
+            total = parseFloat(priceStr);
+          } else {
+            continue;
+          }
+
+          if (!isNaN(total) && total > 0 && total < 10000) {
+            return total;
+          }
         }
       }
     }
