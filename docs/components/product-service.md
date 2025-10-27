@@ -73,7 +73,7 @@ services/product/
 import { pipeline, Pipeline } from '@xenova/transformers';
 import { FuzzyMatcher } from './fuzzy-matcher';
 import { BrandExtractor } from './brand-extractor';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { logger } from '../../utils/logger';
 import { Redis } from 'ioredis';
 
@@ -345,7 +345,7 @@ export class ProductNormalizer {
 ```typescript
 // filepath: services/product/src/services/normalization/fuzzy-matcher.ts
 import fuzz from 'fuzzball';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 export class FuzzyMatcher {
   private productNames: Map<string, { id: string; category: string }> =
@@ -399,7 +399,7 @@ export class FuzzyMatcher {
 
 ```typescript
 // filepath: services/product/src/services/normalization/brand-extractor.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 export class BrandExtractor {
   private brands: Set<string> = new Set();
@@ -461,7 +461,7 @@ export class BrandExtractor {
 
 ```typescript
 // filepath: services/product/src/services/price-tracking/price-tracker.ts
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { logger } from '../../utils/logger';
 
 export class PriceTracker {
@@ -558,7 +558,7 @@ export class PriceTracker {
 ```typescript
 // filepath: services/product/src/services/queue/processor.ts
 import { Queue, Worker } from 'bullmq';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { ProductNormalizer } from '../normalization/normalizer';
 import { PriceTracker } from '../price-tracking/price-tracker';
 import { logger } from '../../utils/logger';
@@ -809,7 +809,7 @@ PORT=3002
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://pricy:pricy@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey@localhost:5432/pricey
 
 # Redis
 REDIS_HOST=localhost

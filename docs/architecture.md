@@ -1,10 +1,10 @@
-# Pricy - Receipt Scanner & Price Comparison Platform
+# Pricey - Receipt Scanner & Price Comparison Platform
 
 ## Architecture Document
 
 ## 1. Executive Summary
 
-Pricy is a web-based Progressive Web Application (PWA) that enables users to scan shopping receipts, automatically extract product information, and compare prices across different stores. The system uses OCR and NLP technologies to understand receipt data and provides intelligent shopping recommendations.
+Pricey is a web-based Progressive Web Application (PWA) that enables users to scan shopping receipts, automatically extract product information, and compare prices across different stores. The system uses OCR and NLP technologies to understand receipt data and provides intelligent shopping recommendations.
 
 ### Key Features
 
@@ -215,7 +215,7 @@ interface ShoppingRecommendation {
 
 #### Authentication Strategy
 
-Pricy implements a multi-provider authentication system supporting:
+Pricey implements a multi-provider authentication system supporting:
 
 **Social Login Providers:**
 
@@ -260,7 +260,7 @@ interface JWTPayload {
 
 #### API Versioning Strategy
 
-Pricy uses a comprehensive API versioning strategy to ensure backward compatibility and smooth migrations:
+Pricey uses a comprehensive API versioning strategy to ensure backward compatibility and smooth migrations:
 
 **Versioning Approach:**
 
@@ -568,4 +568,4 @@ npm run dev:backend
 
 ## 14. Conclusion
 
-This architecture provides a robust, scalable foundation for the Pricy application with flexibility for both local and cloud deployments. The modular design allows for incremental feature development while maintaining performance and reliability.
+This architecture provides a robust, scalable foundation for the Pricey application with flexibility for both local and cloud deployments. The modular design allows for incremental feature development while maintaining performance and reliability.

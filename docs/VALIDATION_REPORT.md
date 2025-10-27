@@ -1,6 +1,6 @@
 # Documentation Validation Report
 
-> **Comprehensive review of Pricy documentation against 2025 best practices**  
+> **Comprehensive review of Pricey documentation against 2025 best practices**  
 > Generated: October 24, 2025
 
 ## Executive Summary
@@ -36,7 +36,7 @@
 ## API Versioning Strategy
 
 - **URL Versioning**: `/api/v1/`, `/api/v2/`
-- **Header Versioning**: `Accept: application/vnd.pricy.v1+json`
+- **Header Versioning**: `Accept: application/vnd.pricey.v1+json`
 - **Deprecation Policy**: 6 months notice before sunset
 - **Breaking Changes**: Always increment major version
 ```
@@ -616,10 +616,10 @@ CREATE TABLE receipts_eu (
 ```bash
 # PostgreSQL replication setup
 # Primary (write)
-DATABASE_URL="postgresql://user:pass@primary:5432/pricy"
+DATABASE_URL="postgresql://user:pass@primary:5432/pricey"
 
 # Replica (read)
-DATABASE_REPLICA_URL="postgresql://user:pass@replica:5432/pricy"
+DATABASE_REPLICA_URL="postgresql://user:pass@replica:5432/pricey"
 ```
 
 ### Best Practices Compliance
@@ -774,10 +774,10 @@ DATABASE_REPLICA_URL="postgresql://user:pass@replica:5432/pricy"
 
 ```bash
 # Generate OpenAPI spec
-pnpm --filter @pricy/api generate:openapi
+pnpm --filter @pricey/api generate:openapi
 
 # Serve docs
-pnpm --filter @pricy/api docs:serve
+pnpm --filter @pricey/api docs:serve
 ```
 
 ---
@@ -890,7 +890,7 @@ pnpm --filter @pricy/api docs:serve
 
 ## Conclusion
 
-The Pricy documentation is **well-structured and follows most modern best practices** for a 2025 web application. The architecture is sound, the tech stack is current, and the implementation details are comprehensive.
+The Pricey documentation is **well-structured and follows most modern best practices** for a 2025 web application. The architecture is sound, the tech stack is current, and the implementation details are comprehensive.
 
 ### Key Strengths
 
@@ -921,4 +921,4 @@ The documentation provides a solid foundation for building a production-ready ap
 4. Schedule documentation review quarterly
 
 **Report Generated**: October 24, 2025  
-**Validator**: Pricy Documentation Team
+**Validator**: Pricey Documentation Team

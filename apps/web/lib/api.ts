@@ -1,5 +1,5 @@
 /**
- * API client for Pricy web app
+ * API client for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

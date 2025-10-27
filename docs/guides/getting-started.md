@@ -1,6 +1,6 @@
-# Getting Started with Pricy
+# Getting Started with Pricey
 
-> **Complete guide to setting up the Pricy development environment**
+> **Complete guide to setting up the Pricey development environment**
 
 ## Prerequisites
 
@@ -51,8 +51,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourorg/pricy.git
-cd pricy
+git clone https://github.com/yourorg/pricey.git
+cd pricey
 ```
 
 ### 2. Install Dependencies
@@ -82,7 +82,7 @@ Edit `.env` and configure:
 
 ```bash
 # Database
-DATABASE_URL="postgresql://pricy:pricy@localhost:5432/pricy"
+DATABASE_URL="postgresql://pricey:pricey@localhost:5432/pricey"
 
 # Redis
 REDIS_URL="redis://localhost:6379"
@@ -91,7 +91,7 @@ REDIS_URL="redis://localhost:6379"
 S3_ENDPOINT="http://localhost:9000"
 S3_ACCESS_KEY_ID="minioadmin"
 S3_SECRET_ACCESS_KEY="minioadmin"
-S3_BUCKET="pricy-receipts"
+S3_BUCKET="pricey-receipts"
 
 # OCR Provider (use tesseract for local dev)
 OCR_PROVIDER="tesseract"
@@ -144,8 +144,8 @@ pnpm db:seed
 
 This creates:
 
-- Demo admin user (admin@pricy.app / admin123)
-- Demo regular user (demo@pricy.app / demo123)
+- Demo admin user (admin@pricey.app / admin123)
+- Demo regular user (demo@pricey.app / demo123)
 - Sample stores and chains
 - Sample product categories
 - Sample products
@@ -194,7 +194,7 @@ Expected response:
 ### Check Database Connection
 
 ```bash
-pnpm --filter @pricy/database db:studio
+pnpm --filter @pricey/database db:studio
 ```
 
 This opens Prisma Studio at http://localhost:5555
@@ -214,13 +214,13 @@ Navigate to MinIO Console:
 Run only the frontend:
 
 ```bash
-pnpm --filter @pricy/web dev
+pnpm --filter @pricey/web dev
 ```
 
 Run API with all its dependencies:
 
 ```bash
-pnpm --filter @pricy/api... dev
+pnpm --filter @pricey/api... dev
 ```
 
 ### Building Projects
@@ -234,7 +234,7 @@ pnpm build
 Build specific workspace:
 
 ```bash
-pnpm --filter @pricy/web build
+pnpm --filter @pricey/web build
 ```
 
 ### Running Tests
@@ -248,13 +248,13 @@ pnpm test
 Run tests for specific package:
 
 ```bash
-pnpm --filter @pricy/types test
+pnpm --filter @pricey/types test
 ```
 
 Run tests in watch mode:
 
 ```bash
-pnpm --filter @pricy/web test:watch
+pnpm --filter @pricey/web test:watch
 ```
 
 ### Linting and Formatting
@@ -278,7 +278,7 @@ pnpm format
 Add to specific workspace:
 
 ```bash
-pnpm --filter @pricy/web add react-hook-form
+pnpm --filter @pricey/web add react-hook-form
 ```
 
 Add dev dependency to root:
@@ -292,7 +292,7 @@ pnpm add -Dw prettier
 Make changes to `packages/database/prisma/schema.prisma`, then:
 
 ```bash
-pnpm --filter @pricy/database migrate dev --name your_migration_name
+pnpm --filter @pricey/database migrate dev --name your_migration_name
 ```
 
 ### Resetting Database
@@ -388,7 +388,7 @@ docker-compose -f infrastructure/docker/docker-compose.dev.yml up -d
 
 ## Next Steps
 
-Now that you have Pricy running locally, you can:
+Now that you have Pricey running locally, you can:
 
 1. **Explore the API** - Visit http://localhost:3000/docs for interactive API documentation
 2. **Upload a receipt** - Use the web app to test receipt scanning

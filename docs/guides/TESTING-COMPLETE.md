@@ -7,7 +7,7 @@
 
 ## 📋 Summary
 
-Comprehensive unit testing infrastructure has been successfully implemented across the Pricy monorepo. **All new code must now include unit tests** as a mandatory requirement.
+Comprehensive unit testing infrastructure has been successfully implemented across the Pricey monorepo. **All new code must now include unit tests** as a mandatory requirement.
 
 ## 🎯 What Was Delivered
 
@@ -105,7 +105,7 @@ pnpm test:coverage
 pnpm test:ui
 
 # Test specific package
-pnpm --filter @pricy/api-gateway test
+pnpm --filter @pricey/api-gateway test
 
 # Test specific file
 pnpm test src/parsers/date-parser.test.ts
@@ -169,7 +169,7 @@ Updated to reference:
 ### Step 1: Install Dependencies
 
 ```bash
-cd /Users/mat/code/Pricy
+cd /Users/mat/code/Pricey
 pnpm install
 ```
 

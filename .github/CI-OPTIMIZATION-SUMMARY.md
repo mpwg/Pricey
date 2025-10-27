@@ -156,7 +156,7 @@ The workflow leverages existing `turbo.json` configuration:
 
 ### ✅ Monorepo Patterns
 
-- Workspace filtering (`--filter @pricy/database`)
+- Workspace filtering (`--filter @pricey/database`)
 - Frozen lockfile (`--frozen-lockfile`)
 - Centralized dependency management
 - Shared Turborepo cache

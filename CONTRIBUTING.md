@@ -1,6 +1,6 @@
-# Contributing to Pricy
+# Contributing to Pricey
 
-Thank you for your interest in contributing to Pricy! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Pricey! This document provides guidelines and instructions for contributing.
 
 ## License
 
@@ -121,7 +121,7 @@ pnpm test:coverage
 pnpm build
 
 # Build specific package
-pnpm --filter @pricy/api-gateway build
+pnpm --filter @pricey/api-gateway build
 ```
 
 ## Pull Request Process
@@ -170,7 +170,7 @@ git push origin feature/your-feature-name
 ## Project Structure
 
 ```
-Pricy/
+Pricey/
 ├── apps/
 │   ├── api-gateway/    # Fastify API
 │   └── web/            # Next.js frontend (Phase 1)
@@ -192,7 +192,7 @@ Pricy/
 pnpm install
 
 # Install for specific workspace
-pnpm --filter @pricy/api-gateway add fastify
+pnpm --filter @pricey/api-gateway add fastify
 ```
 
 ### Running Commands
@@ -202,7 +202,7 @@ pnpm --filter @pricy/api-gateway add fastify
 pnpm dev
 
 # Run dev for specific app
-pnpm --filter @pricy/api-gateway dev
+pnpm --filter @pricey/api-gateway dev
 
 # Run command in all workspaces
 pnpm -r exec <command>
@@ -266,4 +266,4 @@ Contributors will be recognized in:
 - Release notes
 - Project documentation
 
-Thank you for contributing to Pricy! 🎉
+Thank you for contributing to Pricey! 🎉

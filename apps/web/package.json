@@ -1,8 +1,8 @@
 {
-  "name": "@pricy/web",
+  "name": "@pricey/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Pricy web frontend (Next.js PWA)",
+  "description": "Pricey web frontend (Next.js PWA)",
   "scripts": {
     "dev": "next dev --port 3000 --turbopack",
     "build": "next build",
@@ -26,7 +26,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@pricy/types": "workspace:*",
+    "@pricey/types": "workspace:*",
     "@tailwindcss/postcss": "^4.1.16",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

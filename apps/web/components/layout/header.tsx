@@ -1,5 +1,5 @@
 /**
- * Header component for Pricy web app
+ * Header component for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ export function Header() {
       <div className="container flex h-14 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Receipt className="h-6 w-6" />
-          <span className="hidden font-bold sm:inline-block">Pricy</span>
+          <span className="hidden font-bold sm:inline-block">Pricey</span>
         </Link>
         <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
           <Link

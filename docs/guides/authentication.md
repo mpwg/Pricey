@@ -1,11 +1,11 @@
 # Authentication Guide
 
-> **Complete guide to user authentication in Pricy**  
+> **Complete guide to user authentication in Pricey**  
 > Last Updated: October 24, 2025
 
 ## Overview
 
-Pricy implements a comprehensive authentication system supporting multiple login methods to provide users with flexibility and security. The system is built using **NextAuth.js v5 (Auth.js)** which provides a unified, secure authentication solution.
+Pricey implements a comprehensive authentication system supporting multiple login methods to provide users with flexibility and security. The system is built using **NextAuth.js v5 (Auth.js)** which provides a unified, secure authentication solution.
 
 ## Supported Authentication Methods
 
@@ -435,11 +435,11 @@ const passwordSchema = z
 2. **Create Credentials**
    - Navigate to "Credentials" → "Create Credentials" → "OAuth client ID"
    - Application type: "Web application"
-   - Name: "Pricy"
+   - Name: "Pricey"
 
 3. **Configure OAuth Consent Screen**
    - User type: "External"
-   - App name: "Pricy"
+   - App name: "Pricey"
    - User support email: your email
    - Scopes: `email`, `profile`, `openid`
 
@@ -447,7 +447,7 @@ const passwordSchema = z
 
    ```
    http://localhost:3001/api/auth/callback/google
-   https://pricy.app/api/auth/callback/google
+   https://pricey.app/api/auth/callback/google
    ```
 
 5. **Get Credentials**
@@ -467,7 +467,7 @@ const passwordSchema = z
    - Click "New registration"
 
 2. **Configure Application**
-   - Name: "Pricy"
+   - Name: "Pricey"
    - Supported account types: "Accounts in any organizational directory and personal Microsoft accounts"
    - Redirect URI: `Web` → `http://localhost:3001/api/auth/callback/microsoft`
 
@@ -476,13 +476,13 @@ const passwordSchema = z
    - Add:
      ```
      http://localhost:3001/api/auth/callback/microsoft
-     https://pricy.app/api/auth/callback/microsoft
+     https://pricey.app/api/auth/callback/microsoft
      ```
 
 4. **Create Client Secret**
    - Go to "Certificates & secrets"
    - Click "New client secret"
-   - Description: "Pricy Production"
+   - Description: "Pricey Production"
    - Expires: 24 months
    - Copy the secret value (shown only once!)
 
@@ -500,29 +500,29 @@ const passwordSchema = z
    - Visit [Apple Developer Portal](https://developer.apple.com/account/)
    - Navigate to "Certificates, Identifiers & Profiles"
    - Click "Identifiers" → "+" → "App IDs"
-   - Description: "Pricy"
-   - Bundle ID: `app.pricy`
+   - Description: "Pricey"
+   - Bundle ID: `app.pricey`
    - Capabilities: Enable "Sign In with Apple"
 
 2. **Create Service ID**
    - Click "Identifiers" → "+" → "Services IDs"
-   - Description: "Pricy Sign In"
-   - Identifier: `app.pricy.signin`
+   - Description: "Pricey Sign In"
+   - Identifier: `app.pricey.signin`
    - Enable "Sign In with Apple"
    - Configure:
-     - Primary App ID: `app.pricy`
-     - Domains: `pricy.app`
+     - Primary App ID: `app.pricey`
+     - Domains: `pricey.app`
      - Return URLs:
        ```
        http://localhost:3001/api/auth/callback/apple
-       https://pricy.app/api/auth/callback/apple
+       https://pricey.app/api/auth/callback/apple
        ```
 
 3. **Create Private Key**
    - Click "Keys" → "+"
-   - Key Name: "Pricy Sign In Key"
+   - Key Name: "Pricey Sign In Key"
    - Enable: "Sign In with Apple"
-   - Configure: Select `app.pricy` as Primary App ID
+   - Configure: Select `app.pricey` as Primary App ID
    - Register and download key (AuthKey_XXXXXXXXXX.p8)
    - ⚠️ **Save this file!** You can only download it once
 
@@ -542,7 +542,7 @@ const passwordSchema = z
      expiresIn: '180 days',
      audience: 'https://appleid.apple.com',
      issuer: 'YOUR_TEAM_ID', // From Apple Developer Account
-     subject: 'app.pricy.signin', // Your Service ID
+     subject: 'app.pricey.signin', // Your Service ID
      keyid: 'YOUR_KEY_ID', // From the .p8 filename
    });
 
@@ -558,7 +558,7 @@ const passwordSchema = z
 5. **Get Credentials**
    - Add to `.env`:
      ```bash
-     APPLE_CLIENT_ID=app.pricy.signin
+     APPLE_CLIENT_ID=app.pricey.signin
      APPLE_CLIENT_SECRET=<generated-jwt-token>
      APPLE_TEAM_ID=YOUR_TEAM_ID
      APPLE_KEY_ID=YOUR_KEY_ID
@@ -568,7 +568,7 @@ const passwordSchema = z
 
 ```bash
 # NextAuth.js Core
-NEXTAUTH_URL=https://pricy.app
+NEXTAUTH_URL=https://pricey.app
 NEXTAUTH_SECRET=<generate-with: openssl rand -base64 32>
 
 # Google OAuth
@@ -580,7 +580,7 @@ MICROSOFT_CLIENT_ID=...
 MICROSOFT_CLIENT_SECRET=...
 
 # Apple Sign In
-APPLE_CLIENT_ID=app.pricy.signin
+APPLE_CLIENT_ID=app.pricey.signin
 APPLE_CLIENT_SECRET=<generated-jwt>
 APPLE_TEAM_ID=...
 APPLE_KEY_ID=...
@@ -634,7 +634,7 @@ DATABASE_URL=postgresql://...
 // filepath: apps/api/src/__tests__/auth.test.ts
 import { test } from 'tap';
 import { buildApp } from '../app';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 
 test('POST /auth/register - success', async (t) => {
   const app = await buildApp();
@@ -665,7 +665,7 @@ test('POST /auth/login - success', async (t) => {
     method: 'POST',
     url: '/api/v1/auth/login',
     payload: {
-      email: 'demo@pricy.app',
+      email: 'demo@pricey.app',
       password: 'demo123',
     },
   });
@@ -685,7 +685,7 @@ test('POST /auth/login - success', async (t) => {
 3. Clicks "Continue with Google"
 4. Redirects to Google OAuth consent screen
 5. Grants permissions
-6. Returns to Pricy dashboard
+6. Returns to Pricey dashboard
 7. Account automatically created
 
 ### Returning User
@@ -796,4 +796,4 @@ test('POST /auth/login - success', async (t) => {
 ---
 
 **Last Updated**: October 24, 2025  
-**Maintained by**: Pricy Security Team
+**Maintained by**: Pricey Security Team

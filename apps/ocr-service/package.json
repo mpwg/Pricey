@@ -1,5 +1,5 @@
 {
-  "name": "@pricy/ocr-service",
+  "name": "@pricey/ocr-service",
   "version": "0.1.0",
   "private": true,
   "description": "OCR service for receipt processing",
@@ -19,8 +19,8 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@pricy/database": "workspace:*",
-    "@pricy/types": "workspace:*",
+    "@pricey/database": "workspace:*",
+    "@pricey/types": "workspace:*",
     "bullmq": "^5.61.2",
     "chrono-node": "^2.9.0",
     "date-fns": "^4.1.0",

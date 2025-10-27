@@ -18,7 +18,7 @@
 
 import { FastifyInstance } from 'fastify';
 
-import { db } from '@pricy/database';
+import { db } from '@pricey/database';
 
 export async function healthRoutes(app: FastifyInstance) {
   app.get('/health', async () => {

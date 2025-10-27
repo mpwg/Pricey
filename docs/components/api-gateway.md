@@ -212,7 +212,7 @@ export default async function authRoutes(app: FastifyInstance) {
 ```typescript
 // filepath: apps/api/src/controllers/auth.controller.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import bcrypt from 'bcryptjs';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt';
 import {
@@ -513,7 +513,7 @@ export default async function usersRoutes(app: FastifyInstance) {
 ```typescript
 // filepath: apps/api/src/controllers/users.controller.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
 
 export async function getUserProfile(
@@ -902,7 +902,7 @@ export default async function receiptsRoutes(app: FastifyInstance) {
 ```typescript
 // filepath: apps/api/src/controllers/receipts.controller.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import { ocrClient } from '../services/ocr.client';
 import { storageClient } from '../services/storage.client';
 import { BadRequestError, NotFoundError } from '../utils/errors';
@@ -1129,7 +1129,7 @@ class StorageClient {
         : undefined,
       forcePathStyle: !!process.env.S3_ENDPOINT, // Required for MinIO
     });
-    this.bucket = process.env.S3_BUCKET || 'pricy-receipts';
+    this.bucket = process.env.S3_BUCKET || 'pricey-receipts';
   }
 
   async upload({
@@ -1287,7 +1287,7 @@ import swaggerUi from '@fastify/swagger-ui';
 await app.register(swagger, {
   openapi: {
     info: {
-      title: 'Pricy API',
+      title: 'Pricey API',
       description: 'Receipt scanner and price comparison API',
       version: '1.0.0',
     },
@@ -1325,10 +1325,10 @@ await app.register(swaggerUi, {
 # Server
 PORT=3000
 NODE_ENV=development
-ALLOWED_ORIGINS=http://localhost:3001,https://pricy.app
+ALLOWED_ORIGINS=http://localhost:3001,https://pricey.app
 
 # Database
-DATABASE_URL=postgresql://pricy:pricy@localhost:5432/pricy
+DATABASE_URL=postgresql://pricey:pricey@localhost:5432/pricey
 
 # Redis
 REDIS_URL=redis://localhost:6379
@@ -1340,7 +1340,7 @@ JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 
 # Storage (S3/MinIO)
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_REGION=us-east-1
 S3_ENDPOINT=http://localhost:9000
 S3_ACCESS_KEY_ID=minioadmin
@@ -1411,7 +1411,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm --filter @pricy/api build
+RUN pnpm --filter @pricey/api build
 
 FROM base AS runner
 WORKDIR /app

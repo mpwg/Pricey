@@ -1,11 +1,11 @@
-# Pricy Monorepo Structure
+# Pricey Monorepo Structure
 
-> **Complete Guide to the Pricy Monorepo Architecture**  
+> **Complete Guide to the Pricey Monorepo Architecture**  
 > Last Updated: October 2025
 
 ## Overview
 
-Pricy uses a **monorepo structure** to manage all services, packages, and documentation in a single repository. This architecture provides significant advantages for a microservices-based application:
+Pricey uses a **monorepo structure** to manage all services, packages, and documentation in a single repository. This architecture provides significant advantages for a microservices-based application:
 
 ### Key Benefits
 
@@ -20,7 +20,7 @@ Pricy uses a **monorepo structure** to manage all services, packages, and docume
 ## Repository Structure
 
 ```
-pricy/
+pricey/
 ├── .github/
 │   ├── workflows/
 │   │   ├── ci.yml
@@ -115,7 +115,7 @@ pricy/
 
 ```json
 {
-  "name": "pricy-monorepo",
+  "name": "pricey-monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": ["apps/*", "services/*", "packages/*"],
@@ -126,8 +126,8 @@ pricy/
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "clean": "turbo run clean && rm -rf node_modules",
-    "db:migrate": "pnpm --filter @pricy/database migrate",
-    "db:seed": "pnpm --filter @pricy/database seed",
+    "db:migrate": "pnpm --filter @pricey/database migrate",
+    "db:seed": "pnpm --filter @pricey/database seed",
     "docker:dev": "docker-compose -f infrastructure/docker/docker-compose.dev.yml up",
     "docker:prod": "docker-compose -f infrastructure/docker/docker-compose.prod.yml up"
   },
@@ -201,9 +201,9 @@ public-hoist-pattern[]=*prettier*
 
 ### Package Names
 
-- **Apps**: `@pricy/web`, `@pricy/api`
-- **Services**: `@pricy/service-ocr`, `@pricy/service-product`, `@pricy/service-analytics`
-- **Packages**: `@pricy/types`, `@pricy/database`, `@pricy/utils`, `@pricy/validation`
+- **Apps**: `@pricey/web`, `@pricey/api`
+- **Services**: `@pricey/service-ocr`, `@pricey/service-product`, `@pricey/service-analytics`
+- **Packages**: `@pricey/types`, `@pricey/database`, `@pricey/utils`, `@pricey/validation`
 
 ### Directory Structure
 
@@ -217,8 +217,8 @@ public-hoist-pattern[]=*prettier*
 
 ```bash
 # Clone repository
-git clone https://github.com/yourorg/pricy.git
-cd pricy
+git clone https://github.com/yourorg/pricey.git
+cd pricey
 
 # Install dependencies
 pnpm install
@@ -243,34 +243,34 @@ pnpm dev
 
 ```bash
 # Run only the web app
-pnpm --filter @pricy/web dev
+pnpm --filter @pricey/web dev
 
 # Run API gateway with dependencies
-pnpm --filter @pricy/api... dev
+pnpm --filter @pricey/api... dev
 
 # Build specific service
-pnpm --filter @pricy/service-ocr build
+pnpm --filter @pricey/service-ocr build
 
 # Test specific package
-pnpm --filter @pricy/types test
+pnpm --filter @pricey/types test
 ```
 
 ### Adding Dependencies
 
 ```bash
 # Add to specific workspace
-pnpm --filter @pricy/web add react-hook-form
+pnpm --filter @pricey/web add react-hook-form
 
 # Add to root (dev dependencies)
 pnpm add -Dw eslint
 
 # Add shared dependency to multiple workspaces
-pnpm --filter @pricy/types --filter @pricy/validation add zod
+pnpm --filter @pricey/types --filter @pricey/validation add zod
 ```
 
 ## Shared Packages
 
-### @pricy/types
+### @pricey/types
 
 Shared TypeScript type definitions used across all services.
 
@@ -295,7 +295,7 @@ export interface ReceiptItem {
 }
 ```
 
-### @pricy/database
+### @pricey/database
 
 Prisma schema and database utilities.
 
@@ -305,7 +305,7 @@ export * from '@prisma/client';
 export * from './migrations';
 ```
 
-### @pricy/validation
+### @pricey/validation
 
 Zod schemas for request/response validation.
 
@@ -319,7 +319,7 @@ export const receiptUploadSchema = z.object({
 });
 ```
 
-### @pricy/utils
+### @pricey/utils
 
 Common utility functions.
 
@@ -337,10 +337,10 @@ export * from './validators';
 
 Turborepo automatically handles build order based on dependencies:
 
-1. `@pricy/types` (no dependencies)
-2. `@pricy/database` (depends on types)
-3. `@pricy/validation` (depends on types)
-4. `@pricy/utils` (depends on types)
+1. `@pricey/types` (no dependencies)
+2. `@pricey/database` (depends on types)
+3. `@pricey/validation` (depends on types)
+4. `@pricey/utils` (depends on types)
 5. Services (depend on packages)
 6. Apps (depend on services & packages)
 
@@ -364,7 +364,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm --filter @pricy/service-ocr build
+RUN pnpm --filter @pricey/service-ocr build
 
 FROM base AS runner
 WORKDIR /app
@@ -403,10 +403,10 @@ Each package/service has its own test suite:
 pnpm test
 
 # Run tests for specific package
-pnpm --filter @pricy/types test
+pnpm --filter @pricey/types test
 
 # Run tests in watch mode
-pnpm --filter @pricy/web test:watch
+pnpm --filter @pricey/web test:watch
 ```
 
 ### Integration Tests
@@ -423,14 +423,14 @@ Located in `apps/web/e2e/` using Playwright.
 
 ```bash
 # Database
-DATABASE_URL="postgresql://pricy:pricy@localhost:5432/pricy"
-DATABASE_URL_UNPOOLED="postgresql://pricy:pricy@localhost:5432/pricy"
+DATABASE_URL="postgresql://pricey:pricey@localhost:5432/pricey"
+DATABASE_URL_UNPOOLED="postgresql://pricey:pricey@localhost:5432/pricey"
 
 # Redis
 REDIS_URL="redis://localhost:6379"
 
 # Storage
-S3_BUCKET="pricy-receipts"
+S3_BUCKET="pricey-receipts"
 S3_REGION="us-east-1"
 S3_ACCESS_KEY_ID=""
 S3_SECRET_ACCESS_KEY=""
@@ -491,7 +491,7 @@ All documentation is stored in `/docs`:
 
 1. **Always run from root**: Use `pnpm --filter` to run commands in specific workspaces
 2. **Shared code**: Extract common logic into packages (utils, types, validation)
-3. **Type safety**: Export types from `@pricy/types` - enforce strict TypeScript
+3. **Type safety**: Export types from `@pricey/types` - enforce strict TypeScript
 4. **Environment variables**: Never commit `.env` files - use `.env.example` templates
 5. **Testing**: Write tests alongside your code - aim for 80%+ coverage
 6. **Documentation**: Update docs when changing architecture or APIs

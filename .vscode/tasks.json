@@ -17,7 +17,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/api-gateway", "dev"],
+      "args": ["--filter", "@pricey/api-gateway", "dev"],
       "group": "build",
       "problemMatcher": [],
       "label": "pnpm: dev - api-gateway",
@@ -30,7 +30,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/web", "dev"],
+      "args": ["--filter", "@pricey/web", "dev"],
       "group": "build",
       "problemMatcher": [],
       "label": "pnpm: dev - web",
@@ -43,7 +43,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/ocr-service", "dev"],
+      "args": ["--filter", "@pricey/ocr-service", "dev"],
       "group": "build",
       "problemMatcher": [],
       "label": "pnpm: dev - ocr-service",
@@ -68,7 +68,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/api-gateway", "build"],
+      "args": ["--filter", "@pricey/api-gateway", "build"],
       "group": "build",
       "problemMatcher": ["$tsc"],
       "label": "pnpm: build - api-gateway",
@@ -80,7 +80,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/web", "build"],
+      "args": ["--filter", "@pricey/web", "build"],
       "group": "build",
       "problemMatcher": [],
       "label": "pnpm: build - web",
@@ -92,7 +92,7 @@
     {
       "type": "shell",
       "command": "pnpm",
-      "args": ["--filter", "@pricy/ocr-service", "build"],
+      "args": ["--filter", "@pricey/ocr-service", "build"],
       "group": "build",
       "problemMatcher": ["$tsc"],
       "label": "pnpm: build - ocr-service",

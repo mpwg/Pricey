@@ -1,8 +1,9 @@
 {
-  "name": "@pricy/database",
+  "name": "@pricey/database",
   "version": "0.1.0",
   "private": true,
-  "description": "Database schema and Prisma client for Pricy",
+  "type": "module",
+  "description": "Database schema and Prisma client for Pricey",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {

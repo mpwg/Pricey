@@ -1,6 +1,6 @@
-# Pricy Development Phases
+# Pricey Development Phases
 
-This directory contains detailed task breakdowns for each development phase of the Pricy application. Each phase is organized into milestones with comprehensive task lists, acceptance criteria, and technical specifications.
+This directory contains detailed task breakdowns for each development phase of the Pricey application. Each phase is organized into milestones with comprehensive task lists, acceptance criteria, and technical specifications.
 
 ## 📁 Directory Structure
 

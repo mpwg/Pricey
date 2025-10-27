@@ -770,7 +770,7 @@ describe('parseReceiptDate', () => {
  */
 
 // test/fixtures/receipt.fixtures.ts
-import type { Receipt, ReceiptItem } from '@pricy/types';
+import type { Receipt, ReceiptItem } from '@pricey/types';
 
 export function createMockReceipt(overrides?: Partial<Receipt>): Receipt {
   return {
@@ -1000,7 +1000,7 @@ jobs:
         image: postgres:18
         env:
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: pricy_test
+          POSTGRES_DB: pricey_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -1039,12 +1039,12 @@ jobs:
       - name: Run database migrations
         run: pnpm db:migrate
         env:
-          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricy_test
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricey_test
 
       - name: Run integration tests
         run: pnpm test:integration
         env:
-          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricy_test
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricey_test
           REDIS_URL: redis://localhost:6379
 
   coverage-report:
@@ -1322,7 +1322,7 @@ describe('UserService', () => {
 
 ## Questions & Support
 
-- **Slack**: #pricy-testing
+- **Slack**: #pricey-testing
 - **Email**: [email protected]
 - **Office Hours**: Tuesdays 2-3pm EST
 

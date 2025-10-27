@@ -1,5 +1,5 @@
 /**
- * Root layout for Pricy web app
+ * Root layout for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Pricy - Smart Receipt Scanning',
+  title: 'Pricey - Smart Receipt Scanning',
   description: 'Track your receipts and compare prices across stores',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   themeColor: '#3b82f6',

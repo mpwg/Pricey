@@ -1,5 +1,5 @@
 /**
- * Seed script for Pricy database
+ * Seed script for Pricey database
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -193,7 +193,7 @@ async function main() {
     console.log('👤 Creating test user...');
     await prisma.user.create({
       data: {
-        email: 'test@pricy.app',
+        email: 'test@pricey.app',
         name: 'Test User',
       },
     });

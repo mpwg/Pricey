@@ -1,6 +1,6 @@
 # Security Best Practices
 
-> **Comprehensive security guide for Pricy application**  
+> **Comprehensive security guide for Pricey application**  
 > Last Updated: October 24, 2025
 
 ## Table of Contents
@@ -22,7 +22,7 @@
 
 ### Security Principles
 
-Pricy follows the **CIA Triad** and **Zero Trust** security model:
+Pricey follows the **CIA Triad** and **Zero Trust** security model:
 
 - **Confidentiality**: Data is accessible only to authorized users
 - **Integrity**: Data is accurate and hasn't been tampered with
@@ -63,8 +63,8 @@ export class MFAService {
    */
   async generateSecret(userId: string, email: string) {
     const secret = speakeasy.generateSecret({
-      name: `Pricy (${email})`,
-      issuer: 'Pricy',
+      name: `Pricey (${email})`,
+      issuer: 'Pricey',
     });
 
     // Store secret in database (encrypted)
@@ -183,7 +183,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
 
 ```typescript
 // filepath: apps/api/src/middleware/permissions.middleware.ts
-import { Permission, rolePermissions } from '@pricy/types';
+import { Permission, rolePermissions } from '@pricey/types';
 
 export function requirePermission(...permissions: Permission[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
@@ -299,11 +299,11 @@ await prisma.user.update({
 # nginx.conf - TLS 1.3 Configuration
 server {
     listen 443 ssl http2;
-    server_name api.pricy.app;
+    server_name api.pricey.app;
 
     # Modern SSL configuration
-    ssl_certificate /etc/letsencrypt/live/pricy.app/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pricy.app/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pricey.app/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pricey.app/privkey.pem;
 
     ssl_protocols TLSv1.3 TLSv1.2;
     ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
@@ -315,7 +315,7 @@ server {
     # OCSP Stapling
     ssl_stapling on;
     ssl_stapling_verify on;
-    ssl_trusted_certificate /etc/letsencrypt/live/pricy.app/chain.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/pricey.app/chain.pem;
 
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
@@ -480,8 +480,8 @@ app.register(authRoutes, {
 import cors from '@fastify/cors';
 
 const allowedOrigins = [
-  'https://pricy.app',
-  'https://www.pricy.app',
+  'https://pricey.app',
+  'https://www.pricey.app',
   ...(process.env.NODE_ENV === 'development'
     ? ['http://localhost:3001', 'http://localhost:3000']
     : []),
@@ -513,7 +513,7 @@ const ContentSecurityPolicy = `
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: https: blob:;
   font-src 'self' data:;
-  connect-src 'self' https://api.pricy.app wss://api.pricy.app;
+  connect-src 'self' https://api.pricey.app wss://api.pricey.app;
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
@@ -639,7 +639,7 @@ export async function csrfMiddleware(request: Request) {
  * Use this for non-sensitive preferences only.
  */
 export class SecureStorage {
-  private prefix = 'pricy_';
+  private prefix = 'pricey_';
 
   /**
    * Store non-sensitive data
@@ -732,7 +732,7 @@ version: '3.8'
 
 services:
   api:
-    image: pricy/api:latest
+    image: pricey/api:latest
     read_only: true
     cap_drop:
       - ALL
@@ -762,7 +762,7 @@ secrets:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pricy-api
+  name: pricey-api
 spec:
   securityContext:
     runAsNonRoot: true
@@ -770,7 +770,7 @@ spec:
     fsGroup: 1001
   containers:
     - name: api
-      image: pricy/api:latest
+      image: pricey/api:latest
       securityContext:
         allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
@@ -844,8 +844,8 @@ export async function getSecret(secretName: string): Promise<string> {
 }
 
 // Usage
-const dbPassword = await getSecret('pricy/database/password');
-const jwtSecret = await getSecret('pricy/jwt/secret');
+const dbPassword = await getSecret('pricey/database/password');
+const jwtSecret = await getSecret('pricey/jwt/secret');
 ```
 
 ### HashiCorp Vault (Alternative)
@@ -1019,7 +1019,7 @@ export class GDPRService {
       prisma.user.update({
         where: { id: userId },
         data: {
-          email: `deleted_${userId}@pricy.app`,
+          email: `deleted_${userId}@pricey.app`,
           name: 'Deleted User',
           passwordHash: null,
           image: null,
@@ -1149,12 +1149,12 @@ export class GDPRService {
 
 ```yaml
 Security Team:
-  Email: security@pricy.app
-  PGP Key: https://pricy.app/.well-known/security.txt
-  Bug Bounty: https://pricy.app/security/bug-bounty
+  Email: security@pricey.app
+  PGP Key: https://pricey.app/.well-known/security.txt
+  Bug Bounty: https://pricey.app/security/bug-bounty
 
 Responsible Disclosure:
-  - Report vulnerabilities to security@pricy.app
+  - Report vulnerabilities to security@pricey.app
   - Allow 90 days for fix before public disclosure
   - No testing on production without permission
 ```
@@ -1173,5 +1173,5 @@ Responsible Disclosure:
 ---
 
 **Last Updated**: October 24, 2025  
-**Maintained by**: Pricy Security Team  
+**Maintained by**: Pricey Security Team  
 **Review Schedule**: Quarterly

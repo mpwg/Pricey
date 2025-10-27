@@ -1,5 +1,5 @@
 /**
- * ESLint configuration for Pricy (flat config format)
+ * ESLint configuration for Pricey (flat config format)
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify

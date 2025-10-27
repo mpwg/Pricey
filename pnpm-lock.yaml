@@ -74,10 +74,10 @@ importers:
       '@fastify/rate-limit':
         specifier: ^10.3.0
         version: 10.3.0
-      '@pricy/database':
+      '@pricey/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@pricy/types':
+      '@pricey/types':
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
@@ -126,10 +126,10 @@ importers:
 
   apps/ocr-service:
     dependencies:
-      '@pricy/database':
+      '@pricey/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@pricy/types':
+      '@pricey/types':
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
@@ -215,7 +215,7 @@ importers:
         specifier: ^3.3.1
         version: 3.3.1
     devDependencies:
-      '@pricy/types':
+      '@pricey/types':
         specifier: workspace:*
         version: link:../../packages/types
       '@tailwindcss/postcss':

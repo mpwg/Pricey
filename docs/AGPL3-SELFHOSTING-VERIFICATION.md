@@ -1,6 +1,6 @@
 # AGPL-3.0 License & Self-Hosting Implementation Checklist
 
-This document verifies that Pricy meets all requirements for AGPL-3.0 licensing and comprehensive self-hosting capabilities.
+This document verifies that Pricey meets all requirements for AGPL-3.0 licensing and comprehensive self-hosting capabilities.
 
 ## ✅ AGPL-3.0 License Requirements
 
@@ -102,7 +102,7 @@ As documented in `docs/guides/self-hosting.md`:
 
 ### Supported Platforms
 
-As documented, Pricy can be hosted on:
+As documented, Pricey can be hosted on:
 
 ✅ **Personal Servers**
 
@@ -343,7 +343,7 @@ Can be hosted anywhere Docker runs:
 
 ## 🎉 Conclusion
 
-**Pricy fully meets the requirements for:**
+**Pricey fully meets the requirements for:**
 
 1. ✅ **AGPL-3.0 Licensing**
    - All legal requirements documented
