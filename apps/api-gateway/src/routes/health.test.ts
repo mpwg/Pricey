@@ -16,8 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { healthRoutes } from './health.js';
 import { db } from '@pricey/database';
 
@@ -28,13 +29,19 @@ vi.mock('@pricey/database', () => ({
 }));
 
 describe('Health Routes', () => {
+  let app: FastifyInstance;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    app = Fastify({ logger: false });
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   describe('GET /health', () => {
     it('should return success status', async () => {
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -54,7 +61,6 @@ describe('Health Routes', () => {
     });
 
     it('should include timestamp in response', async () => {
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -68,7 +74,6 @@ describe('Health Routes', () => {
     });
 
     it('should return valid ISO timestamp', async () => {
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -86,7 +91,6 @@ describe('Health Routes', () => {
     it('should return success when database is connected', async () => {
       vi.mocked(db.$queryRaw).mockResolvedValue([{ result: 1 }]);
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -108,7 +112,6 @@ describe('Health Routes', () => {
     it('should execute database query', async () => {
       vi.mocked(db.$queryRaw).mockResolvedValue([{ result: 1 }]);
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       await app.inject({
@@ -124,7 +127,6 @@ describe('Health Routes', () => {
         new Error('Connection timeout')
       );
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -143,11 +145,10 @@ describe('Health Routes', () => {
       });
     });
 
-    it('should log database errors', async () => {
+    it('should return proper error response on database failure', async () => {
       const error = new Error('Database connection timeout');
       vi.mocked(db.$queryRaw).mockRejectedValue(error);
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -170,7 +171,6 @@ describe('Health Routes', () => {
     it('should handle database network errors', async () => {
       vi.mocked(db.$queryRaw).mockRejectedValue(new Error('ENOTFOUND'));
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
@@ -186,7 +186,6 @@ describe('Health Routes', () => {
         new Error('Authentication failed')
       );
 
-      const app = Fastify({ logger: false });
       await app.register(healthRoutes);
 
       const response = await app.inject({
