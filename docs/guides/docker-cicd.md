@@ -62,7 +62,7 @@ docker pull ghcr.io/mpwg/pricey-web:rc
 - `{version}` - Specific version (e.g., `1.0.0`)
 - `{major}.{minor}` - Minor version (e.g., `1.0`)
 - `{major}` - Major version (e.g., `1`)
-- `latest` - Always points to latest stable release
+- `latest` - **Always points to the current released version** (updated with each new tag)
 
 **Example**:
 
@@ -70,10 +70,10 @@ docker pull ghcr.io/mpwg/pricey-web:rc
 docker pull ghcr.io/mpwg/pricey-web:1.0.0
 docker pull ghcr.io/mpwg/pricey-web:1.0
 docker pull ghcr.io/mpwg/pricey-web:1
-docker pull ghcr.io/mpwg/pricey-web:latest
+docker pull ghcr.io/mpwg/pricey-web:latest  # Same as the newest version tag
 ```
 
-**Usage**: Production-ready stable releases.
+**Usage**: Production-ready stable releases. The `latest` tag is only created for tagged releases, never for develop or main branches.
 
 ## Creating a Release
 

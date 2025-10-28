@@ -86,10 +86,10 @@ services:
   api-gateway:
     # Use prebuilt image from GitHub Container Registry
     # Options:
-    #   - latest (from develop branch)
-    #   - rc (from main branch, release candidate)
-    #   - 1.0.0 (tagged release)
-    #   - develop-abc123f (specific commit from develop)
+    #   - latest (always points to current released version, e.g., 1.0.0)
+    #   - 1.0.0 (specific tagged release)
+    #   - rc (release candidate from main branch)
+    #   - develop (prerelease from develop branch)
     image: ghcr.io/mpwg/pricey-api-gateway:${IMAGE_TAG:-latest}
     container_name: pricey-api-gateway-prod
     restart: unless-stopped
@@ -139,6 +139,12 @@ services:
           memory: 512M
 
   ocr-service:
+    # Use prebuilt image from GitHub Container Registry
+    # Options:
+    #   - latest (always points to current released version, e.g., 1.0.0)
+    #   - 1.0.0 (specific tagged release)
+    #   - rc (release candidate from main branch)
+    #   - develop (prerelease from develop branch)
     image: ghcr.io/mpwg/pricey-ocr-service:${IMAGE_TAG:-latest}
     container_name: pricey-ocr-service-prod
     restart: unless-stopped
@@ -183,6 +189,12 @@ services:
           memory: 512M
 
   web:
+    # Use prebuilt image from GitHub Container Registry
+    # Options:
+    #   - latest (always points to current released version, e.g., 1.0.0)
+    #   - 1.0.0 (specific tagged release)
+    #   - rc (release candidate from main branch)
+    #   - develop (prerelease from develop branch)
     image: ghcr.io/mpwg/pricey-web:${IMAGE_TAG:-latest}
     container_name: pricey-web-prod
     restart: unless-stopped

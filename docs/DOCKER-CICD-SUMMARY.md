@@ -52,8 +52,10 @@ ghcr.io/mpwg/pricey-web:rc-1.0.0          # Specific RC version
 ghcr.io/mpwg/pricey-web:1.0.0             # Exact version
 ghcr.io/mpwg/pricey-web:1.0               # Minor version
 ghcr.io/mpwg/pricey-web:1                 # Major version
-ghcr.io/mpwg/pricey-web:latest            # Latest stable
+ghcr.io/mpwg/pricey-web:latest            # Always points to current released version
 ```
+
+**Note**: The `latest` tag is **only created for version tags** (e.g., `v1.0.0`), never for `develop` or `main` branches. This ensures production deployments using `latest` always get a stable release.
 
 ### 3. Services Published
 
