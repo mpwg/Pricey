@@ -193,7 +193,7 @@ async function main() {
     console.log('👤 Creating test user...');
     await prisma.user.create({
       data: {
-        email: 'test@pricey.app',
+        email: 'test@mpwg.eu',
         name: 'Test User',
       },
     });
