@@ -12,6 +12,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/ocr-service/package.json ./apps/ocr-service/
 COPY packages/database/package.json ./packages/database/
 COPY packages/types/package.json ./packages/types/
+# Copy Prisma schema for postinstall script
+COPY packages/database/prisma ./packages/database/prisma
 RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
 
 # Build the application

@@ -11,6 +11,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 COPY packages/database/package.json ./packages/database/
 COPY packages/types/package.json ./packages/types/
+# Copy Prisma schema for postinstall script
+COPY packages/database/prisma ./packages/database/prisma
 RUN pnpm install --frozen-lockfile --filter @pricey/api-gateway...
 
 FROM base AS builder
