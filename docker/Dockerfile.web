@@ -17,7 +17,15 @@ RUN pnpm install --frozen-lockfile --filter @pricey/web...
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+# Copy workspace configuration first
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy package.json files for all workspace packages
+COPY apps/web/package.json ./apps/web/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+# Copy node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
 
 # Build shared packages first
