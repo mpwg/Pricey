@@ -72,7 +72,7 @@ git push origin feature/MVP-Launch-Preparation
    - Project Name: `pricey-staging`
    - Framework Preset: Next.js
    - Root Directory: `apps/web`
-   - Build Command: `cd ../.. && pnpm build --filter=@pricey/web`
+   - Build Command: `cd ../.. && turbo build --filter=@pricey/web`
    - Output Directory: `.next`
 
 3. **Configure Staging Environment Variables**:
