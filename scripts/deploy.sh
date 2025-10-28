@@ -133,7 +133,12 @@ deploy_production() {
 
   # Tag the release
   log_info "Creating git tag..."
-  version=$(node -p "require('./package.json').version")
+  ROOT_PKG_JSON="$(git rev-parse --show-toplevel)/package.json"
+  if [[ ! -f "$ROOT_PKG_JSON" ]]; then
+    log_error "Root package.json not found at $ROOT_PKG_JSON"
+    return 1
+  fi
+  version=$(node -p "require('$ROOT_PKG_JSON').version")
   git tag -a "v${version}" -m "Release v${version}"
   git push origin "v${version}"
 
