@@ -98,8 +98,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web
           tags: |
             # For develop branch: develop-{sha}
-            type=raw,value=develop-{{sha}},enable={{is_default_branch}}
-            type=raw,value=develop,enable={{is_default_branch}}
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
             # For main branch: rc-{version}, rc
             type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
@@ -153,8 +153,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api-gateway
           tags: |
-            type=raw,value=develop-{{sha}},enable={{is_default_branch}}
-            type=raw,value=develop,enable={{is_default_branch}}
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
             type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
@@ -206,8 +206,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-ocr-service
           tags: |
-            type=raw,value=develop-{{sha}},enable={{is_default_branch}}
-            type=raw,value=develop,enable={{is_default_branch}}
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
             type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}

@@ -208,6 +208,8 @@ case $choice in
             4)
                 backup_file="backups/pricey-$(date +%Y%m%d-%H%M%S).sql"
                 mkdir -p backups
+                echo -e "${YELLOW}⚠️  WARNING: Creating backup while database is running${NC}"
+                echo -e "${YELLOW}   For critical production backups, use 'Backup volumes' option instead${NC}"
                 echo -e "${BLUE}→ Creating database backup: $backup_file${NC}"
                 docker compose -f docker-compose.prod.yml exec -T postgres pg_dump -U pricey pricey > "$backup_file"
                 echo -e "${GREEN}✓ Backup created: $backup_file${NC}"
