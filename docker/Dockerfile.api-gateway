@@ -23,12 +23,12 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 COPY packages/database/package.json ./packages/database/
 COPY packages/types/package.json ./packages/types/
-# Copy node_modules from deps stage
+# Copy node_modules from deps stage (includes generated Prisma client from postinstall)
 COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
-# Generate Prisma client using pnpm exec to ensure correct binary path
-RUN pnpm exec prisma generate --schema=./packages/database/prisma/schema.prisma
+# Prisma client was already generated in deps stage via postinstall hook
+# Build the application
 RUN pnpm --filter @pricey/api-gateway build
 
 FROM base AS runner
