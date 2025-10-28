@@ -1,5 +1,5 @@
 /**
- * Home page with upload form for Pricey web app
+ * Landing page for Pricey web app
  * Copyright (C) 2025 Matthias Wallner-Géhri
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,50 +16,55 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { UploadForm } from '@/components/upload/upload-form';
+import { Hero } from '@/components/landing/hero';
+import { Features } from '@/components/landing/features';
+import { HowItWorks } from '@/components/landing/how-it-works';
+import { Demo } from '@/components/landing/demo';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Pricey - Smart Receipt Scanning & Price Comparison',
+  description:
+    'Never lose a receipt again. Scan, digitize, and track your purchases with AI-powered vision models. 85-99% accuracy, 100% open source, privacy first.',
+  keywords: [
+    'receipt scanning',
+    'receipt OCR',
+    'price comparison',
+    'receipt tracker',
+    'shopping tracker',
+    'AI vision',
+    'open source',
+  ],
+  openGraph: {
+    title: 'Pricey - Smart Receipt Scanning & Price Comparison',
+    description:
+      'Scan, digitize, and track your purchases with AI-powered vision models.',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Pricey - Smart Receipt Scanning',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pricey - Smart Receipt Scanning & Price Comparison',
+    description:
+      'Scan, digitize, and track your purchases with AI-powered vision models.',
+    images: ['/og-image.png'],
+  },
+};
 
 export default function Home() {
   return (
-    <div className="container py-8 md:py-12 lg:py-16">
-      <div className="mx-auto max-w-3xl space-y-8">
-        {/* Hero Section */}
-        <div className="space-y-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Smart Receipt Scanning
-          </h1>
-          <p className="text-lg text-muted-foreground sm:text-xl">
-            Track your purchases and compare prices across stores
-          </p>
-        </div>
-
-        {/* Upload Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Upload a Receipt</h2>
-          <UploadForm />
-        </div>
-
-        {/* Features Section */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
-            <h3 className="font-semibold">📸 Easy Capture</h3>
-            <p className="text-sm text-muted-foreground">
-              Take a photo with your phone or upload an existing image
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-semibold">🤖 Auto-Extract</h3>
-            <p className="text-sm text-muted-foreground">
-              AI-powered OCR extracts items, prices, and store info
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-semibold">📊 Track & Compare</h3>
-            <p className="text-sm text-muted-foreground">
-              View your purchase history and find the best deals
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <Demo />
+    </>
   );
 }
