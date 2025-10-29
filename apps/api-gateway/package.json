@@ -19,7 +19,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.918.0",
+    "@aws-sdk/client-s3": "^3.919.0",
     "@bull-board/api": "^6.14.0",
     "@bull-board/fastify": "^6.14.0",
     "@fastify/cors": "^11.1.0",
@@ -28,7 +28,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@pricey/database": "workspace:*",
     "@pricey/types": "workspace:*",
-    "bullmq": "^5.61.2",
+    "bullmq": "^5.62.0",
     "fastify": "^5.6.1",
     "ioredis": "^5.8.2",
     "minio": "^8.0.6",
