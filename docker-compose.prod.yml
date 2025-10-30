@@ -98,9 +98,11 @@ services:
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
       STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-pricey-receipts}
-      # Use MINIO_ROOT_USER/PASSWORD for local MinIO, or set explicit credentials for cloud storage
-      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:-minioadmin}
-      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:-minioadmin}
+      # Storage credentials must be set explicitly in .env.production
+      # For MinIO: use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD values
+      # For cloud storage: use your cloud provider credentials
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:?STORAGE_ACCESS_KEY_ID is required}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:?STORAGE_SECRET_ACCESS_KEY is required}
       STORAGE_PUBLIC_URL: ${STORAGE_PUBLIC_URL:-http://localhost:9000}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
@@ -150,9 +152,11 @@ services:
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
       STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-pricey-receipts}
-      # Use MINIO_ROOT_USER/PASSWORD for local MinIO, or set explicit credentials for cloud storage
-      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:-minioadmin}
-      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:-minioadmin}
+      # Storage credentials must be set explicitly in .env.production
+      # For MinIO: use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD values
+      # For cloud storage: use your cloud provider credentials
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:?STORAGE_ACCESS_KEY_ID is required}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:?STORAGE_SECRET_ACCESS_KEY is required}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LLM_PROVIDER: ${LLM_PROVIDER:-github}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}

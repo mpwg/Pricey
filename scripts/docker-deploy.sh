@@ -209,7 +209,18 @@ case $choice in
                 backup_file="backups/pricey-$(date +%Y%m%d-%H%M%S).sql"
                 mkdir -p backups
                 echo -e "${YELLOW}⚠️  WARNING: Creating backup while database is running${NC}"
-                echo -e "${YELLOW}   For critical production backups, use 'Backup volumes' option instead${NC}"
+                echo -e "${YELLOW}   Backing up a live database can result in data inconsistency due to:${NC}"
+                echo -e "${YELLOW}   - Partial transactions (some changes may be mid-flight)${NC}"
+                echo -e "${YELLOW}   - Referential integrity issues (related records may be out of sync)${NC}"
+                echo -e "${YELLOW}   - Lock contention (queries may timeout during backup)${NC}"
+                echo -e "${YELLOW}   Restoring from such a backup may cause errors, missing data, or corruption.${NC}"
+                echo -e "${YELLOW}   For critical production backups, use 'Backup volumes' option instead.${NC}"
+                echo ""
+                read -p "Continue with live backup anyway? (yes/no): " confirm_backup
+                if [ "$confirm_backup" != "yes" ]; then
+                    echo "Backup cancelled"
+                    exit 0
+                fi
                 echo -e "${BLUE}→ Creating database backup: $backup_file${NC}"
                 docker compose -f docker-compose.prod.yml exec -T postgres pg_dump -U pricey pricey > "$backup_file"
                 echo -e "${GREEN}✓ Backup created: $backup_file${NC}"

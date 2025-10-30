@@ -97,11 +97,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web
           tags: |
-            # For develop branch: develop-{sha}
+            # For develop branch: develop-{sha}, develop
             type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
-            # For main branch: rc-{version}, rc
-            type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
+            # For main branch: rc-{sha}, rc
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
             # For tags: {version}, {major}.{minor}, {major}, latest
             type=semver,pattern={{version}}
@@ -155,7 +155,7 @@ jobs:
           tags: |
             type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -208,7 +208,7 @@ jobs:
           tags: |
             type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=semver,pattern=rc-{{version}},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
