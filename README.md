@@ -569,31 +569,66 @@ We welcome contributions! Please follow these steps:
 
 ## Deployment
 
-### Self-Hosting (Docker Compose)
+### 🐳 Docker Deployment (Recommended)
+
+**Quick Start:**
 
 ```bash
-# Production stack
-docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d
+# 1. Copy environment template
+cp .env.production.example .env.production
 
-# Access at http://localhost:3001
+# 2. Edit with your production values
+nano .env.production
+
+# 3. Deploy using interactive script
+./scripts/docker-deploy.sh
+
+# Or manually:
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-**Requirements:**
+**What's Included:**
 
-- 2 CPU cores
-- 4GB RAM minimum
-- 20GB storage
+- ✅ Next.js Web Frontend (Port 3000)
+- ✅ Fastify API Gateway (Port 3001)
+- ✅ OCR Service (Port 3002)
+- ✅ PostgreSQL 18 Database
+- ✅ Redis 8 Cache
+- ✅ MinIO S3-Compatible Storage
+- ✅ Optional: Ollama (Self-hosted LLM)
 
-### Cloud Deployment (Coming in Phase 2)
+**System Requirements:**
 
-Recommended setup:
+- **Minimum**: 2 CPU cores, 4GB RAM, 20GB storage
+- **Recommended**: 4 CPU cores, 8GB RAM, 50GB SSD
+- **With Ollama**: 8+ cores, 16GB+ RAM, 100GB SSD
 
-- **Backend**: Railway, Render, or AWS ECS
-- **Database**: Neon, Supabase, or AWS RDS
-- **Storage**: AWS S3 or Cloudflare R2
-- **Redis**: Upstash or AWS ElastiCache
+📚 **Documentation:**
 
-See [deployment guide](docs/guides/deployment.md) for details.
+- [Docker Deployment Guide](docs/guides/docker-deployment.md) - Complete setup instructions
+- [Docker Quick Reference](docs/DOCKER-QUICK-REFERENCE.md) - Common commands
+- [Self-Hosting Guide](docs/guides/self-hosting.md) - Advanced configuration
+
+### Cloud Deployment Options
+
+**Option A: Vercel + Railway** (Easiest)
+
+- Frontend: Vercel (Next.js)
+- Backend: Railway (Fastify + PostgreSQL + Redis)
+- Storage: Cloudflare R2 or AWS S3
+- LLM: GitHub Models (no hosting needed)
+
+**Option B: Full Docker on VPS**
+
+- Provider: DigitalOcean, Hetzner, AWS EC2, or Linode
+- Use docker-compose.prod.yml for complete stack
+- Add Nginx reverse proxy for HTTPS
+- See [deployment guide](docs/guides/deployment.md)
+
+**Option C: Kubernetes** (For scale)
+
+- Helm charts coming in Phase 1
+- Supports auto-scaling and high availability
 
 ---
 

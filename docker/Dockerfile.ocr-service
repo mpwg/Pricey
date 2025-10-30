@@ -1,0 +1,75 @@
+# Pricey - OCR Service
+# Copyright (C) 2025 Matthias Wallner-Géhri
+# Licensed under AGPL-3.0
+
+FROM node:24-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/ocr-service/package.json ./apps/ocr-service/
+COPY packages/database/package.json ./packages/database/
+COPY packages/types/package.json ./packages/types/
+# Copy Prisma schema for postinstall script
+COPY packages/database/prisma ./packages/database/prisma
+RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
+
+# Build the application
+FROM base AS builder
+WORKDIR /app
+# Copy workspace configuration and lock file
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy package.json files for all workspace packages
+COPY apps/ocr-service/package.json ./apps/ocr-service/
+COPY packages/database/package.json ./packages/database/
+COPY packages/types/package.json ./packages/types/
+# Copy Prisma schema
+COPY packages/database/prisma ./packages/database/prisma
+# Copy all source code
+COPY . .
+# Install all dependencies fresh in builder (ensures proper symlinks)
+RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
+
+# Generate Prisma client using workspace command
+RUN pnpm --filter @pricey/database db:generate
+
+# Build OCR service
+RUN pnpm --filter @pricey/ocr-service build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3002
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 ocruser
+
+# Install tsx globally for TypeScript runtime support
+RUN npm install -g tsx
+
+# Copy package files for production install
+COPY --from=builder --chown=ocruser:nodejs /app/package.json ./
+COPY --from=builder --chown=ocruser:nodejs /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/package.json ./apps/ocr-service/
+
+# Copy node_modules with all dependencies (includes .pnpm store)
+COPY --from=builder --chown=ocruser:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/node_modules ./apps/ocr-service/node_modules
+
+# Copy built application
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/dist ./apps/ocr-service/dist
+COPY --from=builder --chown=ocruser:nodejs /app/packages ./packages
+
+USER ocruser
+
+EXPOSE 3002
+
+LABEL org.opencontainers.image.source="https://github.com/mpwg/Pricey"
+LABEL org.opencontainers.image.description="Pricey OCR Service - AGPL-3.0 Licensed"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
+
+CMD ["tsx", "apps/ocr-service/dist/index.js"]
