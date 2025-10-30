@@ -19,13 +19,18 @@ RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
 # Build the application
 FROM base AS builder
 WORKDIR /app
-# Copy workspace configuration first
+# Copy workspace configuration and lock file
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Copy all source code (needed for workspace dependencies)
+# Copy package.json files for all workspace packages
+COPY apps/ocr-service/package.json ./apps/ocr-service/
+COPY packages/database/package.json ./packages/database/
+COPY packages/types/package.json ./packages/types/
+# Copy Prisma schema
+COPY packages/database/prisma ./packages/database/prisma
+# Copy all source code
 COPY . .
-# Copy node_modules from deps stage
-# This must come after source code so workspace symlinks resolve correctly
-COPY --from=deps /app/node_modules ./node_modules
+# Install all dependencies fresh in builder (ensures proper symlinks)
+RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
 
 # Generate Prisma client using pnpm exec to ensure correct binary path
 RUN pnpm exec prisma generate --schema=./packages/database/prisma/schema.prisma

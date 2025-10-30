@@ -17,13 +17,14 @@ RUN pnpm install --frozen-lockfile --filter @pricey/api-gateway...
 
 FROM base AS builder
 WORKDIR /app
-# Copy workspace configuration first
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Copy all source code (needed for workspace dependencies)
-COPY . .
-# Copy node_modules from deps stage (includes generated Prisma client from postinstall)
-# This must come after source code so workspace symlinks resolve correctly
+# Copy workspace configuration and node_modules first
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/api-gateway/package.json ./apps/api-gateway/
+COPY --from=deps /app/apps/api-gateway/node_modules ./apps/api-gateway/node_modules
+COPY --from=deps /app/packages ./packages
+# Copy all source code (workspace dependencies already set up)
+COPY . .
 # Prisma client was already generated in deps stage via postinstall hook
 # Build the application
 RUN pnpm --filter @pricey/api-gateway build

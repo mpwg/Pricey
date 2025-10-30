@@ -19,8 +19,8 @@ env:
   # Force color output for better logs
   FORCE_COLOR: 3
   # Centralized tool versions
-  PNPM_VERSION: '10.19.0'
-  NODE_VERSION: '24'
+  PNPM_VERSION: "10"
+  NODE_VERSION: "24"
 
 jobs:
   # Setup job - prepares environment and dependencies
@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Get pnpm store directory
         shell: bash
