@@ -48,13 +48,21 @@ ENV PORT=3002
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 ocruser
 
-# Copy built application
-COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/dist ./apps/ocr-service/dist
-COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/package.json ./apps/ocr-service/
-COPY --from=builder --chown=ocruser:nodejs /app/packages ./packages
-COPY --from=builder --chown=ocruser:nodejs /app/node_modules ./node_modules
+# Install tsx globally for TypeScript runtime support
+RUN npm install -g tsx
+
+# Copy package files for production install
 COPY --from=builder --chown=ocruser:nodejs /app/package.json ./
 COPY --from=builder --chown=ocruser:nodejs /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/package.json ./apps/ocr-service/
+
+# Copy node_modules with all dependencies (includes .pnpm store)
+COPY --from=builder --chown=ocruser:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/node_modules ./apps/ocr-service/node_modules
+
+# Copy built application
+COPY --from=builder --chown=ocruser:nodejs /app/apps/ocr-service/dist ./apps/ocr-service/dist
+COPY --from=builder --chown=ocruser:nodejs /app/packages ./packages
 
 USER ocruser
 
@@ -64,4 +72,4 @@ LABEL org.opencontainers.image.source="https://github.com/mpwg/Pricey"
 LABEL org.opencontainers.image.description="Pricey OCR Service - AGPL-3.0 Licensed"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
-CMD ["node", "apps/ocr-service/dist/index.js"]
+CMD ["tsx", "apps/ocr-service/dist/index.js"]
