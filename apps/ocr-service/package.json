@@ -22,7 +22,7 @@
   "dependencies": {
     "@pricey/database": "workspace:*",
     "@pricey/types": "workspace:*",
-    "bullmq": "^5.62.1",
+    "bullmq": "^5.62.2",
     "ioredis": "^5.8.2",
     "minio": "^8.0.6",
     "pino": "^10.1.0",
