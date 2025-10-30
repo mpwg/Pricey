@@ -32,8 +32,8 @@ COPY . .
 # Install all dependencies fresh in builder (ensures proper symlinks)
 RUN pnpm install --frozen-lockfile --filter @pricey/ocr-service...
 
-# Generate Prisma client using pnpm exec to ensure correct binary path
-RUN pnpm exec prisma generate --schema=./packages/database/prisma/schema.prisma
+# Generate Prisma client - run from database package directory
+RUN cd packages/database && pnpm exec prisma generate
 
 # Build OCR service
 RUN pnpm --filter @pricey/ocr-service build
