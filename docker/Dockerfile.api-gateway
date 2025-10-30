@@ -38,12 +38,21 @@ ENV PORT=3001
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 fastify
 
-COPY --from=builder --chown=fastify:nodejs /app/apps/api-gateway/dist ./apps/api-gateway/dist
-COPY --from=builder --chown=fastify:nodejs /app/apps/api-gateway/package.json ./apps/api-gateway/
-COPY --from=builder --chown=fastify:nodejs /app/packages ./packages
-COPY --from=builder --chown=fastify:nodejs /app/node_modules ./node_modules
+# Install tsx globally for TypeScript runtime support
+RUN npm install -g tsx
+
+# Copy package files for production install
 COPY --from=builder --chown=fastify:nodejs /app/package.json ./
 COPY --from=builder --chown=fastify:nodejs /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=fastify:nodejs /app/apps/api-gateway/package.json ./apps/api-gateway/
+
+# Copy node_modules with all dependencies (includes .pnpm store)
+COPY --from=builder --chown=fastify:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=fastify:nodejs /app/apps/api-gateway/node_modules ./apps/api-gateway/node_modules
+
+# Copy built application
+COPY --from=builder --chown=fastify:nodejs /app/apps/api-gateway/dist ./apps/api-gateway/dist
+COPY --from=builder --chown=fastify:nodejs /app/packages ./packages
 
 USER fastify
 
@@ -53,4 +62,4 @@ LABEL org.opencontainers.image.source="https://github.com/mpwg/Pricey"
 LABEL org.opencontainers.image.description="Pricey API Gateway - AGPL-3.0 Licensed"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
-CMD ["node", "apps/api-gateway/dist/index.js"]
+CMD ["tsx", "apps/api-gateway/dist/index.js"]
