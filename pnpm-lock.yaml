@@ -81,8 +81,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
-        specifier: ^5.62.1
-        version: 5.62.1
+        specifier: ^5.62.2
+        version: 5.62.2
       fastify:
         specifier: ^5.6.1
         version: 5.6.1
@@ -133,8 +133,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       bullmq:
-        specifier: ^5.62.1
-        version: 5.62.1
+        specifier: ^5.62.2
+        version: 5.62.2
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2
@@ -2067,8 +2067,8 @@ packages:
     resolution: {integrity: sha512-Db1SbgBS/fg/392AblrMJk97KggmvYhr4pB5ZIMTWtaivCPMWLkmb7m21cJvpvgK+J3nsU2CmmixNBZx4vFj/w==}
     engines: {node: '>=8.0.0'}
 
-  bullmq@5.62.1:
-    resolution: {integrity: sha512-FiRxqSquGTf8W8l8OMczKfEFG0BEqJ5NzChwKZ4vbSpZSPFLSmmxXAQlW4imB1rZHnlc7sYq8o+Oy4JavoIEpQ==}
+  bullmq@5.62.2:
+    resolution: {integrity: sha512-ohF2hdsjBhcedHSotB8XfL27+u1+C6Uyuw4jgVeiflB8BdpydoMnqX3jFzWfNkIVfQDWR6XsJE3BgRQtOLsvjw==}
 
   c12@3.1.0:
     resolution: {integrity: sha512-uWoS8OU1MEIsOv8p/5a82c3H31LsWVR5qiyXVfBNOzfffjUWtPnhAb4BYI2uG2HfGmZmFjCtui5XNWaps+iFuw==}
@@ -6257,7 +6257,7 @@ snapshots:
 
   buffer-crc32@1.0.0: {}
 
-  bullmq@5.62.1:
+  bullmq@5.62.2:
     dependencies:
       cron-parser: 4.9.0
       ioredis: 5.8.2
