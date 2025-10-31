@@ -39,11 +39,34 @@ export function formatCurrency(amount: number, currency = 'USD'): string {
 }
 
 /**
+ * Supported image MIME types for receipt upload
+ */
+export const SUPPORTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+] as const;
+
+/**
+ * Human-readable names for supported image types
+ */
+export const SUPPORTED_IMAGE_TYPE_NAMES = [
+  'JPEG',
+  'PNG',
+  'WebP',
+  'HEIC',
+] as const;
+
+/**
  * Validate file type for receipt upload
  */
 export function isValidImageFile(file: File): boolean {
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  return validTypes.includes(file.type);
+  return SUPPORTED_IMAGE_TYPES.includes(
+    file.type as (typeof SUPPORTED_IMAGE_TYPES)[number]
+  );
 }
 
 /**

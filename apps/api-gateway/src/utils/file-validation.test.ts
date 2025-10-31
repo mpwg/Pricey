@@ -113,7 +113,14 @@ describe('file-validation', () => {
   });
 
   describe('validateImage - MIME type', () => {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const validTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/heic',
+      'image/heif',
+    ];
 
     validTypes.forEach((mimeType) => {
       it(`should accept ${mimeType}`, async () => {
@@ -127,17 +134,6 @@ describe('file-validation', () => {
 
         await expect(validateImage(file)).resolves.toBeUndefined();
       });
-    });
-
-    it('should reject webp images', async () => {
-      const file = createMockFile({
-        bytesRead: 1024 * 1024,
-        mimetype: 'image/webp',
-        filename: 'test.webp',
-      });
-
-      await expect(validateImage(file)).rejects.toThrow(ValidationError);
-      await expect(validateImage(file)).rejects.toThrow('Invalid file type');
     });
 
     it('should reject PDF files', async () => {
@@ -209,11 +205,35 @@ describe('file-validation', () => {
       await expect(validateImage(file)).resolves.toBeUndefined();
     });
 
-    it('should reject .webp extension', async () => {
+    it('should accept .webp extension', async () => {
+      const file = createMockFile({
+        bytesRead: 1024 * 1024,
+        mimetype: 'image/webp',
+        filename: 'test.webp',
+        width: 1000,
+        height: 1000,
+      });
+
+      await expect(validateImage(file)).resolves.toBeUndefined();
+    });
+
+    it('should accept .heic extension', async () => {
+      const file = createMockFile({
+        bytesRead: 1024 * 1024,
+        mimetype: 'image/heic',
+        filename: 'test.heic',
+        width: 1000,
+        height: 1000,
+      });
+
+      await expect(validateImage(file)).resolves.toBeUndefined();
+    });
+
+    it('should reject .gif extension', async () => {
       const file = createMockFile({
         bytesRead: 1024 * 1024,
         mimetype: 'image/jpeg', // Valid MIME type but wrong extension
-        filename: 'test.webp',
+        filename: 'test.gif',
       });
 
       await expect(validateImage(file)).rejects.toThrow(ValidationError);

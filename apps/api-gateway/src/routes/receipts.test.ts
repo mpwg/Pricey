@@ -104,7 +104,7 @@ describe('Receipt Routes Integration Tests', () => {
     await app.close();
   });
 
-  describe('POST /api/v1/receipts/upload', () => {
+  describe('POST /api/v1/receipts', () => {
     it('should upload a receipt successfully', async () => {
       // Mock implementations
       const mockReceiptId = 'receipt-123';
@@ -139,7 +139,7 @@ describe('Receipt Routes Integration Tests', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/api/v1/receipts/upload',
+        url: '/api/v1/receipts',
         headers: {
           'content-type': 'multipart/form-data; boundary=----boundary',
         },
@@ -181,7 +181,7 @@ describe('Receipt Routes Integration Tests', () => {
     it('should return 400 when no file is provided', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/api/v1/receipts/upload',
+        url: '/api/v1/receipts',
         headers: {
           'content-type': 'multipart/form-data; boundary=----boundary',
         },
@@ -204,7 +204,7 @@ describe('Receipt Routes Integration Tests', () => {
       const fileContent = Buffer.from('fake-image-content');
       const response = await app.inject({
         method: 'POST',
-        url: '/api/v1/receipts/upload',
+        url: '/api/v1/receipts',
         headers: {
           'content-type': 'multipart/form-data; boundary=----boundary',
         },
@@ -236,7 +236,7 @@ describe('Receipt Routes Integration Tests', () => {
       const fileContent = Buffer.from('fake-image-content');
       const response = await app.inject({
         method: 'POST',
-        url: '/api/v1/receipts/upload',
+        url: '/api/v1/receipts',
         headers: {
           'content-type': 'multipart/form-data; boundary=----boundary',
         },

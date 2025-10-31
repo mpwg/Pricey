@@ -32,8 +32,15 @@ export class ValidationError extends Error {
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MIN_WIDTH = 500;
 const MIN_HEIGHT = 500;
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
 
 /**
  * Validate uploaded image file
