@@ -1,6 +1,6 @@
-# Pricy Product Roadmap
+# Pricey Product Roadmap
 
-> **Strategic roadmap for Pricy development from MVP to Release 1.0 and beyond**  
+> **Strategic roadmap for Pricey development from MVP to Release 1.0 and beyond**  
 > Last Updated: October 24, 2025  
 > Status: Active Development
 
@@ -51,7 +51,7 @@
 
 ```mermaid
 gantt
-    title Pricy Development Roadmap
+    title Pricey Development Roadmap
     dateFormat YYYY-MM-DD
 
     section Phase 0: MVP
@@ -186,7 +186,7 @@ gantt
 
 **Acceptance Criteria:**
 
-- App accessible at `mvp.pricy.app`
+- App accessible at `mvp.pricey.app`
 - Landing page converts 10%+ visitors
 - No critical bugs in error logs
 - Analytics tracking events
@@ -373,8 +373,8 @@ model PriceHistory {
 
 ```json
 {
-  "name": "Pricy - Receipt Scanner",
-  "short_name": "Pricy",
+  "name": "Pricey - Receipt Scanner",
+  "short_name": "Pricey",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -887,14 +887,14 @@ model ExpenseSplit {
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pricy-api
+  name: pricey-api
 spec:
   replicas: 10
   template:
     spec:
       containers:
         - name: api
-          image: pricy/api:latest
+          image: pricey/api:latest
           resources:
             requests:
               cpu: 500m

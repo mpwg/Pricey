@@ -1,0 +1,269 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: dev (all)",
+      "detail": "Start all dev servers in parallel",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/api-gateway", "dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: dev - api-gateway",
+      "detail": "Start API Gateway dev server",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/web", "dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: dev - web",
+      "detail": "Start Next.js web dev server",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/ocr-service", "dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: dev - ocr-service",
+      "detail": "Start OCR service dev server",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["build"],
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "label": "pnpm: build (all)",
+      "detail": "Build all packages",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/api-gateway", "build"],
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "label": "pnpm: build - api-gateway",
+      "detail": "Build API Gateway",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/web", "build"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: build - web",
+      "detail": "Build Next.js web app",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@pricey/ocr-service", "build"],
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "label": "pnpm: build - ocr-service",
+      "detail": "Build OCR service",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test"],
+      "group": "test",
+      "problemMatcher": [],
+      "label": "pnpm: test (all)",
+      "detail": "Run all tests",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test:coverage"],
+      "group": "test",
+      "problemMatcher": [],
+      "label": "pnpm: test:coverage (all)",
+      "detail": "Run all tests with coverage",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["lint"],
+      "group": "build",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "pnpm: lint (all)",
+      "detail": "Lint all packages",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["lint:fix"],
+      "group": "build",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "pnpm: lint:fix (all)",
+      "detail": "Fix linting issues in all packages",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["typecheck"],
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "label": "pnpm: typecheck (all)",
+      "detail": "Type check all packages",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["format"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: format (all)",
+      "detail": "Format all files with Prettier",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["format:check"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: format:check (all)",
+      "detail": "Check formatting without making changes",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["docker:dev"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: docker:dev",
+      "detail": "Start Docker development infrastructure (PostgreSQL, Redis, MinIO)",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["docker:dev:down"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: docker:dev:down",
+      "detail": "Stop Docker development infrastructure",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["db:migrate"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: db:migrate",
+      "detail": "Run database migrations",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["db:seed"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: db:seed",
+      "detail": "Seed database with sample data",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["db:studio"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: db:studio",
+      "detail": "Open Prisma Studio (localhost:5555)",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["db:reset"],
+      "group": "build",
+      "problemMatcher": [],
+      "label": "pnpm: db:reset",
+      "detail": "Reset database (WARNING: destructive)",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "pnpm: test (all)",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test"],
+      "group": "test"
+    }
+  ]
+}

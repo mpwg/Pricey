@@ -1,6 +1,6 @@
-# Self-Hosting Pricy
+# Self-Hosting Pricey
 
-This guide provides comprehensive instructions for self-hosting Pricy using Docker on your own infrastructure.
+This guide provides comprehensive instructions for self-hosting Pricey using Docker on your own infrastructure.
 
 ## 📋 Table of Contents
 
@@ -24,7 +24,7 @@ This guide provides comprehensive instructions for self-hosting Pricy using Dock
 
 ## Overview
 
-Pricy is designed to be easily self-hosted using Docker and Docker Compose. You can deploy it on:
+Pricey is designed to be easily self-hosted using Docker and Docker Compose. You can deploy it on:
 
 - **Personal Servers**: Home server, Raspberry Pi
 - **VPS**: DigitalOcean, Linode, Vultr, Hetzner
@@ -62,14 +62,14 @@ Pricy is designed to be easily self-hosted using Docker and Docker Compose. You 
 
 ## License Requirements
 
-Pricy is licensed under **AGPL-3.0** (GNU Affero General Public License v3.0).
+Pricey is licensed under **AGPL-3.0** (GNU Affero General Public License v3.0).
 
 ### What This Means for Self-Hosting
 
 ✅ **You Can:**
 
-- Host Pricy for personal use
-- Host Pricy for your organization
+- Host Pricey for personal use
+- Host Pricey for your organization
 - Modify the source code
 - Run multiple instances
 - Use it commercially
@@ -82,7 +82,7 @@ Pricy is licensed under **AGPL-3.0** (GNU Affero General Public License v3.0).
 - Share any modifications under AGPL-3.0
 
 📖 **Key Requirement:**
-If you run a modified version of Pricy as a network service (accessible over the internet), you **must** make the modified source code available to your users.
+If you run a modified version of Pricey as a network service (accessible over the internet), you **must** make the modified source code available to your users.
 
 ### Compliance Options
 
@@ -93,7 +93,7 @@ If you run a modified version of Pricy as a network service (accessible over the
 **Example Footer Notice:**
 
 ```
-Powered by Pricy (AGPL-3.0) | Source Code: https://github.com/yourusername/pricy
+Powered by Pricey (AGPL-3.0) | Source Code: https://github.com/yourusername/pricey
 ```
 
 For full license text, see [LICENSE](../../LICENSE) or visit:
@@ -150,8 +150,8 @@ For local testing and development:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pricy.git
-cd pricy
+git clone https://github.com/yourusername/pricey.git
+cd pricey
 
 # Copy environment template
 cp .env.example .env
@@ -183,8 +183,8 @@ For production, use the dedicated production compose file:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pricy.git
-cd pricy
+git clone https://github.com/yourusername/pricey.git
+cd pricey
 
 # Copy production environment template
 cp .env.production.example .env.production
@@ -213,20 +213,20 @@ Create a `.env.production` file with the following variables:
 ```bash
 # Application
 NODE_ENV=production
-APP_URL=https://pricy.yourdomain.com
+APP_URL=https://pricey.yourdomain.com
 
 # Database (PostgreSQL)
-DATABASE_URL=postgresql://pricy:STRONG_PASSWORD@postgres:5432/pricy
-POSTGRES_USER=pricy
+DATABASE_URL=postgresql://pricey:STRONG_PASSWORD@postgres:5432/pricey
+POSTGRES_USER=pricey
 POSTGRES_PASSWORD=STRONG_PASSWORD_HERE
-POSTGRES_DB=pricy
+POSTGRES_DB=pricey
 
 # Redis
 REDIS_URL=redis://redis:6379
 
 # Storage (S3/MinIO)
 S3_ENDPOINT=https://s3.yourdomain.com
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_ACCESS_KEY=YOUR_ACCESS_KEY
 S3_SECRET_KEY=YOUR_SECRET_KEY
 S3_REGION=us-east-1
@@ -239,7 +239,7 @@ API_RATE_LIMIT=100
 
 # Frontend
 NEXT_PUBLIC_API_URL=https://api.yourdomain.com
-NEXT_PUBLIC_APP_URL=https://pricy.yourdomain.com
+NEXT_PUBLIC_APP_URL=https://pricey.yourdomain.com
 
 # OCR Service
 OCR_PROVIDER=tesseract
@@ -296,7 +296,7 @@ To use an external PostgreSQL instance (recommended for production):
 2. Update `DATABASE_URL` to point to your external database:
 
 ```bash
-DATABASE_URL=postgresql://user:password@your-db-host:5432/pricy
+DATABASE_URL=postgresql://user:password@your-db-host:5432/pricey
 ```
 
 ### Running Migrations
@@ -319,13 +319,13 @@ cat > backup-db.sh << 'EOF'
 #!/bin/bash
 BACKUP_DIR="/backups/postgres"
 DATE=$(date +%Y%m%d_%H%M%S)
-CONTAINER_NAME="pricy-postgres-1"
+CONTAINER_NAME="pricey-postgres-1"
 
 mkdir -p $BACKUP_DIR
-docker exec $CONTAINER_NAME pg_dump -U pricy pricy | gzip > "$BACKUP_DIR/pricy_$DATE.sql.gz"
+docker exec $CONTAINER_NAME pg_dump -U pricey pricey | gzip > "$BACKUP_DIR/pricey_$DATE.sql.gz"
 
 # Keep only last 7 days
-find $BACKUP_DIR -name "pricy_*.sql.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "pricey_*.sql.gz" -mtime +7 -delete
 EOF
 
 chmod +x backup-db.sh
@@ -377,7 +377,7 @@ S3_REGION=us-east-1
 
 ```bash
 S3_ENDPOINT=https://your-account-id.r2.cloudflarestorage.com
-S3_BUCKET=pricy-receipts
+S3_BUCKET=pricey-receipts
 S3_ACCESS_KEY=your-r2-access-key
 S3_SECRET_KEY=your-r2-secret-key
 S3_REGION=auto
@@ -394,7 +394,7 @@ Caddy automatically obtains and renews Let's Encrypt certificates.
 **Caddyfile:**
 
 ```
-pricy.yourdomain.com {
+pricey.yourdomain.com {
     reverse_proxy web:3000
 }
 
@@ -425,16 +425,16 @@ caddy:
 ```nginx
 server {
     listen 80;
-    server_name pricy.yourdomain.com;
+    server_name pricey.yourdomain.com;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name pricy.yourdomain.com;
+    server_name pricey.yourdomain.com;
 
-    ssl_certificate /etc/letsencrypt/live/pricy.yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pricy.yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pricey.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pricey.yourdomain.com/privkey.pem;
 
     location / {
         proxy_pass http://web:3000;
@@ -449,8 +449,8 @@ server {
     listen 443 ssl http2;
     server_name api.yourdomain.com;
 
-    ssl_certificate /etc/letsencrypt/live/pricy.yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pricy.yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pricey.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pricey.yourdomain.com/privkey.pem;
 
     location / {
         proxy_pass http://api-gateway:3001;
@@ -465,7 +465,7 @@ server {
 **Obtain certificate:**
 
 ```bash
-sudo certbot certonly --standalone -d pricy.yourdomain.com -d api.yourdomain.com
+sudo certbot certonly --standalone -d pricey.yourdomain.com -d api.yourdomain.com
 ```
 
 ---
@@ -474,7 +474,7 @@ sudo certbot certonly --standalone -d pricy.yourdomain.com -d api.yourdomain.com
 
 ### Nginx Configuration
 
-Complete example at `/etc/nginx/sites-available/pricy`:
+Complete example at `/etc/nginx/sites-available/pricey`:
 
 ```nginx
 # Rate limiting
@@ -484,10 +484,10 @@ limit_req_zone $binary_remote_addr zone=upload_limit:10m rate=5r/s;
 # Frontend
 server {
     listen 443 ssl http2;
-    server_name pricy.yourdomain.com;
+    server_name pricey.yourdomain.com;
 
-    ssl_certificate /etc/letsencrypt/live/pricy.yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pricy.yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pricey.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pricey.yourdomain.com/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -511,8 +511,8 @@ server {
     listen 443 ssl http2;
     server_name api.yourdomain.com;
 
-    ssl_certificate /etc/letsencrypt/live/pricy.yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pricy.yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pricey.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pricey.yourdomain.com/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -552,15 +552,15 @@ server {
 
 set -e
 
-BACKUP_DIR="/backups/pricy"
+BACKUP_DIR="/backups/pricey"
 DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p "$BACKUP_DIR/$DATE"
 
-echo "Starting Pricy backup..."
+echo "Starting Pricey backup..."
 
 # 1. Backup PostgreSQL database
 echo "Backing up database..."
-docker compose -f docker-compose.prod.yml exec -T postgres pg_dump -U pricy pricy | \
+docker compose -f docker-compose.prod.yml exec -T postgres pg_dump -U pricey pricey | \
     gzip > "$BACKUP_DIR/$DATE/database.sql.gz"
 
 # 2. Backup MinIO data (if using)
@@ -583,13 +583,13 @@ EOF
 
 # 5. Compress backup
 echo "Compressing backup..."
-tar -czf "$BACKUP_DIR/pricy_backup_$DATE.tar.gz" -C "$BACKUP_DIR" "$DATE"
+tar -czf "$BACKUP_DIR/pricey_backup_$DATE.tar.gz" -C "$BACKUP_DIR" "$DATE"
 rm -rf "$BACKUP_DIR/$DATE"
 
 # 6. Keep only last 30 days
-find "$BACKUP_DIR" -name "pricy_backup_*.tar.gz" -mtime +30 -delete
+find "$BACKUP_DIR" -name "pricey_backup_*.tar.gz" -mtime +30 -delete
 
-echo "Backup completed: $BACKUP_DIR/pricy_backup_$DATE.tar.gz"
+echo "Backup completed: $BACKUP_DIR/pricey_backup_$DATE.tar.gz"
 ```
 
 ### Restore from Backup
@@ -610,7 +610,7 @@ tar -xzf "$BACKUP_FILE" -C /tmp
 
 # Restore database
 docker compose -f docker-compose.prod.yml exec -T postgres \
-    psql -U pricy -d pricy < /tmp/backup/database.sql
+    psql -U pricey -d pricey < /tmp/backup/database.sql
 
 # Restore storage
 docker compose -f docker-compose.prod.yml exec -T minio \
@@ -662,7 +662,7 @@ docker compose -f docker-compose.prod.yml down
 git checkout <previous-tag>
 
 # 3. Restore from backup
-./restore.sh /backups/pricy/pricy_backup_YYYYMMDD_HHMMSS.tar.gz
+./restore.sh /backups/pricey/pricey_backup_YYYYMMDD_HHMMSS.tar.gz
 
 # 4. Start services
 docker compose -f docker-compose.prod.yml up -d
@@ -681,7 +681,7 @@ Check service health:
 curl https://api.yourdomain.com/health
 
 # Database health
-docker compose -f docker-compose.prod.yml exec postgres pg_isready -U pricy
+docker compose -f docker-compose.prod.yml exec postgres pg_isready -U pricey
 
 # Redis health
 docker compose -f docker-compose.prod.yml exec redis redis-cli ping
@@ -812,7 +812,7 @@ docker compose -f docker-compose.prod.yml ps postgres
 docker compose -f docker-compose.prod.yml logs postgres
 
 # Test connection
-docker compose -f docker-compose.prod.yml exec postgres psql -U pricy -d pricy
+docker compose -f docker-compose.prod.yml exec postgres psql -U pricey -d pricey
 ```
 
 #### OCR Processing Fails
@@ -843,9 +843,9 @@ du -sh /var/lib/docker/*
 
 ### Getting Help
 
-- **GitHub Issues**: https://github.com/yourusername/pricy/issues
-- **Discussions**: https://github.com/yourusername/pricy/discussions
-- **Documentation**: https://github.com/yourusername/pricy/tree/main/docs
+- **GitHub Issues**: https://github.com/yourusername/pricey/issues
+- **Discussions**: https://github.com/yourusername/pricey/discussions
+- **Documentation**: https://github.com/yourusername/pricey/tree/main/docs
 
 ### Reporting Bugs
 
@@ -861,7 +861,7 @@ When reporting issues, include:
 
 ## Additional Resources
 
-- [Pricy Documentation](../../README.md)
+- [Pricey Documentation](../../README.md)
 - [Architecture Overview](../architecture.md)
 - [API Documentation](../api/README.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
@@ -873,4 +873,4 @@ When reporting issues, include:
 **Maintainer**: Matthias Wallner-Géhri  
 **License**: AGPL-3.0
 
-For questions about self-hosting, open a [GitHub Discussion](https://github.com/yourusername/pricy/discussions).
+For questions about self-hosting, open a [GitHub Discussion](https://github.com/yourusername/pricey/discussions).

@@ -33,7 +33,7 @@ export async function registerRoutes(app: FastifyInstance) {
         return {
           success: true,
           data: {
-            message: 'Pricy API v1',
+            message: 'Pricey API v1',
             version: '0.1.0',
             documentation: '/api/v1/docs',
           },

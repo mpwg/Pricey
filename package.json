@@ -1,5 +1,5 @@
 {
-  "name": "@pricy/root",
+  "name": "@pricey/root",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "node": ">=24.10.0",
     "pnpm": ">=10.19.0"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
@@ -27,30 +27,34 @@
     "test:watch": "turbo run test:watch",
     "test:coverage": "turbo run test:coverage",
     "test:ui": "turbo run test:ui",
-    "clean": "turbo run clean && rm -rf node_modules .turbo",
-    "db:migrate": "pnpm --filter @pricy/database db:migrate",
-    "db:seed": "pnpm --filter @pricy/database db:seed",
-    "db:studio": "pnpm --filter @pricy/database db:studio",
-    "db:reset": "pnpm --filter @pricy/database db:reset",
+    "clean": "turbo clean && rm -rf node_modules",
+    "db:migrate": "pnpm --filter @pricey/database db:migrate",
+    "db:seed": "pnpm --filter @pricey/database db:seed",
+    "db:studio": "pnpm --filter @pricey/database db:studio",
+    "db:reset": "pnpm --filter @pricey/database db:reset",
     "docker:dev": "docker-compose up -d",
     "docker:dev:down": "docker-compose down",
+    "docker:dev:ollama": "docker-compose --profile ollama up -d",
+    "docker:dev:ollama:down": "docker-compose --profile ollama down",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
-    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down"
+    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down",
+    "minio:setup": "bash scripts/setup-minio.sh",
+    "ollama:mac": "bash scripts/start-ollama-mac.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.9.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
-    "@vitest/coverage-v8": "^4.0.3",
-    "@vitest/ui": "^4.0.3",
+    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/ui": "^4.0.6",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.8",
+    "turbo": "^2.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
-    "vitest": "^4.0.3"
+    "vitest": "^4.0.6"
   }
 }

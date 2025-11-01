@@ -41,7 +41,7 @@ const envSchema = z.object({
     .transform((val) => val === 'true'),
   S3_ACCESS_KEY: z.string().default('minioadmin'),
   S3_SECRET_KEY: z.string().default('minioadmin'),
-  S3_BUCKET: z.string().default('pricy-receipts'),
+  S3_BUCKET: z.string().default('pricey-receipts'),
 });
 
 export type Env = z.infer<typeof envSchema>;

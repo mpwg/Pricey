@@ -17,17 +17,74 @@
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { db } from '@pricy/database';
+import { db } from '@pricey/database';
+import { ReceiptStatus } from '@pricey/types';
 import { storageService } from '../services/storage.service.js';
 import { queueService } from '../services/queue.service.js';
 import { validateImage, ValidationError } from '../utils/file-validation.js';
+import { sseRoutes } from './sse.js';
 
 export async function receiptsRoutes(app: FastifyInstance) {
+  // Register SSE routes
+  await app.register(sseRoutes);
+
+  /**
+   * List all receipts
+   * GET /api/v1/receipts
+   */
+  app.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const receipts = await db.receipt.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              quantity: true,
+            },
+          },
+          store: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+            },
+          },
+        },
+      });
+
+      return reply.send({
+        receipts: receipts.map((receipt) => ({
+          id: receipt.id,
+          imageUrl: receipt.imageUrl,
+          storeName: receipt.storeName,
+          store: receipt.store,
+          purchaseDate: receipt.purchaseDate,
+          totalAmount: receipt.totalAmount ? Number(receipt.totalAmount) : null,
+          status: receipt.status,
+          itemCount: receipt.items.length,
+          createdAt: receipt.createdAt,
+          updatedAt: receipt.updatedAt,
+        })),
+      });
+    } catch (error) {
+      request.log.error(error, 'Error fetching receipts');
+      return reply.code(500).send({
+        error: 'Failed to fetch receipts',
+        code: 'FETCH_ERROR',
+      });
+    }
+  });
+
   /**
    * Upload a receipt for OCR processing
-   * POST /api/v1/receipts/upload
+   * POST /api/v1/receipts
    */
-  app.post('/upload', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       // Get the uploaded file
       const data = await request.file();
@@ -51,7 +108,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
       const receipt = await db.receipt.create({
         data: {
           imageUrl,
-          status: 'PROCESSING',
+          status: ReceiptStatus.PROCESSING,
         },
       });
 
@@ -60,7 +117,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
       return reply.code(201).send({
         id: receipt.id,
-        status: 'processing',
+        status: ReceiptStatus.PROCESSING,
         uploadedAt: receipt.createdAt,
         processingStartedAt: new Date(),
         imageUrl,
@@ -115,18 +172,21 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
         // Calculate progress based on status
         let progress = 0;
-        if (receipt.status === 'PENDING') progress = 0;
-        else if (receipt.status === 'PROCESSING') progress = 50;
-        else if (receipt.status === 'COMPLETED') progress = 100;
-        else if (receipt.status === 'FAILED') progress = 0;
+        if (receipt.status === ReceiptStatus.PENDING) progress = 0;
+        else if (receipt.status === ReceiptStatus.PROCESSING) progress = 50;
+        else if (receipt.status === ReceiptStatus.COMPLETED) progress = 100;
+        else if (receipt.status === ReceiptStatus.FAILED) progress = 0;
 
         const response: Record<string, unknown> = {
           id: receipt.id,
-          status: receipt.status.toLowerCase(),
+          status: receipt.status,
           progress,
         };
 
-        if (receipt.status === 'COMPLETED' && receipt.items.length > 0) {
+        if (
+          receipt.status === ReceiptStatus.COMPLETED &&
+          receipt.items.length > 0
+        ) {
           response.ocrResult = {
             storeName: receipt.storeName,
             date: receipt.purchaseDate,
@@ -198,7 +258,7 @@ export async function receiptsRoutes(app: FastifyInstance) {
         store: receipt.store,
         purchaseDate: receipt.purchaseDate,
         totalAmount: receipt.totalAmount ? Number(receipt.totalAmount) : null,
-        status: receipt.status.toLowerCase(),
+        status: receipt.status,
         ocrProvider: receipt.ocrProvider,
         ocrConfidence: receipt.ocrConfidence,
         rawOcrText: receipt.rawOcrText,

@@ -1,0 +1,381 @@
+# Docker Build & Publish Workflow
+# Copyright (C) 2025 Matthias Wallner-Géhri
+# Licensed under AGPL-3.0
+#
+# Builds and publishes Docker images for all services
+# - develop branch: prerelease images (e.g., pricey-web:develop-abc123f)
+# - main branch: release candidate images (e.g., pricey-web:rc-1.0.0)
+# - tags: stable release images (e.g., pricey-web:1.0.0, pricey-web:latest)
+
+name: Docker Build & Publish
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - develop
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/pricey
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  # Detect which services changed to optimize builds
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.changes.outputs.web }}
+      api-gateway: ${{ steps.changes.outputs.api-gateway }}
+      ocr-service: ${{ steps.changes.outputs.ocr-service }}
+      packages: ${{ steps.changes.outputs.packages }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'docker/Dockerfile.web'
+              - 'pnpm-lock.yaml'
+            api-gateway:
+              - 'apps/api-gateway/**'
+              - 'packages/**'
+              - 'docker/Dockerfile.api-gateway'
+              - 'pnpm-lock.yaml'
+            ocr-service:
+              - 'apps/ocr-service/**'
+              - 'packages/**'
+              - 'docker/Dockerfile.ocr-service'
+              - 'pnpm-lock.yaml'
+            packages:
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+
+  # Build and push Web Frontend image
+  build-web:
+    name: Build Web Frontend
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true' || needs.detect-changes.outputs.packages == 'true' || github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web
+          tags: |
+            # For develop branch: develop-{sha}, develop
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            # For main branch: rc-{sha}, rc
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
+            # For tags: {version}, {major}.{minor}, {major}, latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=Pricey Web Frontend
+            org.opencontainers.image.description=Smart receipt scanning and price comparison - Web UI (Next.js)
+            org.opencontainers.image.vendor=Matthias Wallner-Géhri
+            org.opencontainers.image.licenses=AGPL-3.0
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile.web
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Build and push API Gateway image
+  build-api-gateway:
+    name: Build API Gateway
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api-gateway == 'true' || needs.detect-changes.outputs.packages == 'true' || github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api-gateway
+          tags: |
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=Pricey API Gateway
+            org.opencontainers.image.description=Smart receipt scanning and price comparison - API Gateway (Fastify)
+            org.opencontainers.image.vendor=Matthias Wallner-Géhri
+            org.opencontainers.image.licenses=AGPL-3.0
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile.api-gateway
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Build and push OCR Service image
+  build-ocr-service:
+    name: Build OCR Service
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.ocr-service == 'true' || needs.detect-changes.outputs.packages == 'true' || github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-ocr-service
+          tags: |
+            type=raw,value=develop-{{sha}},enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=rc-{{sha}},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=rc,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=Pricey OCR Service
+            org.opencontainers.image.description=Smart receipt scanning and price comparison - OCR Service (Vision LLMs)
+            org.opencontainers.image.vendor=Matthias Wallner-Géhri
+            org.opencontainers.image.licenses=AGPL-3.0
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile.ocr-service
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Create GitHub Release for tagged versions
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-web, build-api-gateway, build-ocr-service]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 ${VERSION}^ 2>/dev/null || echo "")
+
+          # Generate changelog
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Changes since $PREV_TAG" > release_notes.md
+            echo "" >> release_notes.md
+            git log ${PREV_TAG}..${VERSION} --pretty=format:"- %s (%h)" --no-merges >> release_notes.md
+          else
+            echo "## Initial Release" > release_notes.md
+            echo "" >> release_notes.md
+            echo "First stable release of Pricey!" >> release_notes.md
+          fi
+
+          # Add Docker image information
+          echo "" >> release_notes.md
+          echo "## Docker Images" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "All images are available on GitHub Container Registry:" >> release_notes.md
+          echo "" >> release_notes.md
+          echo '```bash' >> release_notes.md
+          echo "# Web Frontend (Next.js)" >> release_notes.md
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:${VERSION#v}" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "# API Gateway (Fastify)" >> release_notes.md
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api-gateway:${VERSION#v}" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "# OCR Service (Vision LLMs)" >> release_notes.md
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-ocr-service:${VERSION#v}" >> release_notes.md
+          echo '```' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## Deployment" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "See the [Docker Deployment Guide](https://github.com/${{ github.repository }}/blob/main/docs/guides/docker-deployment.md) for instructions." >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## System Requirements" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "- **Minimum**: 2 CPU cores, 4GB RAM, 20GB storage" >> release_notes.md
+          echo "- **Recommended**: 4 CPU cores, 8GB RAM, 50GB SSD" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## License" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "This release is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0)." >> release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Announce prerelease builds (develop branch)
+  announce-prerelease:
+    name: Announce Prerelease
+    runs-on: ubuntu-latest
+    needs: [build-web, build-api-gateway, build-ocr-service]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    steps:
+      - name: Generate prerelease summary
+        run: |
+          echo "## 🚀 Prerelease Build Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: develop" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Images" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "# Pull prerelease images" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:develop" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api-gateway:develop" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-ocr-service:develop" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "These are **unstable prerelease** images for testing only." >> $GITHUB_STEP_SUMMARY
+
+  # Announce release candidate builds (main branch)
+  announce-rc:
+    name: Announce Release Candidate
+    runs-on: ubuntu-latest
+    needs: [build-web, build-api-gateway, build-ocr-service]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Generate RC summary
+        run: |
+          echo "## 🎯 Release Candidate Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: main" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Docker Images" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "# Pull release candidate images" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-web:rc" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api-gateway:rc" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-ocr-service:rc" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "These images are **release candidates** ready for final testing before stable release." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To create a stable release, tag the commit:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "git tag -a v1.0.0 -m \"Release version 1.0.0\"" >> $GITHUB_STEP_SUMMARY
+          echo "git push origin v1.0.0" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # Summary job
+  docker-success:
+    name: Docker Build Success
+    runs-on: ubuntu-latest
+    needs: [build-web, build-api-gateway, build-ocr-service]
+    if: always()
+    steps:
+      - name: Check all builds
+        run: |
+          if [[ "${{ needs.build-web.result }}" != "success" && "${{ needs.build-web.result }}" != "skipped" ]] || \
+             [[ "${{ needs.build-api-gateway.result }}" != "success" && "${{ needs.build-api-gateway.result }}" != "skipped" ]] || \
+             [[ "${{ needs.build-ocr-service.result }}" != "success" && "${{ needs.build-ocr-service.result }}" != "skipped" ]]; then
+            echo "One or more Docker builds failed"
+            exit 1
+          fi
+          echo "All Docker builds completed successfully!"

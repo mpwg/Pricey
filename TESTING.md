@@ -1,10 +1,10 @@
-# Testing in Pricy
+# Testing in Pricey
 
 > **⚠️ MANDATORY**: All new implementations MUST include comprehensive unit tests.
 
 ## Overview
 
-Pricy uses **Vitest** as its primary testing framework across all packages. This document provides a quick reference for running and writing tests.
+Pricey uses **Vitest** as its primary testing framework across all packages. This document provides a quick reference for running and writing tests.
 
 For comprehensive testing guidelines, see [Testing Mandate](./.github/instructions/testing-mandate.instructions.md).
 
@@ -26,10 +26,10 @@ pnpm test:coverage
 pnpm test:ui
 
 # Run tests for a specific package
-pnpm --filter @pricy/api-gateway test
+pnpm --filter @pricey/api-gateway test
 
 # Run a specific test file
-pnpm --filter @pricy/api-gateway test src/utils/file-validation.test.ts
+pnpm --filter @pricey/api-gateway test src/utils/file-validation.test.ts
 ```
 
 ### Writing Your First Test
@@ -146,7 +146,7 @@ describe('EmailService', () => {
 
     expect(mockSendEmail).toHaveBeenCalledWith({
       to: '[email protected]',
-      subject: 'Welcome to Pricy',
+      subject: 'Welcome to Pricey',
       template: 'welcome',
     });
   });

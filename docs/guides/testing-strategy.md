@@ -1,6 +1,6 @@
 # Testing Strategy
 
-> **Comprehensive testing guide for Pricy application**  
+> **Comprehensive testing guide for Pricey application**  
 > Last Updated: October 24, 2025
 
 ## Table of Contents
@@ -24,7 +24,7 @@
 
 ### Core Principles
 
-Pricy follows the **Testing Trophy** model with emphasis on:
+Pricey follows the **Testing Trophy** model with emphasis on:
 
 1. **Write tests. Not too many. Mostly integration.** (Kent C. Dodds)
 2. **Test behavior, not implementation**
@@ -1067,7 +1067,7 @@ export const options = {
 
 export default function () {
   // Test receipt listing
-  const listRes = http.get('https://api.pricy.app/receipts', {
+  const listRes = http.get('https://api.pricey.app/receipts', {
     headers: {
       Authorization: `Bearer ${__ENV.AUTH_TOKEN}`,
     },
@@ -1082,7 +1082,7 @@ export default function () {
 
   // Test receipt upload
   const uploadRes = http.post(
-    'https://api.pricy.app/receipts',
+    'https://api.pricey.app/receipts',
     {
       image: http.file(open('./fixtures/receipt.jpg', 'b'), 'receipt.jpg'),
       storeId: 'walmart-1',
@@ -1139,7 +1139,7 @@ jobs:
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: 'pricy'
+          project: 'pricey'
           path: '.'
           format: 'HTML'
 
@@ -1157,14 +1157,14 @@ jobs:
 
 ### Coverage Targets
 
-| Package             | Target  | Current    |
-| ------------------- | ------- | ---------- |
-| `@pricy/utils`      | 90%     | 92% ✅     |
-| `@pricy/validation` | 95%     | 97% ✅     |
-| `@pricy/types`      | 100%    | 100% ✅    |
-| `apps/api`          | 80%     | 78% ⚠️     |
-| `apps/web`          | 75%     | 71% ⚠️     |
-| **Overall**         | **80%** | **84%** ✅ |
+| Package              | Target  | Current    |
+| -------------------- | ------- | ---------- |
+| `@pricey/utils`      | 90%     | 92% ✅     |
+| `@pricey/validation` | 95%     | 97% ✅     |
+| `@pricey/types`      | 100%    | 100% ✅    |
+| `apps/api`           | 80%     | 78% ⚠️     |
+| `apps/web`           | 75%     | 71% ⚠️     |
+| **Overall**          | **80%** | **84%** ✅ |
 
 ### Coverage Reports
 
@@ -1202,7 +1202,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.10.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -1234,7 +1234,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.10.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -1243,7 +1243,7 @@ jobs:
       - name: Run migrations
         run: pnpm prisma migrate deploy
         env:
-          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricy_test
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/pricey_test
 
       - name: Run integration tests
         run: pnpm test:integration
@@ -1255,7 +1255,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.10.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -1388,5 +1388,5 @@ test('should handle negative quantities', () => {
 ---
 
 **Last Updated**: October 24, 2025  
-**Maintained by**: Pricy Engineering Team  
+**Maintained by**: Pricey Engineering Team  
 **Review Schedule**: Quarterly

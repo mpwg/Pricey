@@ -1,6 +1,6 @@
 # Quick Reference: Documentation Summary
 
-> **At-a-glance overview of all Pricy documentation**  
+> **At-a-glance overview of all Pricey documentation**  
 > Last Updated: October 24, 2025
 
 ## 📚 Documentation Index
@@ -154,8 +154,8 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/yourorg/pricy.git
-cd pricy
+git clone https://github.com/yourorg/pricey.git
+cd pricey
 pnpm install
 
 # Start infrastructure
@@ -172,7 +172,7 @@ pnpm dev
 
 ```bash
 # Run specific service
-pnpm --filter @pricy/web dev
+pnpm --filter @pricey/web dev
 
 # Build all
 pnpm build
@@ -201,7 +201,7 @@ pnpm build
 docker-compose -f infrastructure/docker/docker-compose.prod.yml up -d
 
 # Run migrations (production)
-pnpm --filter @pricy/database migrate deploy
+pnpm --filter @pricey/database migrate deploy
 ```
 
 ## 🆘 Troubleshooting Quick Links
@@ -324,7 +324,7 @@ pnpm --filter @pricy/database migrate deploy
 
 **Last Review**: October 24, 2025  
 **Next Review**: January 24, 2026  
-**Maintained by**: Pricy Documentation Team
+**Maintained by**: Pricey Documentation Team
 
 ---
 

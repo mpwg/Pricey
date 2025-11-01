@@ -95,8 +95,8 @@ Workspace dependencies MUST use `workspace:*`:
 ```json
 {
   "dependencies": {
-    "@pricy/database": "workspace:*", // ✅ Correct
-    "@pricy/types": "workspace:*" // ✅ Correct
+    "@pricey/database": "workspace:*", // ✅ Correct
+    "@pricey/types": "workspace:*" // ✅ Correct
   }
 }
 ```
@@ -525,7 +525,7 @@ pnpm up -r --interactive
 pnpm up --latest -r fastify
 
 # Update in specific workspace
-pnpm --filter @pricy/api-gateway up --latest fastify
+pnpm --filter @pricey/api-gateway up --latest fastify
 ```
 
 ### Update Dev Dependencies Only

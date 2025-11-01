@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Pricy frontend is a Progressive Web Application (PWA) built with Next.js 16 App Router, providing a native app-like experience while remaining a web application. It supports offline functionality, "Add to Home Screen" installation, and responsive design for all devices.
+The Pricey frontend is a Progressive Web Application (PWA) built with Next.js 16 App Router, providing a native app-like experience while remaining a web application. It supports offline functionality, "Add to Home Screen" installation, and responsive design for all devices.
 
 ## Technology Stack
 
@@ -156,7 +156,7 @@ import Google from 'next-auth/providers/google';
 import Microsoft from 'next-auth/providers/microsoft';
 import Apple from 'next-auth/providers/apple';
 import Credentials from 'next-auth/providers/credentials';
-import { prisma } from '@pricy/database';
+import { prisma } from '@pricey/database';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
@@ -367,8 +367,8 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
-  title: "Login | Pricy",
-  description: "Sign in to your Pricy account",
+  title: "Login | Pricey",
+  description: "Sign in to your Pricey account",
 };
 
 export default function LoginPage() {
@@ -647,7 +647,7 @@ const withPWA = require('next-pwa')({
   disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
     {
-      urlPattern: /^https:\/\/api\.pricy\.app\/.*/i,
+      urlPattern: /^https:\/\/api\.pricey\.app\/.*/i,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'api-cache',
@@ -684,8 +684,8 @@ module.exports = withPWA({
 
 ```json
 {
-  "name": "Pricy - Price Comparison",
-  "short_name": "Pricy",
+  "name": "Pricey - Price Comparison",
+  "short_name": "Pricey",
   "description": "Scan receipts and compare prices across stores",
   "start_url": "/",
   "display": "standalone",
@@ -726,19 +726,19 @@ module.exports = withPWA({
 ```typescript
 // filepath: apps/web/src/lib/db/schema.ts
 import Dexie, { Table } from 'dexie';
-import type { Receipt, ReceiptItem } from '@pricy/types';
+import type { Receipt, ReceiptItem } from '@pricey/types';
 
 export interface OfflineReceipt extends Receipt {
   syncStatus: 'pending' | 'synced' | 'failed';
   localImageUrl?: string;
 }
 
-export class PricyDB extends Dexie {
+export class PriceyDB extends Dexie {
   receipts!: Table<OfflineReceipt>;
   receiptItems!: Table<ReceiptItem>;
 
   constructor() {
-    super('PricyDB');
+    super('PriceyDB');
     this.version(1).stores({
       receipts: '++id, userId, storeId, date, syncStatus',
       receiptItems: '++id, receiptId, productId',
@@ -746,7 +746,7 @@ export class PricyDB extends Dexie {
   }
 }
 
-export const db = new PricyDB();
+export const db = new PriceyDB();
 ```
 
 ```typescript
@@ -925,7 +925,7 @@ export async function apiRequest<T>(
 // filepath: apps/web/src/lib/hooks/useReceipts.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/api/client';
-import type { Receipt } from '@pricy/types';
+import type { Receipt } from '@pricey/types';
 
 export function useReceipts() {
   return useQuery({
@@ -1012,7 +1012,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pricy - Smart Price Comparison",
+  title: "Pricey - Smart Price Comparison",
   description: "Scan receipts and find the best prices",
   manifest: "/manifest.json",
   themeColor: "#2563eb",
@@ -1020,7 +1020,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Pricy",
+    title: "Pricey",
   },
 };
 
@@ -1043,7 +1043,7 @@ export default function RootLayout({
 
 ### Performance Budgets
 
-Pricy enforces strict performance budgets to ensure fast, responsive user experience:
+Pricey enforces strict performance budgets to ensure fast, responsive user experience:
 
 #### Core Web Vitals Targets
 
@@ -1187,7 +1187,7 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.10.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -1196,7 +1196,7 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          NEXT_PUBLIC_API_URL: https://api.pricy.app
+          NEXT_PUBLIC_API_URL: https://api.pricey.app
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
@@ -1404,7 +1404,7 @@ test('upload receipt flow', async ({ page }) => {
 ```bash
 # .env.example
 # NextAuth.js Configuration
-NEXTAUTH_URL=https://pricy.app
+NEXTAUTH_URL=https://pricey.app
 NEXTAUTH_SECRET=your-secret-key-here  # Generate with: openssl rand -base64 32
 
 # Google OAuth 2.0
@@ -1420,10 +1420,10 @@ APPLE_CLIENT_ID=your-apple-client-id
 APPLE_CLIENT_SECRET=your-apple-client-secret  # Generate with Apple's tool
 
 # API Configuration
-NEXT_PUBLIC_API_URL=https://api.pricy.app
+NEXT_PUBLIC_API_URL=https://api.pricey.app
 
 # Database (for NextAuth database sessions - optional)
-DATABASE_URL=postgresql://user:pass@localhost:5432/pricy
+DATABASE_URL=postgresql://user:pass@localhost:5432/pricey
 ```
 
 ### Setting Up OAuth Providers
@@ -1438,7 +1438,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/pricy
 6. Authorized redirect URIs:
    ```
    http://localhost:3001/api/auth/callback/google
-   https://pricy.app/api/auth/callback/google
+   https://pricey.app/api/auth/callback/google
    ```
 7. Copy Client ID and Client Secret
 
@@ -1447,12 +1447,12 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/pricy
 1. Go to [Azure Portal](https://portal.azure.com/)
 2. Navigate to "Azure Active Directory" → "App registrations"
 3. Click "New registration"
-4. Name: "Pricy"
+4. Name: "Pricey"
 5. Supported account types: "Accounts in any organizational directory and personal Microsoft accounts"
 6. Redirect URI:
    ```
    http://localhost:3001/api/auth/callback/microsoft
-   https://pricy.app/api/auth/callback/microsoft
+   https://pricey.app/api/auth/callback/microsoft
    ```
 7. Go to "Certificates & secrets" → Create new client secret
 8. Copy Application (client) ID and secret value
@@ -1464,17 +1464,17 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/pricy
 3. Click "Identifiers" → "+" → "App IDs"
 4. Register App ID with Sign In with Apple capability
 5. Create Service ID:
-   - Identifier: `app.pricy.signin`
-   - Description: "Pricy Sign In"
+   - Identifier: `app.pricey.signin`
+   - Description: "Pricey Sign In"
 6. Configure Sign In with Apple:
    - Primary App ID: (your app ID from step 4)
    - Return URLs:
      ```
      http://localhost:3001/api/auth/callback/apple
-     https://pricy.app/api/auth/callback/apple
+     https://pricey.app/api/auth/callback/apple
      ```
 7. Create Private Key:
-   - Key Name: "Pricy Sign In Key"
+   - Key Name: "Pricey Sign In Key"
    - Enable: "Sign In with Apple"
 8. Download private key (only once!)
 9. Generate client secret using Apple's tool or library:
@@ -1491,7 +1491,7 @@ const clientSecret = jwt.sign({}, privateKey, {
   expiresIn: '180 days',
   audience: 'https://appleid.apple.com',
   issuer: 'YOUR_TEAM_ID',
-  subject: 'app.pricy.signin',
+  subject: 'app.pricey.signin',
   keyid: 'YOUR_KEY_ID',
 });
 
@@ -1541,8 +1541,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ```bash
 # .env.example
-NEXT_PUBLIC_API_URL=https://api.pricy.app
-NEXT_PUBLIC_APP_URL=https://pricy.app
+NEXT_PUBLIC_API_URL=https://api.pricey.app
+NEXT_PUBLIC_APP_URL=https://pricey.app
 ```
 
 ### Build Command
@@ -1555,7 +1555,7 @@ pnpm build
 
 ```dockerfile
 # apps/web/Dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN corepack enable && corepack prepare pnpm@8.10.0 --activate
 
 FROM base AS deps
@@ -1584,7 +1584,7 @@ CMD ["node", "server.js"]
 
 ### Core Accessibility Principles
 
-Pricy follows **WCAG 2.1 Level AA** standards and implements the **POUR** principles:
+Pricey follows **WCAG 2.1 Level AA** standards and implements the **POUR** principles:
 
 - **Perceivable**: Content is available to all senses
 - **Operable**: Interface is navigable by all users
@@ -2127,12 +2127,12 @@ React Server Components (introduced in React 18, matured in Next.js 13+) allow c
 - **Better security** - API keys stay on server
 - **Improved performance** - Faster initial page loads
 
-### RSC Strategy for Pricy
+### RSC Strategy for Pricey
 
 ```typescript
 // filepath: apps/web/src/app/receipts/page.tsx
 // ✅ Server Component (default) - No 'use client' directive
-import { prisma } from "@pricy/database";
+import { prisma } from "@pricey/database";
 import { auth } from "@/auth";
 import { ReceiptList } from "@/components/ReceiptList";
 
@@ -2163,7 +2163,7 @@ export default async function ReceiptsPage() {
 "use client";
 
 import { useState } from "react";
-import { Receipt } from "@pricy/types";
+import { Receipt } from "@pricey/types";
 import { ReceiptCard } from "./ReceiptCard";
 
 export function ReceiptList({

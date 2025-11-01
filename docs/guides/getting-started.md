@@ -1,6 +1,6 @@
-# Getting Started with Pricy
+# Getting Started with Pricey
 
-> **Complete guide to setting up the Pricy development environment**
+> **Complete guide to setting up the Pricey development environment**
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Before you begin, ensure you have the following installed:
 - **Node.js** 20.x LTS or higher
 
   ```bash
-  node --version  # Should be v20.x.x or higher
+  node --version  # Should be v24.10.0 or higher
   ```
 
 - **pnpm** 8.10.0 or higher
@@ -51,8 +51,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourorg/pricy.git
-cd pricy
+git clone https://github.com/yourorg/pricey.git
+cd pricey
 ```
 
 ### 2. Install Dependencies
@@ -72,38 +72,57 @@ This will:
 
 ### 3. Set Up Environment Variables
 
-Copy the example environment file:
+Copy the example environment file to create your local configuration:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Edit `.env` and configure:
+All services in the monorepo will load environment variables from the root `.env.local` file. This ensures consistency across all services and eliminates duplication.
+
+Edit `.env.local` and configure as needed. The example file has sensible defaults for local development:
 
 ```bash
-# Database
-DATABASE_URL="postgresql://pricy:pricy@localhost:5432/pricy"
+# Database (default values work with docker-compose.yml)
+DATABASE_URL="postgresql://pricey:pricey_dev_password@localhost:5432/pricey"
 
-# Redis
+# Redis (optional for MVP, but recommended)
 REDIS_URL="redis://localhost:6379"
 
 # Storage (MinIO for local development)
-S3_ENDPOINT="http://localhost:9000"
-S3_ACCESS_KEY_ID="minioadmin"
-S3_SECRET_ACCESS_KEY="minioadmin"
-S3_BUCKET="pricy-receipts"
+S3_ENDPOINT="localhost"
+S3_PORT="9000"
+S3_ACCESS_KEY="minioadmin"
+S3_SECRET_KEY="minioadmin"
+S3_USE_SSL="false"
+S3_BUCKET="pricey-receipts"
 
-# OCR Provider (use tesseract for local dev)
-OCR_PROVIDER="tesseract"
+# LLM Configuration
+# Option 1: Use GitHub Models (cloud-based, fastest setup)
+# LLM_PROVIDER="github"
+# GITHUB_TOKEN="ghp_your_token_here"
+# GITHUB_MODEL="gpt-5-mini"
 
-# JWT Secrets (generate with: openssl rand -base64 32)
-JWT_SECRET="your-secret-key-here"
+# Option 2: Use Docker Ollama (local, slower, optional)
+# Enable with: pnpm docker:dev:ollama
+LLM_PROVIDER="ollama"
+LLM_BASE_URL="http://localhost:11434"
+LLM_MODEL="llava"
+
+# Option 3: Use Mac's local Ollama with GPU acceleration (10-20x faster!)
+# brew install ollama && ollama serve --host 0.0.0.0:10000
+# LLM_BASE_URL="http://localhost:10000"
+```
+
+**Note:** The defaults in `.env.example` work out-of-the-box with the included `docker-compose.yml`.
 JWT_REFRESH_SECRET="your-refresh-secret-key-here"
 
 # API URLs
+
 API_URL="http://localhost:3000"
 NEXT_PUBLIC_API_URL="http://localhost:3000"
-```
+
+````
 
 ### 4. Start Infrastructure Services
 
@@ -120,10 +139,20 @@ This will start:
 - MinIO on port 9000
 - MinIO Console on port 9001
 
+**Optional: Enable Docker Ollama**
+
+If you want to use Docker Ollama (not recommended for Mac users due to slow CPU-only processing):
+
+```bash
+pnpm docker:dev:ollama
+```
+
+> ⚡ **Mac Users**: Instead of Docker Ollama, use the local Ollama installation for 10-20x faster processing with GPU acceleration. See [Mac Ollama Acceleration Guide](mac-ollama-acceleration.md).
+
 Verify services are running:
 
 ```bash
-docker-compose -f infrastructure/docker/docker-compose.dev.yml ps
+docker-compose ps
 ```
 
 ### 5. Run Database Migrations
@@ -144,8 +173,8 @@ pnpm db:seed
 
 This creates:
 
-- Demo admin user (admin@pricy.app / admin123)
-- Demo regular user (demo@pricy.app / demo123)
+- Demo admin user (admin@pricey.app / admin123)
+- Demo regular user (demo@pricey.app / demo123)
 - Sample stores and chains
 - Sample product categories
 - Sample products
@@ -194,7 +223,7 @@ Expected response:
 ### Check Database Connection
 
 ```bash
-pnpm --filter @pricy/database db:studio
+pnpm --filter @pricey/database db:studio
 ```
 
 This opens Prisma Studio at http://localhost:5555
@@ -207,6 +236,8 @@ Navigate to MinIO Console:
 - Username: minioadmin
 - Password: minioadmin
 
+**Note**: In development mode, the API Gateway automatically sets the `pricey-receipts` bucket to allow public read access (anonymous downloads). This enables the web app to display receipt images directly. In production, you should use signed URLs or a proper CDN instead.
+
 ## Development Workflow
 
 ### Running Specific Services
@@ -214,13 +245,13 @@ Navigate to MinIO Console:
 Run only the frontend:
 
 ```bash
-pnpm --filter @pricy/web dev
+pnpm --filter @pricey/web dev
 ```
 
 Run API with all its dependencies:
 
 ```bash
-pnpm --filter @pricy/api... dev
+pnpm --filter @pricey/api... dev
 ```
 
 ### Building Projects
@@ -234,7 +265,7 @@ pnpm build
 Build specific workspace:
 
 ```bash
-pnpm --filter @pricy/web build
+pnpm --filter @pricey/web build
 ```
 
 ### Running Tests
@@ -248,13 +279,13 @@ pnpm test
 Run tests for specific package:
 
 ```bash
-pnpm --filter @pricy/types test
+pnpm --filter @pricey/types test
 ```
 
 Run tests in watch mode:
 
 ```bash
-pnpm --filter @pricy/web test:watch
+pnpm --filter @pricey/web test:watch
 ```
 
 ### Linting and Formatting
@@ -278,7 +309,7 @@ pnpm format
 Add to specific workspace:
 
 ```bash
-pnpm --filter @pricy/web add react-hook-form
+pnpm --filter @pricey/web add react-hook-form
 ```
 
 Add dev dependency to root:
@@ -292,7 +323,7 @@ pnpm add -Dw prettier
 Make changes to `packages/database/prisma/schema.prisma`, then:
 
 ```bash
-pnpm --filter @pricy/database migrate dev --name your_migration_name
+pnpm --filter @pricey/database migrate dev --name your_migration_name
 ```
 
 ### Resetting Database
@@ -388,7 +419,7 @@ docker-compose -f infrastructure/docker/docker-compose.dev.yml up -d
 
 ## Next Steps
 
-Now that you have Pricy running locally, you can:
+Now that you have Pricey running locally, you can:
 
 1. **Explore the API** - Visit http://localhost:3000/docs for interactive API documentation
 2. **Upload a receipt** - Use the web app to test receipt scanning
@@ -418,3 +449,4 @@ If you encounter issues:
    - What you've already tried
 
 Happy coding! 🚀
+````

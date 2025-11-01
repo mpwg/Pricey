@@ -37,7 +37,7 @@ const envSchema = z.object({
     .transform((val) => val === 'true'),
   S3_ACCESS_KEY: z.string().default('minioadmin'),
   S3_SECRET_KEY: z.string().default('minioadmin'),
-  S3_BUCKET: z.string().default('pricy-receipts'),
+  S3_BUCKET: z.string().default('pricey-receipts'),
   OCR_CONCURRENCY: z.string().default('5').transform(Number),
   OCR_TIMEOUT: z.string().default('30000').transform(Number),
 });
@@ -88,7 +88,7 @@ describe('ocr-service env configuration', () => {
 
   describe('default values', () => {
     const validEnv = {
-      DATABASE_URL: 'postgresql://localhost:5432/pricy',
+      DATABASE_URL: 'postgresql://localhost:5432/pricey',
     };
 
     it('should default NODE_ENV to development', () => {
@@ -155,11 +155,11 @@ describe('ocr-service env configuration', () => {
       }
     });
 
-    it('should default S3_BUCKET to pricy-receipts', () => {
+    it('should default S3_BUCKET to pricey-receipts', () => {
       const result = envSchema.safeParse(validEnv);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.S3_BUCKET).toBe('pricy-receipts');
+        expect(result.data.S3_BUCKET).toBe('pricey-receipts');
       }
     });
 
@@ -182,7 +182,7 @@ describe('ocr-service env configuration', () => {
 
   describe('type coercion and transformation', () => {
     const validEnv = {
-      DATABASE_URL: 'postgresql://localhost:5432/pricy',
+      DATABASE_URL: 'postgresql://localhost:5432/pricey',
     };
 
     it('should transform S3_PORT string to number', () => {
@@ -252,7 +252,7 @@ describe('ocr-service env configuration', () => {
 
   describe('enum validation', () => {
     const validEnv = {
-      DATABASE_URL: 'postgresql://localhost:5432/pricy',
+      DATABASE_URL: 'postgresql://localhost:5432/pricey',
     };
 
     it('should accept valid NODE_ENV: development', () => {
@@ -310,7 +310,7 @@ describe('ocr-service env configuration', () => {
 
   describe('REDIS_URL with default', () => {
     const validEnv = {
-      DATABASE_URL: 'postgresql://localhost:5432/pricy',
+      DATABASE_URL: 'postgresql://localhost:5432/pricey',
     };
 
     it('should use default REDIS_URL when not provided', () => {
@@ -351,7 +351,7 @@ describe('ocr-service env configuration', () => {
     it('should parse complete valid configuration', () => {
       const completeEnv = {
         NODE_ENV: 'production',
-        DATABASE_URL: 'postgresql://user:pass@db.example.com:5432/pricy',
+        DATABASE_URL: 'postgresql://user:pass@db.example.com:5432/pricey',
         REDIS_URL: 'redis://cache.example.com:6379',
         LOG_LEVEL: 'warn',
         S3_ENDPOINT: 's3.amazonaws.com',
@@ -370,7 +370,7 @@ describe('ocr-service env configuration', () => {
       if (result.success) {
         expect(result.data).toMatchObject({
           NODE_ENV: 'production',
-          DATABASE_URL: 'postgresql://user:pass@db.example.com:5432/pricy',
+          DATABASE_URL: 'postgresql://user:pass@db.example.com:5432/pricey',
           REDIS_URL: 'redis://cache.example.com:6379',
           LOG_LEVEL: 'warn',
           S3_ENDPOINT: 's3.amazonaws.com',

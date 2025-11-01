@@ -1,4 +1,4 @@
-# CI Pipeline for Pricy
+# CI Pipeline for Pricey
 # Copyright (C) 2025 Matthias Wallner-Géhri
 # Licensed under AGPL-3.0
 
@@ -19,7 +19,6 @@ env:
   # Force color output for better logs
   FORCE_COLOR: 3
   # Centralized tool versions
-  PNPM_VERSION: '10.19.0'
   NODE_VERSION: '24'
 
 jobs:
@@ -37,8 +36,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -67,7 +64,7 @@ jobs:
 
       - name: Generate Prisma Client
         if: steps.cache-install.outputs.cache-hit != 'true'
-        run: pnpm --filter @pricy/database db:generate
+        run: pnpm --filter @pricey/database db:generate
 
   # Lint job - runs ESLint and Prettier checks
   lint:
@@ -82,8 +79,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -132,8 +127,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -164,7 +157,7 @@ jobs:
             turbo-${{ runner.os }}-typecheck-
 
       - name: Generate Prisma Client
-        run: pnpm --filter @pricy/database db:generate
+        run: pnpm --filter @pricey/database db:generate
 
       - name: Run TypeScript compiler
         run: pnpm typecheck
@@ -182,8 +175,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -214,7 +205,7 @@ jobs:
             turbo-${{ runner.os }}-build-
 
       - name: Generate Prisma Client
-        run: pnpm --filter @pricy/database db:generate
+        run: pnpm --filter @pricey/database db:generate
 
       - name: Build all packages
         run: pnpm build
@@ -241,8 +232,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -273,9 +262,11 @@ jobs:
             turbo-${{ runner.os }}-test-
 
       - name: Generate Prisma Client
-        run: pnpm --filter @pricy/database db:generate
+        run: pnpm --filter @pricey/database db:generate
 
       - name: Run tests with coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: pnpm test:coverage
 
       - name: Upload coverage reports
@@ -285,7 +276,7 @@ jobs:
           files: |
             apps/api-gateway/coverage/lcov.info
           flags: unittests
-          name: pricy-coverage
+          name: pricey-coverage
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -299,9 +290,9 @@ jobs:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_USER: pricy
-          POSTGRES_PASSWORD: pricy
-          POSTGRES_DB: pricy_test
+          POSTGRES_USER: pricey
+          POSTGRES_PASSWORD: pricey
+          POSTGRES_DB: pricey_test
         ports:
           - 5432:5432
         options: >-
@@ -316,8 +307,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -341,18 +330,18 @@ jobs:
 
       - name: Run database migrations
         env:
-          DATABASE_URL: postgresql://pricy:pricy@localhost:5432/pricy_test
-        run: pnpm --filter @pricy/database db:migrate
+          DATABASE_URL: postgresql://pricey:pricey@localhost:5432/pricey_test
+        run: pnpm --filter @pricey/database db:migrate
 
       - name: Check migration status
         env:
-          DATABASE_URL: postgresql://pricy:pricy@localhost:5432/pricy_test
-        run: pnpm --filter @pricy/database exec prisma migrate status
+          DATABASE_URL: postgresql://pricey:pricey@localhost:5432/pricey_test
+        run: pnpm --filter @pricey/database exec prisma migrate status
 
       - name: Validate schema
         env:
-          DATABASE_URL: postgresql://pricy:pricy@localhost:5432/pricy_test
-        run: pnpm --filter @pricy/database exec prisma validate
+          DATABASE_URL: postgresql://pricey:pricey@localhost:5432/pricey_test
+        run: pnpm --filter @pricey/database exec prisma validate
 
   # Summary job - ensures all checks pass
   ci-success:

@@ -1,4 +1,4 @@
-# Docker Compose for Pricy Production
+# Docker Compose for Pricey Production
 # Copyright (C) 2025 Matthias Wallner-Géhri
 # Licensed under AGPL-3.0
 
@@ -8,23 +8,23 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:18-alpine
-    container_name: pricy-postgres-prod
+    container_name: pricey-postgres-prod
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pricy}
+      POSTGRES_USER: ${POSTGRES_USER:-pricey}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_DB: ${POSTGRES_DB:-pricy}
+      POSTGRES_DB: ${POSTGRES_DB:-pricey}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-pricy}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-pricey}']
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - pricy-network
+      - pricey-network
     deploy:
       resources:
         limits:
@@ -34,18 +34,21 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: pricy-redis-prod
+    container_name: pricey-redis-prod
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     ports:
       - '${REDIS_PORT:-6379}:6379'
     healthcheck:
-      test: ['CMD', 'redis-cli', '--auth', '${REDIS_PASSWORD}', 'ping']
+      test:
+        ['CMD', 'sh', '-c', 'redis-cli -a $$REDIS_PASSWORD ping | grep PONG']
       interval: 10s
       timeout: 3s
       retries: 5
     networks:
-      - pricy-network
+      - pricey-network
     deploy:
       resources:
         limits:
@@ -55,7 +58,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: pricy-minio-prod
+    container_name: pricey-minio-prod
     restart: unless-stopped
     command: server /data --console-address ':9001'
     environment:
@@ -72,7 +75,7 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - pricy-network
+      - pricey-network
     deploy:
       resources:
         limits:
@@ -84,18 +87,33 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api-gateway
-    container_name: pricy-api-gateway-prod
+    container_name: pricey-api-gateway-prod
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 3001
       HOST: 0.0.0.0
-      DATABASE_URL: postgresql://${POSTGRES_USER:-pricy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pricy}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pricey}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pricey}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      LOG_LEVEL: info
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
+      STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-pricey-receipts}
+      # Storage credentials must be set explicitly in .env.production
+      # For MinIO: use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD values
+      # For cloud storage: use your cloud provider credentials
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:?STORAGE_ACCESS_KEY_ID is required}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:?STORAGE_SECRET_ACCESS_KEY is required}
+      STORAGE_PUBLIC_URL: ${STORAGE_PUBLIC_URL:-http://localhost:9000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
       RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW:-60000}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      LLM_PROVIDER: ${LLM_PROVIDER:-github}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
     ports:
       - '${API_PORT:-3001}:3001'
     depends_on:
@@ -103,13 +121,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3001/health']
+      test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:3001/health']
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
-      - pricy-network
+      - pricey-network
     deploy:
       resources:
         limits:
@@ -117,12 +137,122 @@ services:
         reservations:
           memory: 512M
 
+  ocr-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ocr-service
+    container_name: pricey-ocr-service-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pricey}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pricey}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
+      STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-pricey-receipts}
+      # Storage credentials must be set explicitly in .env.production
+      # For MinIO: use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD values
+      # For cloud storage: use your cloud provider credentials
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:?STORAGE_ACCESS_KEY_ID is required}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:?STORAGE_SECRET_ACCESS_KEY is required}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LLM_PROVIDER: ${LLM_PROVIDER:-github}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+    ports:
+      - '${OCR_PORT:-3002}:3002'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    # OCR service is a background worker, no HTTP health endpoint
+    # healthcheck:
+    #   test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:3002/health']
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    networks:
+      - pricey-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    container_name: pricey-web-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api-gateway:3001/api/v1}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      NEXT_PUBLIC_PLAUSIBLE_DOMAIN: ${NEXT_PUBLIC_PLAUSIBLE_DOMAIN:-}
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:3000/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pricey-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Ollama for self-hosted LLM (local vision models)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pricey-ollama-prod
+    restart: unless-stopped
+    ports:
+      - '${OLLAMA_PORT:-11434}:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - pricey-network
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
 volumes:
   postgres_data:
     driver: local
   minio_data:
     driver: local
+  ollama_data:
+    driver: local
 
 networks:
-  pricy-network:
+  pricey-network:
     driver: bridge
