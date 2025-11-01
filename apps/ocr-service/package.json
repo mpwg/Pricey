@@ -21,7 +21,7 @@
   "dependencies": {
     "@pricey/database": "workspace:*",
     "@pricey/types": "workspace:*",
-    "bullmq": "^5.62.2",
+    "bullmq": "^5.63.0",
     "ioredis": "^5.8.2",
     "minio": "^8.0.6",
     "pino": "^10.1.0",
@@ -31,10 +31,10 @@
   },
   "devDependencies": {
     "@types/node": "^24.9.2",
-    "@vitest/coverage-v8": "^4.0.5",
-    "@vitest/ui": "^4.0.5",
+    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/ui": "^4.0.6",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.5"
+    "vitest": "^4.0.6"
   }
 }

@@ -16,17 +16,25 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest';
 import { OllamaReceiptParser } from './llm-receipt-parser.js';
 
 describe('OllamaReceiptParser (Vision)', () => {
   let parser: OllamaReceiptParser;
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: Mock;
 
   beforeEach(() => {
     // Mock fetch globally
     fetchMock = vi.fn();
-    global.fetch = fetchMock;
+    global.fetch = fetchMock as unknown as typeof fetch;
     parser = new OllamaReceiptParser();
   });
 

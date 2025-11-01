@@ -82,9 +82,9 @@ export async function receiptsRoutes(app: FastifyInstance) {
 
   /**
    * Upload a receipt for OCR processing
-   * POST /api/v1/receipts/upload
+   * POST /api/v1/receipts
    */
-  app.post('/upload', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       // Get the uploaded file
       const data = await request.file();

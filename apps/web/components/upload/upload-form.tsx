@@ -25,7 +25,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api';
-import { isValidImageFile, isValidFileSize } from '@/lib/format';
+import {
+  isValidImageFile,
+  isValidFileSize,
+  SUPPORTED_IMAGE_TYPE_NAMES,
+} from '@/lib/format';
 import { ImagePreview } from './image-preview';
 
 export function UploadForm() {
@@ -44,8 +48,9 @@ export function UploadForm() {
 
     // Validate file type
     if (!isValidImageFile(selectedFile)) {
+      const supportedTypes = SUPPORTED_IMAGE_TYPE_NAMES.join(', ');
       toast.error(
-        'Invalid file type. Please upload a JPEG, PNG, or WebP image.'
+        `Invalid file type. Please upload a ${supportedTypes} image.`
       );
       return;
     }
@@ -143,12 +148,12 @@ export function UploadForm() {
                 Drag and drop your receipt image here, or click to browse
               </p>
               <p className="text-xs text-muted-foreground">
-                Supports JPEG, PNG, WebP (max 10MB)
+                Supports JPEG, PNG, WebP, HEIC (max 10MB)
               </p>
             </div>
             <input
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif"
               onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               className="hidden"
               id="receipt-upload"

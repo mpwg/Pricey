@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { GitHubModelsReceiptParser } from './github-models-receipt-parser.js';
 
 // Mock the env module before importing anything else
@@ -31,11 +31,11 @@ vi.mock('../config/env.js', () => ({
 
 describe('GitHubModelsReceiptParser', () => {
   let parser: GitHubModelsReceiptParser;
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: Mock;
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    global.fetch = fetchMock;
+    global.fetch = fetchMock as unknown as typeof fetch;
     parser = new GitHubModelsReceiptParser();
   });
 

@@ -94,7 +94,7 @@ class ApiClient {
     const formData = new FormData();
     formData.append('image', file);
 
-    const url = `${this.baseUrl}/api/v1/receipts/upload`;
+    const url = `${this.baseUrl}/api/v1/receipts`;
 
     try {
       const response = await fetch(url, {
